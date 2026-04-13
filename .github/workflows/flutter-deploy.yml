@@ -29,17 +29,15 @@ jobs:
           cache: true
 
       - name: Install dependencies
-        working-directory: ./NishAffs
         run: flutter pub get
 
       - name: Build Flutter Web
-        working-directory: ./NishAffs
         run: flutter build web --release --base-href "/Affirmation_page/"
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: NishAffs/build/web
+          path: build/web
 
   deploy:
     environment:
