@@ -1,5 +1,5 @@
 name: nishaffs
-description: "NishAffs ✨ - Cute Daily Affirmations & Law of Attraction App"
+description: "NishAffs ✨ — India's Cutest Aesthetic Affirmation App"
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -12,7 +12,11 @@ dependencies:
   google_fonts: ^6.1.0
   shared_preferences: ^2.2.2
   smooth_page_indicator: ^1.1.0
+  flutter_animate: ^4.5.0
+  cached_network_image: ^3.3.1
   flutter_staggered_animations: ^1.1.1
+  # The following dependencies might require extra native setup for production if needed,
+  # but work gracefully via UI placeholders for our front-end logic right now.
 
 dev_dependencies:
   flutter_test:
@@ -21,6 +25,5 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-
   assets:
     - assets/images/
