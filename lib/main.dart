@@ -43,6 +43,8 @@ class C {
   static const purpleLgt = Color(0xFFE9D5FF);
   static const purple    = Color(0xFFAC7BED);
   static const gold      = Color(0xFFE6B861);
+  static const goldLgt   = Color(0xFFFFF4D1); 
+  static const mint      = Color(0xFFD1FFE0); 
   static const textDark  = Color(0xFF382B33);
   static const textSub   = Color(0xFF8C7180);
   static const white     = Colors.white;
@@ -1791,8 +1793,8 @@ class _PostCardState extends State<_PostCard> {
             builder: (_, posts, __) {
               final p = posts.firstWhere((e) => e['id'] == id, orElse: () => post);
               final cmts = (p['comments'] as List<dynamic>? ?? []);
-              return ConstrainedBox(maxHeight: 250, constraints: const BoxConstraints(maxHeight: 250),
-                child: cmts.isEmpty
+              return ConstrainedBox(constraints: const BoxConstraints(maxHeight: 250),
+  child: cmts.isEmpty
                   ? Center(child: Text('Be the first to comment! 🌸', style: GoogleFonts.poppins(fontSize: 13, color: C.textSub)))
                   : ListView(shrinkWrap: true, children: cmts.map((c) => Padding(
                       padding: const EdgeInsets.only(bottom: 12),
