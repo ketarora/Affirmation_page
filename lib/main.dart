@@ -65,14 +65,24 @@ class C {
 // ════════════════════════════════════════════════════════════════════
 class A {
   static const imgs = [
-    'strawberry.png','panda_heart.png','bear_teddy.png','heart_gingham.png',
-    'love_letters.png','corner_pink.png','tulips.png','bow_pink.png',
-    'cookies.png','penguin.png','cherry.png','orange_slice.png',
-    'boba.png','daisy.png','heart_speech.png','star_kawaii.png',
-    'unicorn.png','rainbow.png','egg_toast.png',
+    'photo_6264600317282422296_y.jpg', 'photo_6264600317282422297_y.jpg',
+    'photo_6264600317282422298_y.jpg', 'photo_6264600317282422299_y.jpg',
+    'photo_6264600317282422300_y.jpg', 'photo_6264600317282422301_y.jpg',
+    'photo_6264600317282422302_y.jpg', 'photo_6264600317282422303_y.jpg',
+    'photo_6264600317282422309_y.jpg', 'photo_6264600317282422310_y.jpg',
+    'photo_6264600317282422311_y.jpg', 'photo_6264600317282422312_y.jpg',
+    'photo_6264600317282422313_y.jpg', 'photo_6264600317282422314_y.jpg',
+    'photo_6264600317282422315_y.jpg', 'photo_6264600317282422316_y.jpg',
+    'photo_6264600317282422317_y.jpg', 'photo_6264600317282422318_y.jpg',
+    'photo_6264600317282422319_y.jpg', 'photo_6264600317282422320_y.jpg',
+    'photo_6264600317282422321_y.jpg', 'photo_6264600317282422322_y.jpg',
+    'photo_6264600317282422323_y.jpg',
+    'abundance.png', 'book1.png', 'book2.png', 'flowers_bottom.png',
+    'flowers_top.png', 'frame.png', 'girl_cloud.png', 'girl_confidence.png',
+    'girl_mirror.png', 'quill.png', 'selflove.png', 'splash.png'
   ];
   static String get(int i) => 'assets/images/${imgs[i % imgs.length]}';
-  static const fallbacks = ['🍓','🐼','🧸','💗','💌','🌸','🌷','🎀','🍪','🐧','🍒','🍊','🧋','🌼','💬','⭐','🦄','🌈','🍳'];
+  static const fallbacks = ['✨','🌸','🧸','💗','💌','🦋','🌷','🎀','☕','☁️','🍒','🍊','🧋','🌼','💬','⭐','🦄','🌈','🍳'];
   static String fb(int i) => fallbacks[i % fallbacks.length];
 }
 
