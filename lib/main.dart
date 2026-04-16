@@ -1097,7 +1097,7 @@ class _HomeViewState extends State<HomeView> {
               Text(['🍓','🐼','🧸','🎀','🦄'][i], style: const TextStyle(fontSize: 28)))
             )).animate(delay: 350.ms).fadeIn(),
           const SizedBox(height: 120),
-        ])),
+        ]))),
       ])),
     ]);
   }
@@ -1567,7 +1567,7 @@ class _StudioViewState extends State<StudioView> {
             decoration: BoxDecoration(borderRadius: BorderRadius.circular(16),
               border: Border.all(color: _bgIdx == i ? C.pinkDark : Colors.transparent, width: 3),
               boxShadow: _bgIdx == i ? [BoxShadow(color: C.pinkTheme.withOpacity(0.4), blurRadius: 8)] : []),
-            child: ClipRRect(borderRadius: BorderRadius.circular(13), child: _img(i + 2, w: 70, h: 70))))),
+child: ClipRRect(borderRadius: BorderRadius.circular(13), child: _img(i + 2, w: 70, h: 70)))), 
       ),
       const SizedBox(height: 22),
 
@@ -2406,7 +2406,7 @@ class VisionBoardScreen extends StatelessWidget {
                   Positioned(bottom: 8, left: 8, child: Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(6)),
                     child: Text('#vision', style: GoogleFonts.poppins(fontSize: 9, color: Colors.white.withOpacity(0.9), fontWeight: FontWeight.w600)))),
-                ])).animate(delay: (i * 50).ms).fadeIn().scale(begin: const Offset(0.95, 0.95)))));
+                ])).animate(delay: (i * 50).ms).fadeIn().scale(begin: const Offset(0.95, 0.95)))); 
       }),
     );
   }
@@ -2455,7 +2455,7 @@ class CuratedDetailScreen extends StatelessWidget {
                   child: Center(child: Text('${i+1}', style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 15)))),
                 const SizedBox(width: 12),
                 Expanded(child: Text('"${affs[i]}"', style: GoogleFonts.lora(fontSize: 15, color: Colors.white, height: 1.55, fontStyle: FontStyle.italic))),
-              ]))).animate(delay: (i * 80).ms).fadeIn().slideY(begin: 0.08)))),
+             ]))).animate(delay: (i * 80).ms).fadeIn().slideY(begin: 0.08))), 
         ])),
       ]),
     );
