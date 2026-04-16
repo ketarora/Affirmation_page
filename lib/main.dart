@@ -1195,7 +1195,7 @@ class _HomeViewState extends State<HomeView> {
             children: ['🍓','🐼','🧸','🎀','🦄'].map((e) => Text(e, style: const TextStyle(fontSize: 26))).toList()))
           .animate(delay: 350.ms).fadeIn(),
         const SizedBox(height: 120),
-      ])),
+     ]))),
     ])),
   ]);
 
@@ -1770,7 +1770,7 @@ class _PostPreviewSheet extends StatelessWidget {
         width: full ? double.infinity : null,
         padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 8),
         decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(16), border: Border.all(color: fg.withOpacity(0.3), width: 1.2)),
-        child: Center(child: Text(label, style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w700, color: fg), textAlign: TextAlign.center)));
+       child: Center(child: Text(label, style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w700, color: fg), textAlign: TextAlign.center)))); 
 }
 
 // ════════════════════════════════════════════════════════════════════
