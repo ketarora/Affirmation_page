@@ -14,6 +14,7 @@ dependencies:
   smooth_page_indicator: ^1.1.0
   flutter_animate: ^4.5.0
   cached_network_image: ^3.3.1
+  flutter_native_splash: ^2.4.7
 
 dev_dependencies:
   flutter_test:
@@ -171,3 +172,9 @@ flutter:
 #   userLikes/{uid}/liked: [postId1, postId2...]
 #   userSaved/{uid}/saved: [postId1, postId2...]
 #   affirmations/{uid}/entries: [{text, vibe, timestamp}]
+
+flutter_native_splash:
+  color: "#FCF4F8"
+  # image: assets/images/splash.png # When Nishtha sends it
+  android_12:
+    color: "#FCF4F8"
