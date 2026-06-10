@@ -44,7 +44,7 @@ class MoodData {
   });
 }
 
-const moodRecommendations = [
+final moodRecommendations = [
   MoodData(
     moodName: "Low Vibe",
     emoji: "💫",
@@ -91,7 +91,7 @@ const moodRecommendations = [
 //  AFFIRMATION CATEGORIES
 // ════════════════════════════════════════════════════════════════════
 
-const kAffCategories = [
+final kAffCategories = [
   AffirmationCategory(
     name: "Inner Peace",
     nameHi: "आंतरिक शांति",
@@ -412,7 +412,7 @@ class AudioTrack {
   });
 }
 
-const kHealingFrequencies = [
+final kHealingFrequencies = [
   AudioTrack(
     name: "432Hz Deep Healing",
     nameHi: "432Hz गहरी उपचार",

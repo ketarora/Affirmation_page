@@ -7,7 +7,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:audio_session/audio_session.dart';
-import 'data/affirmations_data.dart';
+import '../data/affirmations_data.dart';
 
 class AudioPlayerService {
   static final AudioPlayerService _instance = AudioPlayerService._();

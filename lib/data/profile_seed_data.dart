@@ -97,4 +97,4 @@ const notificationHistory = [
   }
 ];
 
-export const profileData = { userProfile, achievements, notificationHistory };
+

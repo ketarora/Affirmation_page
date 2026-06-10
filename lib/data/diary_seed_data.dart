@@ -57,4 +57,4 @@ const diaryEntries = [
   }
 ];
 
-export default diaryEntries;
+

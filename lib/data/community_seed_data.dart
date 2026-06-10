@@ -117,4 +117,4 @@ const communityPosts = [
   }
 ];
 
-export default communityPosts;
+
