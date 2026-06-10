@@ -471,9 +471,14 @@ class AppState {
 AffEntry get todaysAffirmation {
   final d    = DateTime.now();
   final seed = d.year * 10000 + d.month * 100 + d.day;
-  // combine all affirmations from all categories
-  final allAffs = kAffCategories.expand((c) => c.entries).toList();
-  return allAffs[seed % allAffs.length];
+  // Build flat list of AffEntry across all categories
+  final allEntries = <AffEntry>[
+    for (final c in kAffCategories)
+      for (var i = 0; i < c.entries.length; i++)
+        AffEntry(c.entries[i], c.emoji,
+            i < c.entriesHi.length ? c.entriesHi[i] : null),
+  ];
+  return allEntries[seed % allEntries.length];
 }
  
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
@@ -1383,8 +1388,14 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
   @override void dispose() { _searchCtrl.dispose(); super.dispose(); }
  
   List<AffEntry> get _filtered {
-    if (_searchQ.isEmpty) return widget.category.entries;
-    return widget.category.entries.where((e) => e.text.toLowerCase().contains(_searchQ.toLowerCase())).toList();
+    final cat = widget.category;
+    List<AffEntry> all = [
+      for (var i = 0; i < cat.entries.length; i++)
+        AffEntry(cat.entries[i], cat.emoji,
+            i < cat.entriesHi.length ? cat.entriesHi[i] : null),
+    ];
+    if (_searchQ.isEmpty) return all;
+    return all.where((e) => e.text.toLowerCase().contains(_searchQ.toLowerCase())).toList();
   }
   @override
   Widget build(BuildContext context) {

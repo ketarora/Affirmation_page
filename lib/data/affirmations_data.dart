@@ -494,9 +494,14 @@ final kHealingFrequencies = [
 //  COMPATIBILITY TYPES & MAPS  (consumed by main.dart)
 // ════════════════════════════════════════════════════════════════════
 
-/// AffEntry — alias for String (affirmation text).
-/// main.dart uses AffEntry as the return type of todaysAffirmation.
-typedef AffEntry = String;
+/// AffEntry — a single affirmation item with text, emoji, and optional Hindi translation.
+/// Used by main.dart for category detail lists and todaysAffirmation.
+class AffEntry {
+  final String text;
+  final String emoji;
+  final String? textHi;
+  const AffEntry(this.text, this.emoji, [this.textHi]);
+}
 
 /// AffCategory — alias for AffirmationCategory.
 typedef AffCategory = AffirmationCategory;
