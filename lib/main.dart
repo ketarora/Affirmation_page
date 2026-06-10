@@ -1102,7 +1102,7 @@ class _HomeViewState extends State<HomeView> {
           .animate(delay: 350.ms).fadeIn(),
         const SizedBox(height: 120),
       ]))),
-    ]));
+    ])));
   }
   Widget _qPill(String label, Color bg, VoidCallback onTap) => Expanded(child: GestureDetector(onTap: onTap,
     child: Container(padding: const EdgeInsets.symmetric(vertical: 12),
