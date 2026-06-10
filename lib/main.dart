@@ -1,4 +1,4 @@
-﻿// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 //  NishAffs âœ¨ â€” PRODUCTION v6.0
 //  Complete feature set â€” zero placeholders
 //  All 1130+ affirmations Â· Journal Â· Mood Engine Â· Hindi/English
@@ -193,19 +193,26 @@ class JournalEntry {
 // ════════════════════════════════════════════════════════════════════
 class SoundPlayerService {
   static final instance = SoundPlayerService._();
-  SoundPlayerService._();
-
   final _svc = AudioPlayerService();
 
   // Bridge ValueNotifiers so all existing widgets continue working unchanged
   ValueNotifier<int>      get idx       => _svc.currentTrackIndex;
   ValueNotifier<bool>     get isPlaying => _svc.isPlaying;
   ValueNotifier<Duration> get elapsed   => _svc.currentPosition;
-  ValueNotifier<double>   get pos       => _svc.currentPosition.value.inSeconds == 0
-      ? ValueNotifier(0.0) : ValueNotifier(
-          _svc.currentPosition.value.inMilliseconds /
-          (_svc.totalDuration.value.inMilliseconds == 0
-              ? 1 : _svc.totalDuration.value.inMilliseconds));
+
+  // Stable derived notifier — allocated once, updated via AudioPlayerService streams
+  final ValueNotifier<double> pos = ValueNotifier(0.0);
+
+  SoundPlayerService._() {
+    AudioPlayerService().currentPosition.addListener(_updatePos);
+    AudioPlayerService().totalDuration.addListener(_updatePos);
+  }
+  void _updatePos() {
+    final svc = AudioPlayerService();
+    final total = svc.totalDuration.value.inMilliseconds;
+    pos.value = total == 0 ? 0.0
+        : (svc.currentPosition.value.inMilliseconds / total).clamp(0.0, 1.0);
+  }
 
   void play(int i) {
     if (_svc.currentTrackIndex.value == i && _svc.isPlaying.value) {

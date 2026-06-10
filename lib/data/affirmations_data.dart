@@ -8,6 +8,8 @@ class AffirmationCategory {
   final String name;
   final String nameHi;
   final String emoji;
+  final String description;
+  final String descriptionHi;
   final List<String> entries;
   final List<String> entriesHi;
 
@@ -19,6 +21,8 @@ class AffirmationCategory {
     required this.emoji,
     required this.entries,
     required this.entriesHi,
+    this.description = '',
+    this.descriptionHi = '',
   });
 }
 
@@ -486,3 +490,69 @@ final kHealingFrequencies = [
     descriptionHi: "डेल्टा तरंगें - गहरी नींद",
   ),
 ];
+// ════════════════════════════════════════════════════════════════════
+//  COMPATIBILITY TYPES & MAPS  (consumed by main.dart)
+// ════════════════════════════════════════════════════════════════════
+
+/// AffEntry — alias for String (affirmation text).
+/// main.dart uses AffEntry as the return type of todaysAffirmation.
+typedef AffEntry = String;
+
+/// AffCategory — alias for AffirmationCategory.
+typedef AffCategory = AffirmationCategory;
+
+/// Total affirmation count across all categories.
+int get kTotalAffirmations =>
+    kAffCategories.fold(0, (sum, c) => sum + c.count);
+
+/// Look up a category by snake_case id (e.g. 'inner_peace').
+AffirmationCategory? getCategory(String id) =>
+    kAffCategories.cast<AffirmationCategory?>().firstWhere(
+      (c) => c!.name.toLowerCase().replaceAll(' ', '_') == id,
+      orElse: () => kAffCategories.isNotEmpty ? kAffCategories.first : null,
+    );
+
+/// Mood index (0=Low Vibe … 4=Glowing) → category id.
+const kMoodCategoryMap = <int, String>{
+  0: 'inner_peace',
+  1: 'healing_era',
+  2: 'self_love',
+  3: 'level_up',
+  4: 'abundance',
+};
+
+/// Mood index → recommended soundscape name.
+const kMoodSoundMap = <int, String>{
+  0: 'Inner Peace Rain',
+  1: 'Chakra Balancing',
+  2: 'Self Love Morning',
+  3: 'Morning Abundance',
+  4: '432Hz Deep Healing',
+};
+
+/// Mood index → healing frequency label.
+const kMoodFreqMap = <int, String>{
+  0: '396Hz — Fear Clearing',
+  1: '417Hz — Change',
+  2: '528Hz — DNA Repair',
+  3: '639Hz — Connection',
+  4: '741Hz — Expression',
+};
+
+/// Mood index → journal prompt (English).
+const kMoodJournalPrompt = <int, String>{
+  0: 'What one gentle thing can I do for myself right now?',
+  1: 'What am I releasing with love today?',
+  2: 'What is something beautiful about me I sometimes forget?',
+  3: 'What dream am I calling in with full confidence?',
+  4: 'What miracle am I ready to receive today?',
+};
+
+/// Mood index → journal prompt (Hindi).
+const kMoodJournalPromptHi = <int, String>{
+  0: 'अभी मैं अपने लिए एक कोमल काम क्या कर सकती हूं?',
+  1: 'आज मैं प्यार के साथ क्या छोड़ रही हूं?',
+  2: 'मेरे बारे में एक खूबसूरत बात?',
+  3: 'एक सपना जिसे मैं पूरे विश्वास से बुला रही हूं?',
+  4: 'आज मैं कौन सा चमत्कार पाने को तैयार हूं?',
+};
