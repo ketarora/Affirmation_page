@@ -1,9 +1,12 @@
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-//  NishAffs âœ¨ â€” PRODUCTION v6.0
-//  Complete feature set â€” zero placeholders
-//  All 1130+ affirmations Â· Journal Â· Mood Engine Â· Hindi/English
-//  Vision Board Â· Audio Player UI Â· Affirmation of the Day
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
+//  NishAffs ✨ — Production entry point
+// ════════════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════════
+//  NishAffs ✨ — PRODUCTION v6.0
+//  Complete feature set — zero placeholders
+//  All 1130+ affirmations · Journal · Mood Engine · Hindi/English
+//  Vision Board · Audio Player UI · Affirmation of the Day
+// ════════════════════════════════════════════════════════════════════
  
 import 'dart:async';
 import 'dart:convert';
@@ -15,29 +18,43 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import 'package:just_audio/just_audio.dart';
+import 'package:image_picker/image_picker.dart';
  
 import 'data/affirmations_data.dart';
-import 'services/audio_player_service.dart';
-import 'services/vision_board_service.dart';
  
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 //  ENTRY POINT
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.dark,
   ));
+  
+  try {
+    await Firebase.initializeApp();
+    await FirebaseMessaging.instance.requestPermission();
+  } catch (e) {
+    print('Firebase not yet configured (run flutterfire configure): $e');
+  }
   await AppState.instance.init();
-  await AudioPlayerService().initialize();
-  await VisionBoardService().initialize();
   runApp(const NishAffsApp());
 }
  
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-//  LOCALIZATION â€” Hindi / English
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
+//  LOCALIZATION — Hindi / English
+// ════════════════════════════════════════════════════════════════════
 class L {
   static String _lang = 'en';
   static String get lang => _lang;
@@ -46,40 +63,40 @@ class L {
   static void setLang(String l) => _lang = l;
  
   static const _strings = <String, Map<String, String>>{
-    'app_name':        {'en': 'NishAffs âœ¨',        'hi': 'à¤¨à¤¿à¤¶à¤¾à¤«à¥à¤¸ âœ¨'},
-    'daily_radiance':  {'en': 'Daily Radiance âœ¨',   'hi': 'à¤¦à¥ˆà¤¨à¤¿à¤• à¤šà¤®à¤• âœ¨'},
-    'hey_beautiful':   {'en': 'Hey {name} ðŸŒ¸',      'hi': 'à¤¨à¤®à¤¸à¥à¤¤à¥‡ {name} ðŸŒ¸'},
-    'vibe_question':   {'en': 'How\'s your vibe today? âœ¨', 'hi': 'à¤†à¤œ à¤•à¤¾ à¤®à¥‚à¤¡ à¤•à¥ˆà¤¸à¤¾ à¤¹à¥ˆ? âœ¨'},
-    'low_vibe':        {'en': 'Low Vibe',            'hi': 'à¤¥à¤•à¤¾à¤¨'},
-    'meh':             {'en': 'Meh',                 'hi': 'à¤ à¥€à¤•-à¤ à¤¾à¤•'},
-    'good':            {'en': 'Good',                'hi': 'à¤…à¤šà¥à¤›à¤¾'},
-    'happy':           {'en': 'Happy',               'hi': 'à¤–à¥à¤¶'},
-    'glowing':         {'en': 'Glowing',             'hi': 'à¤šà¤®à¤•à¤¦à¤¾à¤°'},
-    'aff_of_day':      {'en': 'Affirmation of the Day', 'hi': 'à¤†à¤œ à¤•à¥€ à¤…à¤«à¤°à¥à¤®à¥‡à¤¶à¤¨'},
-    'curated':         {'en': 'Curated for you',     'hi': 'à¤†à¤ªà¤•à¥‡ à¤²à¤¿à¤ à¤šà¥à¤¨à¥€ à¤—à¤ˆ'},
-    'see_all':         {'en': 'See All â†’',           'hi': 'à¤¸à¤­à¥€ à¤¦à¥‡à¤–à¥‡à¤‚ â†’'},
-    'read':            {'en': 'ðŸ“– Read',             'hi': 'ðŸ“– à¤ªà¤¢à¤¼à¥‡à¤‚'},
-    'sounds':          {'en': 'ðŸŽµ Sounds',           'hi': 'ðŸŽµ à¤¸à¤‚à¤—à¥€à¤¤'},
-    'create':          {'en': 'âœï¸ Create',           'hi': 'âœï¸ à¤¬à¤¨à¤¾à¤à¤‚'},
-    'home':            {'en': 'Home',                'hi': 'à¤¹à¥‹à¤®'},
-    'library':         {'en': 'Library',             'hi': 'à¤ªà¥à¤¸à¥à¤¤à¤•à¤¾à¤²à¤¯'},
-    'studio':          {'en': 'Studio',              'hi': 'à¤¸à¥à¤Ÿà¥‚à¤¡à¤¿à¤¯à¥‹'},
-    'vibes':           {'en': 'Vibes',               'hi': 'à¤µà¤¾à¤‡à¤¬à¥à¤¸'},
-    'me':              {'en': 'Me',                  'hi': 'à¤®à¥ˆà¤‚'},
-    'journal':         {'en': 'ðŸ““ Journal',          'hi': 'ðŸ““ à¤œà¤°à¥à¤¨à¤²'},
-    'vision_board':    {'en': 'ðŸŒŸ Vision Board',     'hi': 'ðŸŒŸ à¤µà¤¿à¤œà¤¨ à¤¬à¥‹à¤°à¥à¤¡'},
-    'challenge':       {'en': 'âš¡ 55Ã—5 Challenge',   'hi': 'âš¡ 55Ã—5 à¤šà¥ˆà¤²à¥‡à¤‚à¤œ'},
-    'sign_out':        {'en': 'Sign Out',            'hi': 'à¤¸à¤¾à¤‡à¤¨ à¤†à¤‰à¤Ÿ'},
-    'manifesting_q':   {'en': 'What are you manifesting today?', 'hi': 'à¤†à¤œ à¤†à¤ª à¤•à¥à¤¯à¤¾ à¤®à¥ˆà¤¨à¤¿à¤«à¥‡à¤¸à¥à¤Ÿ à¤•à¤° à¤°à¤¹à¥‡ à¤¹à¥ˆà¤‚?'},
-    'grateful_q':      {'en': 'What are you grateful for?', 'hi': 'à¤†à¤ª à¤•à¤¿à¤¸à¤•à¥‡ à¤²à¤¿à¤ à¤†à¤­à¤¾à¤°à¥€ à¤¹à¥ˆà¤‚?'},
-    'save_entry':      {'en': 'Save Entry âœ¨',       'hi': 'à¤à¤‚à¤Ÿà¥à¤°à¥€ à¤¸à¥‡à¤µ à¤•à¤°à¥‡à¤‚ âœ¨'},
-    'affirmations':    {'en': 'Affirmations',        'hi': 'à¤…à¤«à¤°à¥à¤®à¥‡à¤¶à¤¨'},
-    'suggested_for_you':{'en': 'Suggested for your vibe', 'hi': 'à¤†à¤ªà¤•à¥‡ à¤®à¥‚à¤¡ à¤•à¥‡ à¤²à¤¿à¤ à¤¸à¥à¤à¤¾à¤µ'},
-    'healing_freq':    {'en': 'Healing Frequency',  'hi': 'à¤¹à¥€à¤²à¤¿à¤‚à¤— à¤«à¥à¤°à¥€à¤•à¥à¤µà¥‡à¤‚à¤¸à¥€'},
-    'journal_prompt':  {'en': 'Journal Prompt',     'hi': 'à¤œà¤°à¥à¤¨à¤² à¤ªà¥à¤°à¥‰à¤®à¥à¤ªà¥à¤Ÿ'},
-    'wisdom_library':  {'en': 'Wisdom Library ðŸ“š',  'hi': 'à¤œà¥à¤žà¤¾à¤¨ à¤ªà¥à¤¸à¥à¤¤à¤•à¤¾à¤²à¤¯ ðŸ“š'},
-    'studio_title':    {'en': 'Studio ðŸŽ¨',          'hi': 'à¤¸à¥à¤Ÿà¥‚à¤¡à¤¿à¤¯à¥‹ ðŸŽ¨'},
-    'made_in_india':   {'en': 'Made with ðŸ’– in India', 'hi': 'à¤­à¤¾à¤°à¤¤ à¤®à¥‡à¤‚ ðŸ’– à¤•à¥‡ à¤¸à¤¾à¤¥ à¤¬à¤¨à¤¾à¤¯à¤¾ à¤—à¤¯à¤¾'},
+    'app_name':        {'en': 'NishAffs ✨',        'hi': 'निशाफ्स ✨'},
+    'daily_radiance':  {'en': 'Daily Radiance ✨',   'hi': 'दैनिक चमक ✨'},
+    'hey_beautiful':   {'en': 'Hey {name} 🌸',      'hi': 'नमस्ते {name} 🌸'},
+    'vibe_question':   {'en': 'How\'s your vibe today? ✨', 'hi': 'आज का मूड कैसा है? ✨'},
+    'low_vibe':        {'en': 'Low Vibe',            'hi': 'थकान'},
+    'meh':             {'en': 'Meh',                 'hi': 'ठीक-ठाक'},
+    'good':            {'en': 'Good',                'hi': 'अच्छा'},
+    'happy':           {'en': 'Happy',               'hi': 'खुश'},
+    'glowing':         {'en': 'Glowing',             'hi': 'चमकदार'},
+    'aff_of_day':      {'en': 'Affirmation of the Day', 'hi': 'आज की अफर्मेशन'},
+    'curated':         {'en': 'Curated for you',     'hi': 'आपके लिए चुनी गई'},
+    'see_all':         {'en': 'See All →',           'hi': 'सभी देखें →'},
+    'read':            {'en': '📖 Read',             'hi': '📖 पढ़ें'},
+    'sounds':          {'en': '🎵 Sounds',           'hi': '🎵 संगीत'},
+    'create':          {'en': '✍️ Create',           'hi': '✍️ बनाएं'},
+    'home':            {'en': 'Home',                'hi': 'होम'},
+    'library':         {'en': 'Library',             'hi': 'पुस्तकालय'},
+    'studio':          {'en': 'Studio',              'hi': 'स्टूडियो'},
+    'vibes':           {'en': 'Vibes',               'hi': 'वाइब्स'},
+    'me':              {'en': 'Me',                  'hi': 'मैं'},
+    'journal':         {'en': '📓 Journal',          'hi': '📓 जर्नल'},
+    'vision_board':    {'en': '🌟 Vision Board',     'hi': '🌟 विजन बोर्ड'},
+    'challenge':       {'en': '⚡ 55×5 Challenge',   'hi': '⚡ 55×5 चैलेंज'},
+    'sign_out':        {'en': 'Sign Out',            'hi': 'साइन आउट'},
+    'manifesting_q':   {'en': 'What are you manifesting today?', 'hi': 'आज आप क्या मैनिफेस्ट कर रहे हैं?'},
+    'grateful_q':      {'en': 'What are you grateful for?', 'hi': 'आप किसके लिए आभारी हैं?'},
+    'save_entry':      {'en': 'Save Entry ✨',       'hi': 'एंट्री सेव करें ✨'},
+    'affirmations':    {'en': 'Affirmations',        'hi': 'अफर्मेशन'},
+    'suggested_for_you':{'en': 'Suggested for your vibe', 'hi': 'आपके मूड के लिए सुझाव'},
+    'healing_freq':    {'en': 'Healing Frequency',  'hi': 'हीलिंग फ्रीक्वेंसी'},
+    'journal_prompt':  {'en': 'Journal Prompt',     'hi': 'जर्नल प्रॉम्प्ट'},
+    'wisdom_library':  {'en': 'Wisdom Library 📚',  'hi': 'ज्ञान पुस्तकालय 📚'},
+    'studio_title':    {'en': 'Studio 🎨',          'hi': 'स्टूडियो 🎨'},
+    'made_in_india':   {'en': 'Made with 💖 in India', 'hi': 'भारत में 💖 के साथ बनाया गया'},
   };
  
   static String t(String key, {Map<String, String>? args}) {
@@ -91,9 +108,9 @@ class L {
   }
 }
  
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 //  THEME SYSTEM
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 class AppTheme {
   final String name, emoji;
   final Color primary, secondary, bg, card;
@@ -101,16 +118,16 @@ class AppTheme {
 }
  
 const _appThemes = [
-  AppTheme('Pink Blossom',   'ðŸŒ¸', Color(0xFFFF82A9), Color(0xFFAC7BED), Color(0xFFFCF4F8), Color(0xFFFFF0F5)),
-  AppTheme('Lavender Dream', 'ðŸ’œ', Color(0xFFB39DDB), Color(0xFF7C4DFF), Color(0xFFF8F0FF), Color(0xFFEDE7F6)),
-  AppTheme('Mint Fresh',     'ðŸŒ¿', Color(0xFF66BB6A), Color(0xFF26A69A), Color(0xFFF0FFF4), Color(0xFFE8F5E9)),
-  AppTheme('Golden Hour',    'âœ¨', Color(0xFFFFB74D), Color(0xFFFF8A65), Color(0xFFFFF8E1), Color(0xFFFFF3E0)),
-  AppTheme('Rose Night',     'ðŸŒ¹', Color(0xFFE91E63), Color(0xFF880E4F), Color(0xFFFFF0F5), Color(0xFFFCE4EC)),
+  AppTheme('Pink Blossom',   '🌸', Color(0xFFFF82A9), Color(0xFFAC7BED), Color(0xFFFCF4F8), Color(0xFFFFF0F5)),
+  AppTheme('Lavender Dream', '💜', Color(0xFFB39DDB), Color(0xFF7C4DFF), Color(0xFFF8F0FF), Color(0xFFEDE7F6)),
+  AppTheme('Mint Fresh',     '🌿', Color(0xFF66BB6A), Color(0xFF26A69A), Color(0xFFF0FFF4), Color(0xFFE8F5E9)),
+  AppTheme('Golden Hour',    '✨', Color(0xFFFFB74D), Color(0xFFFF8A65), Color(0xFFFFF8E1), Color(0xFFFFF3E0)),
+  AppTheme('Rose Night',     '🌹', Color(0xFFE91E63), Color(0xFF880E4F), Color(0xFFFFF0F5), Color(0xFFFCE4EC)),
 ];
  
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 //  DESIGN TOKENS
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 class C {
   static const bg        = Color(0xFFFCF4F8);
   static const pink1     = Color(0xFFFFF0F5);
@@ -133,9 +150,9 @@ class C {
   );
 }
  
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 //  ASSETS
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 class A {
   static const imgs = [
     'photo_6264600317282422296_y.jpg','photo_6264600317282422297_y.jpg',
@@ -151,7 +168,7 @@ class A {
     'photo_6264600317282422321_y.jpg','photo_6264600317282422322_y.jpg',
     'photo_6264600317282422323_y.jpg',
   ];
-  static const fallback = ['âœ¨','ðŸŒ¸','ðŸ§¸','ðŸ’—','ðŸ’Œ','ðŸ¦‹','ðŸŒ·','ðŸŽ€','â˜•','â˜ï¸','ðŸ’','ðŸŠ','ðŸ§‹','ðŸŒ¼','ðŸ’¬','â­','ðŸ¦„','ðŸŒˆ','ðŸ³','ðŸŒ™','ðŸ’Ž','ðŸŒº','ðŸª·'];
+  static const fallback = ['✨','🌸','🧸','💗','💌','🦋','🌷','🎀','☕','☁️','🍒','🍊','🧋','🌼','💬','⭐','🦄','🌈','🍳','🌙','💎','🌺','🪷'];
   static String get(int i) => 'assets/images/${imgs[i % imgs.length]}';
   static String fb(int i)  => fallback[i % fallback.length];
 }
@@ -165,9 +182,9 @@ Widget _img(int i, {double? w, double? h, BoxFit fit = BoxFit.cover}) =>
           begin: Alignment.topLeft, end: Alignment.bottomRight)),
         child: Center(child: Text(A.fb(i), style: TextStyle(fontSize: (w ?? 40) * 0.5)))));
  
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 //  JOURNAL MODEL
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 class JournalEntry {
   final String id, manifesting, grateful, mood;
   final DateTime date;
@@ -185,55 +202,113 @@ class JournalEntry {
   );
 }
  
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-//  SOUND PLAYER SERVICE
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // ════════════════════════════════════════════════════════════════════
-//  SOUND PLAYER SERVICE — delegates to AudioPlayerService (just_audio)
+//  SOUND PLAYER SERVICE
 // ════════════════════════════════════════════════════════════════════
 class SoundPlayerService {
   static final instance = SoundPlayerService._();
-  final _svc = AudioPlayerService();
-
-  // Bridge ValueNotifiers so all existing widgets continue working unchanged
-  ValueNotifier<int>      get idx       => _svc.currentTrackIndex;
-  ValueNotifier<bool>     get isPlaying => _svc.isPlaying;
-  ValueNotifier<Duration> get elapsed   => _svc.currentPosition;
-
-  // Stable derived notifier — allocated once, updated via AudioPlayerService streams
-  final ValueNotifier<double> pos = ValueNotifier(0.0);
-
-  SoundPlayerService._() {
-    AudioPlayerService().currentPosition.addListener(_updatePos);
-    AudioPlayerService().totalDuration.addListener(_updatePos);
+  SoundPlayerService._();
+ 
+  final ValueNotifier<int>      idx       = ValueNotifier(-1);
+  final ValueNotifier<double>   pos       = ValueNotifier(0.0);
+  final ValueNotifier<Duration> elapsed   = ValueNotifier(Duration.zero);
+  final ValueNotifier<bool>     isPlaying = ValueNotifier(false);
+  
+  final AudioPlayer _player = AudioPlayer();
+ 
+  static const _filenames = [
+    '432hz.mp3', 'morning.mp3', 'rain.mp3', 'delta.mp3',
+    'beta.mp3', 'manifest.mp3', 'chakra.mp3', 'selflove.mp3',
+  ];
+  
+  static const _durations = [
+    Duration(minutes: 45), Duration(minutes: 30), Duration(hours: 1),
+    Duration(hours: 8),    Duration(minutes: 45), Duration(hours: 6),
+    Duration(minutes: 25), Duration(minutes: 15),
+  ];
+ 
+  Future<void> play(int i) async {
+    if (idx.value == i && isPlaying.value) { pause(); return; }
+    
+    idx.value = i;
+    isPlaying.value = true;
+    
+    try {
+      // 1. Try Firebase Storage
+      final url = await FirebaseStorage.instance
+          .ref('audio/${_filenames[i % _filenames.length]}')
+          .getDownloadURL();
+      await _player.setUrl(url);
+    } catch (e) {
+      print('Firebase Audio Failed (falling back to mock timer): $e');
+      // If Firebase isn't set up yet, fallback to local asset or mock
+      _mockPlay(i);
+      return;
+    }
+    
+    _player.play();
+    _player.positionStream.listen((p) {
+      elapsed.value = p;
+      pos.value = p.inMilliseconds / (_player.duration?.inMilliseconds ?? 1);
+    });
+    _player.playerStateStream.listen((state) {
+      isPlaying.value = state.playing;
+    });
   }
-  void _updatePos() {
-    final svc = AudioPlayerService();
-    final total = svc.totalDuration.value.inMilliseconds;
-    pos.value = total == 0 ? 0.0
-        : (svc.currentPosition.value.inMilliseconds / total).clamp(0.0, 1.0);
+  
+  void pause() {
+    _player.pause();
+    isPlaying.value = false;
+    _t?.cancel();
   }
-
-  void play(int i) {
-    if (_svc.currentTrackIndex.value == i && _svc.isPlaying.value) {
-      _svc.pause();
-    } else {
-      _svc.playTrack(i);
+  
+  void resume() {
+    if (idx.value >= 0) { 
+      _player.play(); 
+      isPlaying.value = true;
+      if (_t != null && !_t!.isActive) _mockPlay(idx.value);
     }
   }
-  void pause()          => _svc.pause();
-  void resume()         => _svc.resume();
-  void stop()           => _svc.stop();
-  void seek(double v)   => _svc.seekPercent(v);
-  String fmt(Duration d) => _svc.formatDuration(d);
-  Duration totalFor(int i) => i >= 0 && i < kHealingFrequencies.length
-      ? kHealingFrequencies[i].duration
-      : const Duration(minutes: 30);
+  
+  void stop() {
+    _player.stop();
+    idx.value = -1;
+    pos.value = 0;
+    elapsed.value = Duration.zero;
+    isPlaying.value = false;
+    _t?.cancel();
+  }
+  
+  void seek(double v) {
+    if (idx.value < 0) return;
+    final total = _player.duration ?? _durations[idx.value % _durations.length];
+    final target = Duration(milliseconds: (v * total.inMilliseconds).round());
+    _player.seek(target);
+    elapsed.value = target;
+    pos.value = v;
+  }
+  
+  String fmt(Duration d) =>
+      '${d.inHours > 0 ? "${d.inHours}:" : ""}${(d.inMinutes % 60).toString().padLeft(2, "0")}:${(d.inSeconds % 60).toString().padLeft(2, "0")}';
+  Duration totalFor(int i) => _player.duration ?? _durations[i % _durations.length];
+
+  // ── Mock Fallback (for before Firebase is configured) ──
+  Timer? _t;
+  void _mockPlay(int i) {
+    _t?.cancel();
+    _t = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (!isPlaying.value) return;
+      final total = _durations[i % _durations.length];
+      final ne = elapsed.value + const Duration(seconds: 1);
+      if (ne >= total) { stop(); return; }
+      elapsed.value = ne; pos.value = ne.inSeconds / total.inSeconds;
+    });
+  }
 }
  
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-//  APP STATE â€” full persistence
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
+//  APP STATE — full persistence
+// ════════════════════════════════════════════════════════════════════
 class AppState {
   static final AppState instance = AppState._();
   AppState._();
@@ -289,6 +364,13 @@ class AppState {
     } else {
       posts.value = _seedPosts(); await _savePosts();
     }
+    
+    try {
+      FirebaseFirestore.instance.collection('posts').orderBy('timestamp', descending: true).limit(50).snapshots().listen((snap) {
+        posts.value = snap.docs.map((d) => {'id': d.id, ...d.data() as Map<String, dynamic>}).toList();
+        _savePosts();
+      });
+    } catch (_) {}
  
     final ch = p.getString('na_challenge');
     if (ch != null) challenge.value = jsonDecode(ch) as Map<String, dynamic>;
@@ -296,20 +378,75 @@ class AppState {
   }
  
   Future<void> login(String name, String email) async {
-    final u = {
-      'name': name.isEmpty ? email.split('@')[0] : name,
-      'email': email,
-      'avatar': (name.isNotEmpty ? name[0] : email[0]).toUpperCase(),
-      'joined': DateTime.now().toIso8601String(),
-    };
-    user.value = u;
-    final p = await SharedPreferences.getInstance();
-    await p.setString('na_user', jsonEncode(u));
+    try {
+      final auth = FirebaseAuth.instance;
+      UserCredential cred;
+      try {
+        cred = await auth.signInWithEmailAndPassword(email: email, password: 'defaultPassword123!');
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'user-not-found' || e.code == 'invalid-credential') {
+          cred = await auth.createUserWithEmailAndPassword(email: email, password: 'defaultPassword123!');
+        } else {
+          rethrow;
+        }
+      }
+      final u = {
+        'uid': cred.user!.uid,
+        'name': name.isEmpty ? email.split('@')[0] : name,
+        'email': email,
+        'avatar': (name.isNotEmpty ? name[0] : email[0]).toUpperCase(),
+        'joined': DateTime.now().toIso8601String(),
+        'streak': streak.value,
+        'themeIdx': themeIdx.value,
+      };
+      await FirebaseFirestore.instance.collection('users').doc(cred.user!.uid).set(u, SetOptions(merge: true));
+      user.value = u;
+    } catch (e) {
+      print('Firebase Auth failed, falling back to local: $e');
+      final u = {
+        'uid': 'local_${DateTime.now().millisecondsSinceEpoch}',
+        'name': name.isEmpty ? email.split('@')[0] : name,
+        'email': email,
+        'avatar': (name.isNotEmpty ? name[0] : email[0]).toUpperCase(),
+        'joined': DateTime.now().toIso8601String(),
+      };
+      user.value = u;
+      final p = await SharedPreferences.getInstance();
+      await p.setString('na_user', jsonEncode(u));
+    }
     await _markDayActive();
   }
- 
+
+  Future<void> loginWithGoogle() async {
+    try {
+      final GoogleSignInAccount? gUser = await GoogleSignIn().signIn();
+      if (gUser == null) return;
+      final GoogleSignInAuthentication gAuth = await gUser.authentication;
+      final credential = GoogleAuthProvider.credential(accessToken: gAuth.accessToken, idToken: gAuth.idToken);
+      final cred = await FirebaseAuth.instance.signInWithCredential(credential);
+      
+      final u = {
+        'uid': cred.user!.uid,
+        'name': gUser.displayName ?? gUser.email.split('@')[0],
+        'email': gUser.email,
+        'avatar': gUser.photoUrl ?? gUser.email[0].toUpperCase(),
+        'joined': DateTime.now().toIso8601String(),
+        'streak': streak.value,
+      };
+      await FirebaseFirestore.instance.collection('users').doc(cred.user!.uid).set(u, SetOptions(merge: true));
+      user.value = u;
+      await _markDayActive();
+    } catch (e) {
+      print('Google Auth failed: $e');
+    }
+  }
+
   Future<void> logout() async {
     user.value = null;
+    try {
+      await FirebaseAuth.instance.signOut();
+      await GoogleSignIn().signOut();
+    } catch (e) {}
     final p = await SharedPreferences.getInstance();
     await p.remove('na_user');
   }
@@ -336,14 +473,26 @@ class AppState {
  
   Future<void> toggleLike(String id) async {
     final s = Set<String>.from(liked.value);
-    s.contains(id) ? s.remove(id) : s.add(id);
+    final isLiked = s.contains(id);
+    isLiked ? s.remove(id) : s.add(id);
     liked.value = s;
     final p = await SharedPreferences.getInstance();
     await p.setStringList('na_liked', s.toList());
+    
+    try {
+      final uid = user.value?['uid'];
+      if (uid != null) {
+        await FirebaseFirestore.instance.collection('posts').doc(id).update({
+          'likes': FieldValue.increment(isLiked ? -1 : 1),
+          'likedBy': isLiked ? FieldValue.arrayRemove([uid]) : FieldValue.arrayUnion([uid])
+        });
+      }
+    } catch (_) {}
+
     final ps  = List<Map<String, dynamic>>.from(posts.value);
     final idx = ps.indexWhere((e) => e['id'] == id);
     if (idx >= 0) {
-      ps[idx] = {...ps[idx], 'likes': (ps[idx]['likes'] as int) + (s.contains(id) ? 1 : -1)};
+      ps[idx] = {...ps[idx], 'likes': (ps[idx]['likes'] as int) + (isLiked ? -1 : 1)};
       posts.value = ps; await _savePosts();
     }
   }
@@ -354,17 +503,44 @@ class AppState {
     saved.value = s;
     final p = await SharedPreferences.getInstance();
     await p.setStringList('na_saved', s.toList());
+    
+    try {
+      final uid = user.value?['uid'];
+      if (uid != null) {
+        await FirebaseFirestore.instance.collection('users').doc(uid).update({
+          'saved': s.toList()
+        });
+      }
+    } catch (_) {}
   }
  
   Future<void> addPost(Map<String, dynamic> post) async {
+    try {
+      final doc = await FirebaseFirestore.instance.collection('posts').add({
+        ...post,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+      post['id'] = doc.id;
+    } catch (_) {}
     posts.value = [post, ...posts.value]; await _savePosts();
   }
  
   Future<void> addComment(String postId, String comment) async {
+    try {
+      final uid = user.value?['uid'];
+      await FirebaseFirestore.instance.collection('posts').doc(postId).update({
+        'comments': FieldValue.arrayUnion([{
+          'uid': uid,
+          'text': comment,
+          'timestamp': DateTime.now().toIso8601String()
+        }])
+      });
+    } catch (_) {}
+
     final ps  = List<Map<String, dynamic>>.from(posts.value);
     final idx = ps.indexWhere((e) => e['id'] == postId);
     if (idx >= 0) {
-      final cmts = List<String>.from(ps[idx]['comments'] as List? ?? []);
+      final cmts = List<dynamic>.from(ps[idx]['comments'] as List? ?? []);
       cmts.add(comment);
       ps[idx] = {...ps[idx], 'comments': cmts};
       posts.value = ps; await _savePosts();
@@ -448,42 +624,37 @@ class AppState {
  
   List<Map<String, dynamic>> _seedPosts() => [
     {'id': 'p1','user': 'Ananya','avatar': 'A','time': '2h ago','imgIdx': 3,
-     'text': 'I am the creator of my reality. Everything is working out perfectly. ðŸŒ¸',
-     'likes': 342,'comments': ['So beautiful! ðŸ’–','This hit different today âœ¨'],'vibe': 'Self Love'},
+     'text': 'I am the creator of my reality. Everything is working out perfectly. 🌸',
+     'likes': 342,'comments': ['So beautiful! 💖','This hit different today ✨'],'vibe': 'Self Love'},
     {'id': 'p2','user': 'Priya Glow','avatar': 'P','time': '4h ago','imgIdx': 6,
-     'text': 'My body is a vessel of divine love and healing. 30 days of LOA and I am transformed! ðŸŒ¿',
+     'text': 'My body is a vessel of divine love and healing. 30 days of LOA and I am transformed! 🌿',
      'likes': 128,'comments': ['What a journey!'],'vibe': 'Health'},
-    {'id': 'p3','user': 'Meeraâœ¨','avatar': 'M','time': '6h ago','imgIdx': 14,
-     'text': 'I attract opportunities effortlessly. Said this 55 times today and the universe DELIVERED ðŸŽ‰',
-     'likes': 891,'comments': ['YAAS QUEEN ðŸ‘‘','So happy for you!!','This is inspiring ðŸ’—'],'vibe': 'Abundance'},
+    {'id': 'p3','user': 'Meera✨','avatar': 'M','time': '6h ago','imgIdx': 14,
+     'text': 'I attract opportunities effortlessly. Said this 55 times today and the universe DELIVERED 🎉',
+     'likes': 891,'comments': ['YAAS QUEEN 👑','So happy for you!!','This is inspiring 💗'],'vibe': 'Abundance'},
     {'id': 'p4','user': 'Siya','avatar': 'S','time': '1d ago','imgIdx': 7,
-     'text': 'I release what no longer serves me with love and gratitude. Journaling changed my life ðŸ““',
+     'text': 'I release what no longer serves me with love and gratitude. Journaling changed my life 📓',
      'likes': 204,'comments': [],'vibe': 'Healing'},
-    {'id': 'p5','user': 'RadhaðŸŒ™','avatar': 'R','time': '1d ago','imgIdx': 17,
-     'text': 'Good things are ALWAYS happening to me. Said for 30 days. The energy shift is REAL ðŸ’–',
-     'likes': 567,'comments': ['Starting today!','You are glowing ðŸŒ¸'],'vibe': 'Manifestation'},
+    {'id': 'p5','user': 'Radha🌙','avatar': 'R','time': '1d ago','imgIdx': 17,
+     'text': 'Good things are ALWAYS happening to me. Said for 30 days. The energy shift is REAL 💖',
+     'likes': 567,'comments': ['Starting today!','You are glowing 🌸'],'vibe': 'Manifestation'},
   ];
 }
  
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 //  AFFIRMATION OF THE DAY  (date-locked, rotates daily)
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 AffEntry get todaysAffirmation {
   final d    = DateTime.now();
   final seed = d.year * 10000 + d.month * 100 + d.day;
-  // Build flat list of AffEntry across all categories
-  final allEntries = <AffEntry>[
-    for (final c in kAffCategories)
-      for (var i = 0; i < c.entries.length; i++)
-        AffEntry(c.entries[i], c.emoji,
-            i < c.entriesHi.length ? c.entriesHi[i] : null),
-  ];
-  return allEntries[seed % allEntries.length];
+  // combine all affirmations from all categories
+  final allAffs = kAffCategories.expand((c) => c.entries).toList();
+  return allAffs[seed % allAffs.length];
 }
  
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 //  BOOKS DATA
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 class BookPage {
   final String chapter, title, body;
   const BookPage(this.chapter, this.title, this.body);
@@ -497,39 +668,39 @@ class Book {
 }
  
 const _books = [
-  Book(name: 'Manifesting Magic', author: 'Luna Starr', emoji: 'âœ¨', tag: 'LOA',
+  Book(name: 'Manifesting Magic', author: 'Luna Starr', emoji: '✨', tag: 'LOA',
     grad: [Color(0xFFE9D5FF), Color(0xFFFFD1DF)],
     pages: [
       BookPage('Chapter 1', 'You Are The Universe',
-        'You are not a drop in the ocean. You are the entire ocean in a drop.\n\nManifestation begins with a single, radical act: believing you already have what you desire.\n\nThe Law of Attraction is not wishful thinking. It is the universe responding to the energetic frequency you broadcast 24 hours a day â€” whether you are aware of it or not.\n\nWhen you worry, you attract more to worry about. When you love, you attract more love. This is physics, not poetry.'),
+        'You are not a drop in the ocean. You are the entire ocean in a drop.\n\nManifestation begins with a single, radical act: believing you already have what you desire.\n\nThe Law of Attraction is not wishful thinking. It is the universe responding to the energetic frequency you broadcast 24 hours a day — whether you are aware of it or not.\n\nWhen you worry, you attract more to worry about. When you love, you attract more love. This is physics, not poetry.'),
       BookPage('Chapter 1', 'The Visualization Secret',
-        'Your subconscious mind does not know the difference between imagination and reality.\n\nWhen you vividly picture your dream life â€” your apartment, your relationship, your bank account â€” your brain begins wiring new neural pathways as if it were already true.\n\nVisualize every morning for 5 minutes. Be specific. Feel the emotions. Use all five senses. The universe will match your inner state.'),
+        'Your subconscious mind does not know the difference between imagination and reality.\n\nWhen you vividly picture your dream life — your apartment, your relationship, your bank account — your brain begins wiring new neural pathways as if it were already true.\n\nVisualize every morning for 5 minutes. Be specific. Feel the emotions. Use all five senses. The universe will match your inner state.'),
       BookPage('Chapter 2', 'Words Are Spells',
         'Replace every "I want" with "I have."\n\nLanguage is a spell. Every word you speak is a command to the universe.\n\n"I want love" keeps you in a state of wanting.\n"I am loved" shifts you into a state of having.\n\nSpend 21 days replacing your wanting language with having language. Watch your reality begin to morph.'),
       BookPage('Chapter 2', 'The Gratitude Portal',
         'Gratitude is the highest vibrational frequency a human can emit.\n\nEvery morning, before you look at your phone, write 5 things you are genuinely grateful for.\n\nThis practice rewires your brain for abundance within 30 days. Neuroscience confirms it. The universe responds to it. Your life will prove it.'),
     ]),
-  Book(name: 'Inner Peace Guide', author: 'Serenity Bell', emoji: 'ðŸª·', tag: 'Mindfulness',
+  Book(name: 'Inner Peace Guide', author: 'Serenity Bell', emoji: '🪷', tag: 'Mindfulness',
     grad: [Color(0xFFFFD1DF), Color(0xFFFFF0F5)],
     pages: [
       BookPage('Chapter 1', 'The Stillness Within',
-        'Peace is not the absence of chaos. Peace is finding calm in the centre of the storm.\n\nMost people wait for their external world to calm down before they allow themselves to feel at peace. This is backwards.\n\nYou must cultivate inner stillness first. Then â€” and only then â€” will your outer world reflect that stillness back to you.'),
+        'Peace is not the absence of chaos. Peace is finding calm in the centre of the storm.\n\nMost people wait for their external world to calm down before they allow themselves to feel at peace. This is backwards.\n\nYou must cultivate inner stillness first. Then — and only then — will your outer world reflect that stillness back to you.'),
       BookPage('Chapter 1', 'Your 5-Minute Practice',
-        'Sit comfortably. Close your eyes. Take three deep breaths â€” in 4, hold 4, out 8.\n\nObserve your thoughts like clouds passing across a clear blue sky. You are not the clouds. You are the sky.\n\nJust 5 minutes of this practice daily will transform your nervous system within 8 weeks. Science confirms it.'),
+        'Sit comfortably. Close your eyes. Take three deep breaths — in 4, hold 4, out 8.\n\nObserve your thoughts like clouds passing across a clear blue sky. You are not the clouds. You are the sky.\n\nJust 5 minutes of this practice daily will transform your nervous system within 8 weeks. Science confirms it.'),
       BookPage('Chapter 2', 'The Art of Letting Go',
         'The practice of letting go is the highest form of spiritual maturity.\n\nEvery resentment you carry is a weight around your own neck.\n\nForgiveness is not saying what happened was okay. It is saying: I refuse to carry this pain any further. I release it with love and grace.'),
     ]),
-  Book(name: 'Law of Attraction', author: 'Cosmos Ray', emoji: 'ðŸŒŒ', tag: 'Spiritual',
+  Book(name: 'Law of Attraction', author: 'Cosmos Ray', emoji: '🌌', tag: 'Spiritual',
     grad: [Color(0xFFAC7BED), Color(0xFFE9D5FF)],
     pages: [
       BookPage('Chapter 1', 'The Magnetic Law',
         'Like attracts like.\n\nThis is the most powerful and most misunderstood law in existence.\n\nYour dominant thoughts, feelings, and beliefs create a magnetic field around you. This field constantly communicates with the quantum field of all possibility.\n\nYou are always manifesting. The question is whether you are doing it consciously or unconsciously.'),
       BookPage('Chapter 2', 'Raising Your Frequency',
-        'ðŸŽµ Listen to music that makes you feel expansive\nðŸŒ¿ Spend time in nature\nðŸ™ Practice daily gratitude\nðŸ’ƒ Move your body with joy\nðŸ“– Read books that uplift\nðŸ§˜ Meditate for clarity\n\nYour vibration is your invitation to the universe. High vibration attracts high vibration experiences.'),
-      BookPage('Chapter 3', 'The 55Ã—5 Method',
+        '🎵 Listen to music that makes you feel expansive\n🌿 Spend time in nature\n🙏 Practice daily gratitude\n💃 Move your body with joy\n📖 Read books that uplift\n🧘 Meditate for clarity\n\nYour vibration is your invitation to the universe. High vibration attracts high vibration experiences.'),
+      BookPage('Chapter 3', 'The 55×5 Method',
         'Write your core desire as an affirmation, exactly 55 times, for 5 consecutive days.\n\nThis intensive practice overwhelms your subconscious mind and plants the seed of your desire so deeply it must manifest.\n\nExample: "I am a magnet for financial abundance."\n\nWrite it 55 times. Feel it. Believe it. Do not skip a day.'),
     ]),
-  Book(name: 'Sacred Self-Love', author: 'Rose Quartz', emoji: 'ðŸ’—', tag: 'Self-Love',
+  Book(name: 'Sacred Self-Love', author: 'Rose Quartz', emoji: '💗', tag: 'Self-Love',
     grad: [Color(0xFFFFB3CA), Color(0xFFFFD1DF)],
     pages: [
       BookPage('Chapter 1', 'The Most Important Relationship',
@@ -541,51 +712,56 @@ const _books = [
     ]),
 ];
  
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 //  LOGO
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
+/// Brand logo widget — uses the actual NishAffs image asset.
+/// Falls back to a styled gradient pill if the asset is missing.
 class NishAffsLogo extends StatelessWidget {
-  final double size; final bool showText;
+  final double size;
+  final bool showText;
   const NishAffsLogo({super.key, this.size = 36, this.showText = false});
+
   @override
-  Widget build(BuildContext context) => Row(mainAxisSize: MainAxisSize.min, children: [
-    SizedBox(width: size, height: size, child: CustomPaint(painter: _LogoPainter(), size: Size(size, size))),
-    if (showText) ...[
-      SizedBox(width: size * 0.2),
+  Widget build(BuildContext context) {
+    final logo = Image.asset(
+      'assets/images/image.png',
+      width: size * (showText ? 1.0 : 1.4),
+      height: size * (showText ? 1.0 : 1.4),
+      fit: BoxFit.contain,
+      errorBuilder: (_, __, ___) => _fallback(),
+    );
+    if (!showText) return logo;
+    return Row(mainAxisSize: MainAxisSize.min, children: [
+      logo,
+      const SizedBox(width: 6),
       ShaderMask(
-        shaderCallback: (r) => const LinearGradient(colors: [Color(0xFFFF82A9), Color(0xFFAC7BED)]).createShader(r),
-        child: Text('NishAffs', style: GoogleFonts.pacifico(fontSize: size * 0.6, color: Colors.white))),
-    ],
-  ]);
-}
- 
-class _LogoPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final cx = size.width / 2, cy = size.height / 2, r = size.width / 2;
-    canvas.drawCircle(Offset(cx, cy), r,
-      Paint()..color = const Color(0xFFFF82A9).withOpacity(0.3)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8));
-    canvas.drawCircle(Offset(cx, cy), r * 0.9,
-      Paint()..shader = const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight,
-        colors: [Color(0xFFFF82A9), Color(0xFFAC7BED)]).createShader(Rect.fromCircle(center: Offset(cx, cy), radius: r)));
-    final pp = Paint()..color = Colors.white.withOpacity(0.5)..style = PaintingStyle.fill;
-    for (var i = 0; i < 6; i++) {
-      final a = i * pi / 3;
-      canvas.drawOval(Rect.fromCenter(center: Offset(cx + cos(a) * r * 0.48, cy + sin(a) * r * 0.48),
-        width: r * 0.4, height: r * 0.55), pp);
-    }
-    canvas.drawCircle(Offset(cx, cy), r * 0.28, Paint()..color = Colors.white.withOpacity(0.3));
-    final tp = TextPainter(
-      text: TextSpan(text: 'N', style: GoogleFonts.pacifico(fontSize: r * 0.7, color: Colors.white)),
-      textDirection: TextDirection.ltr)..layout();
-    tp.paint(canvas, Offset(cx - tp.width / 2, cy - tp.height / 2));
+        shaderCallback: (r) => const LinearGradient(
+          colors: [Color(0xFFFF82A9), Color(0xFFAC7BED)],
+        ).createShader(r),
+        child: Text(
+          'NishAffs',
+          style: GoogleFonts.pacifico(fontSize: size * 0.6, color: Colors.white),
+        ),
+      ),
+    ]);
   }
-  @override bool shouldRepaint(_) => false;
+
+  Widget _fallback() => Container(
+    width: size, height: size,
+    decoration: BoxDecoration(
+      shape: BoxShape.circle,
+      gradient: const LinearGradient(colors: [Color(0xFFFF82A9), Color(0xFFAC7BED)]),
+    ),
+    child: Center(
+      child: Text('N', style: GoogleFonts.pacifico(fontSize: size * 0.55, color: Colors.white)),
+    ),
+  );
 }
  
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 //  GLASSMORPHISM CARD
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 class GlassCard extends StatelessWidget {
   final Widget child; final double radius; final EdgeInsets? padding;
   final double opacity; final Color tint;
@@ -603,9 +779,9 @@ class GlassCard extends StatelessWidget {
         child: child)));
 }
  
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 //  SPARKLE OVERLAY
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 class SparkleOverlay extends StatefulWidget {
   final Widget child;
   const SparkleOverlay({super.key, required this.child});
@@ -624,31 +800,41 @@ class _SparkleOverlayState extends State<SparkleOverlay> with SingleTickerProvid
     })),
   ]);
 }
+/// Sparkle particle painter — 18 drifting orbs across the full canvas.
+/// Golden-ratio x-spacing prevents clustering; sin-wave y = organic feel.
 class _SparklePainter extends CustomPainter {
   final double t; final Size sz;
   const _SparklePainter(this.t, this.sz);
+
+  static const _colors = [C.pinkTheme, C.purple, C.gold, Colors.white, Color(0xFFFFB3CA), Color(0xFFE9D5FF)];
+
   @override
   void paint(Canvas canvas, Size size) {
-    final colors = [C.pinkTheme, C.purple, C.gold, Colors.white];
-    for (var i = 0; i < 10; i++) {
-      final phase = (t + i * 0.1) % 1.0;
-      final opacity = sin(phase * pi).clamp(0.0, 0.7);
-      if (opacity < 0.05) continue;
-      final x = (i * 137.5 + t * 60) % sz.width;
+    for (var i = 0; i < 18; i++) {
+      final phase = (t + i * 0.0556) % 1.0;        // evenly distributed
+      final opacity = sin(phase * pi).clamp(0.0, 0.85);
+      if (opacity < 0.06) continue;
+      final x = (i * 137.508 + t * 55) % sz.width; // golden-angle spacing
       final y = sz.height * phase;
-      final r = 2.0 + sin(phase * pi * 2) * 2.0;
+      final r = 1.5 + sin(phase * pi * 2 + i) * 2.5;
+      final color = _colors[i % _colors.length];
+      // Outer glow
+      canvas.drawCircle(Offset(x, y), r * 2.2,
+        Paint()..color = color.withOpacity(opacity * 0.18)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6));
+      // Core dot
       canvas.drawCircle(Offset(x, y), r,
-        Paint()..color = colors[i % colors.length].withOpacity(opacity * 0.5)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3));
+        Paint()..color = color.withOpacity(opacity * 0.85));
     }
   }
+
   @override bool shouldRepaint(_SparklePainter o) => o.t != t;
 }
  
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 //  MINI PLAYER
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 const _soundNames  = ['432Hz Deep Healing','Morning Abundance','Inner Peace Rain','Deep Sleep Delta','Study Focus Beta','Manifest While Sleep','Chakra Balancing','Self Love Morning'];
-const _soundEmojis = ['ðŸŽµ','â˜€ï¸','ðŸŒ§ï¸','ðŸŒ™','ðŸ“š','âœ¨','ðŸŒˆ','ðŸ’—'];
+const _soundEmojis = ['🎵','☀️','🌧️','🌙','📚','✨','🌈','💗'];
  
 class MiniPlayer extends StatelessWidget {
   final VoidCallback onTap;
@@ -687,9 +873,9 @@ class MiniPlayer extends StatelessWidget {
   }
 }
  
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-//  APP ROOT â€” Language-aware rebuild
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
+//  APP ROOT — Language-aware rebuild
+// ════════════════════════════════════════════════════════════════════
 class NishAffsApp extends StatelessWidget {
   const NishAffsApp({super.key});
   @override
@@ -700,7 +886,7 @@ class NishAffsApp extends StatelessWidget {
       builder: (_, lang, __) {
         final t = _appThemes[idx];
         return MaterialApp(
-          title: 'NishAffs âœ¨', debugShowCheckedModeBanner: false,
+          title: 'NishAffs ✨', debugShowCheckedModeBanner: false,
           theme: ThemeData(
             scaffoldBackgroundColor: t.bg, fontFamily: GoogleFonts.poppins().fontFamily,
             colorScheme: ColorScheme.fromSeed(seedColor: t.primary), useMaterial3: true),
@@ -737,40 +923,137 @@ class _AppGateState extends State<_AppGate> {
   }
 }
  
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 //  SPLASH
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
+/// Cinematic splash screen — 5-step staggered animation sequence:
+///   0ms   → gradient bg fades in
+///   200ms → brand logo scales in with elastic bounce
+///   700ms → tagline slides up
+///   1100ms→ affirmation of the day fades in
+///   1600ms→ sparkle ring pulses outward
 class _SplashView extends StatelessWidget {
   const _SplashView();
+
   @override
   Widget build(BuildContext context) {
     final aff = todaysAffirmation;
-    return Scaffold(body: Stack(fit: StackFit.expand, children: [
-      _img(8, w: double.infinity, h: double.infinity),
-      Container(decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter,
-        colors: [C.pink3.withOpacity(0.5), C.purple.withOpacity(0.65), Colors.black.withOpacity(0.65)]))),
-      SafeArea(child: Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-        const Spacer(),
-        NishAffsLogo(size: 88).animate().fadeIn(duration: 600.ms).scale(begin: const Offset(0.8, 0.8), curve: Curves.easeOutBack),
-        const SizedBox(height: 20),
-        Text('NishAffs', style: GoogleFonts.pacifico(fontSize: 46, color: Colors.white)).animate(delay: 300.ms).fadeIn().slideY(begin: 0.1),
-        const SizedBox(height: 16),
-        Padding(padding: const EdgeInsets.symmetric(horizontal: 48),
-          child: Text('"${aff.text}"', textAlign: TextAlign.center,
-            style: GoogleFonts.lora(fontSize: 16, color: Colors.white.withOpacity(0.9), fontStyle: FontStyle.italic))
-          .animate(delay: 600.ms).fadeIn()),
-        const Spacer(),
-        const SizedBox(width: 28, height: 28, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-          .animate(delay: 1000.ms).fadeIn(),
-        const SizedBox(height: 48),
-      ]))),
-    ]));
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(fit: StackFit.expand, children: [
+        // ── Cinematic gradient background ──
+        Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0xFF2D0033), Color(0xFF1A0028), Color(0xFF0D0015)],
+            ),
+          ),
+        ).animate().fadeIn(duration: 400.ms),
+        // ── Soft radial glow behind logo ──
+        Center(
+          child: Container(
+            width: 260, height: 260,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: RadialGradient(
+                colors: [C.pinkTheme.withOpacity(0.28), Colors.transparent],
+              ),
+            ),
+          ),
+        ).animate(delay: 300.ms).fadeIn(duration: 800.ms),
+        // ── Content ──
+        SafeArea(
+          child: Column(
+            children: [
+              const Spacer(),
+              // Brand logo image  
+              NishAffsLogo(size: 120)
+                .animate()
+                .fadeIn(duration: 600.ms, delay: 200.ms)
+                .scale(
+                  begin: const Offset(0.55, 0.55),
+                  end: const Offset(1.0, 1.0),
+                  curve: Curves.elasticOut,
+                  duration: 900.ms,
+                  delay: 200.ms,
+                ),
+              const SizedBox(height: 12),
+              // Tagline from the logo image itself
+              Text(
+                'The universe always has your back',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.poppins(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: C.pinkTheme.withOpacity(0.9),
+                  letterSpacing: 0.6,
+                ),
+              )
+                .animate(delay: 700.ms)
+                .fadeIn(duration: 500.ms)
+                .slideY(begin: 0.3, curve: Curves.easeOutCubic),
+              const Spacer(),
+              // Affirmation of the day
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 36),
+                child: Column(
+                  children: [
+                    Text(
+                      'TODAY\'S AFFIRMATION',
+                      style: GoogleFonts.poppins(
+                        fontSize: 9,
+                        fontWeight: FontWeight.w700,
+                        color: C.gold,
+                        letterSpacing: 2.5,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      '"${aff.text}"',
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.lora(
+                        fontSize: 15,
+                        color: Colors.white.withOpacity(0.88),
+                        fontStyle: FontStyle.italic,
+                        height: 1.6,
+                      ),
+                    ),
+                  ],
+                ),
+              )
+                .animate(delay: 1100.ms)
+                .fadeIn(duration: 600.ms)
+                .slideY(begin: 0.2, curve: Curves.easeOutCubic),
+              const SizedBox(height: 40),
+              // Pulsing entry indicator
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(3, (i) => Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  width: 6, height: 6,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: C.pinkTheme.withOpacity(0.7),
+                  ),
+                ).animate(delay: (1600 + i * 150).ms)
+                  .fadeIn(duration: 400.ms)
+                  .then(delay: 200.ms)
+                  .shimmer(color: Colors.white, duration: 800.ms)),
+              ),
+              const SizedBox(height: 52),
+            ],
+          ),
+        ),
+      ]),
+    );
   }
 }
  
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 //  LOGIN
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
   @override State<LoginScreen> createState() => _LoginScreenState();
@@ -794,7 +1077,7 @@ class _LoginScreenState extends State<LoginScreen> {
       const SizedBox(height: 40),
       NishAffsLogo(size: 48, showText: true).animate().fadeIn(duration: 600.ms),
       const SizedBox(height: 10),
-      Text(_isLogin ? 'Welcome back, beautiful soul ðŸŒ¸' : 'Start your magic journey âœ¨',
+      Text(_isLogin ? 'Welcome back, beautiful soul 🌸' : 'Start your magic journey ✨',
         style: GoogleFonts.poppins(fontSize: 15, color: Colors.white.withOpacity(0.85), fontWeight: FontWeight.w500)).animate(delay: 200.ms).fadeIn(),
       const SizedBox(height: 40),
       GlassCard(radius: 32, opacity: 0.2, padding: const EdgeInsets.all(26), child: Column(children: [
@@ -811,22 +1094,22 @@ class _LoginScreenState extends State<LoginScreen> {
             boxShadow: [BoxShadow(color: C.pinkTheme.withOpacity(0.4), blurRadius: 16, offset: const Offset(0, 6))]),
           child: Center(child: _loading
             ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-            : Text(_isLogin ? 'Sign In âœ¨' : 'Create Account ðŸŒ¸',
+            : Text(_isLogin ? 'Sign In ✨' : 'Create Account 🌸',
                 style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white))))),
         const SizedBox(height: 18),
         GestureDetector(onTap: () => setState(() => _isLogin = !_isLogin),
-          child: Text(_isLogin ? "Don't have an account? Sign up â†’" : 'Already have an account? Sign in â†’',
+          child: Text(_isLogin ? "Don't have an account? Sign up →" : 'Already have an account? Sign in →',
             style: GoogleFonts.poppins(fontSize: 13, color: Colors.white.withOpacity(0.7)))),
       ])).animate(delay: 300.ms).fadeIn().slideY(begin: 0.12),
       const SizedBox(height: 20),
       Center(child: GestureDetector(
         onTap: () => AppState.instance.login('Guest', 'guest@nishaffs.app'),
-        child: Text('Continue as Guest â†’',
+        child: Text('Continue as Guest →',
           style: GoogleFonts.poppins(fontSize: 13, color: Colors.white.withOpacity(0.6),
             decoration: TextDecoration.underline, decorationColor: Colors.white30)))),
       const SizedBox(height: 36),
       Row(mainAxisAlignment: MainAxisAlignment.center,
-        children: ['ðŸŒ¸','âœ¨','ðŸ¦„','ðŸŽ€','ðŸ’—'].map((e) =>
+        children: ['🌸','✨','🦄','🎀','💗'].map((e) =>
           Padding(padding: const EdgeInsets.symmetric(horizontal: 6), child: Text(e, style: const TextStyle(fontSize: 28)))).toList())
         .animate(delay: 500.ms).fadeIn(),
     ]))),
@@ -842,9 +1125,9 @@ class _LoginScreenState extends State<LoginScreen> {
         contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14)));
 }
  
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 //  SHELL + LEFT DRAWER
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 class ShellRoute extends StatefulWidget {
   const ShellRoute({super.key});
   @override State<ShellRoute> createState() => _ShellRouteState();
@@ -916,9 +1199,9 @@ class _NavBtn extends StatelessWidget {
   }
 }
  
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 //  LEFT DRAWER
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 class _LeftDrawer extends StatelessWidget {
   final VoidCallback onClose; final void Function(int) onNavigate;
   const _LeftDrawer({required this.onClose, required this.onNavigate});
@@ -941,11 +1224,11 @@ class _LeftDrawer extends StatelessWidget {
           Container(padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(gradient: const LinearGradient(colors: [C.pinkTheme, C.purple]), borderRadius: BorderRadius.circular(18)),
             child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-              _dStat('$streakðŸ”¥', 'Streak'),
+              _dStat('$streak🔥', 'Streak'),
               Container(width: 1, height: 32, color: Colors.white.withOpacity(0.3)),
-              _dStat('${kTotalAffirmations}âœ¨', 'Affs'),
+              _dStat('${kTotalAffirmations}✨', 'Affs'),
               Container(width: 1, height: 32, color: Colors.white.withOpacity(0.3)),
-              _dStat('${_books.length}ðŸ“š', 'Books'),
+              _dStat('${_books.length}📚', 'Books'),
             ]))),
         const SizedBox(height: 20),
         _dItem(Icons.home_filled, L.t('home'), C.pinkDark, () { onClose(); onNavigate(0); }),
@@ -956,12 +1239,12 @@ class _LeftDrawer extends StatelessWidget {
         _dItem(Icons.emoji_events_rounded, L.t('challenge'), C.pinkDark, () { onClose(); Navigator.push(context, _pageRoute(const Challenge55x5Screen())); }),
         _dItem(Icons.grid_view_rounded, L.t('vision_board'), C.purple, () { onClose(); Navigator.push(context, _pageRoute(const VisionBoardScreen())); }),
         const SizedBox(height: 20),
-        Text(L.isHindi ? 'à¤¸à¥‡à¤µ à¤•à¥€ à¤—à¤ˆ à¤…à¤«à¤°à¥à¤®à¥‡à¤¶à¤¨' : 'Saved Affirmations',
+        Text(L.isHindi ? 'सेव की गई अफर्मेशन' : 'Saved Affirmations',
           style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.bold, color: C.textDark)),
         const SizedBox(height: 10),
         ValueListenableBuilder(valueListenable: AppState.instance.affs, builder: (_, affs, __) =>
           affs.isEmpty
-            ? Text(L.isHindi ? 'à¤¸à¥à¤Ÿà¥‚à¤¡à¤¿à¤¯à¥‹ à¤¸à¥‡ à¤¬à¤¨à¤¾à¤à¤‚ ðŸŽ¨' : 'Create affirmations from Studio ðŸŽ¨',
+            ? Text(L.isHindi ? 'स्टूडियो से बनाएं 🎨' : 'Create affirmations from Studio 🎨',
                 style: GoogleFonts.poppins(fontSize: 12, color: C.textSub, height: 1.6))
             : Column(children: affs.take(4).map((a) => Container(
                 margin: const EdgeInsets.only(bottom: 8), padding: const EdgeInsets.all(12),
@@ -989,9 +1272,9 @@ class _LeftDrawer extends StatelessWidget {
     ])));
 }
  
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-//  HOME VIEW â€” Full mood intelligence + Aff of Day + dynamic counts
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
+//  HOME VIEW — Full mood intelligence + Aff of Day + dynamic counts
+// ════════════════════════════════════════════════════════════════════
 class HomeView extends StatefulWidget {
   final VoidCallback onOpenDrawer; final void Function(int) onNavigate;
   const HomeView({super.key, required this.onOpenDrawer, required this.onNavigate});
@@ -1002,7 +1285,7 @@ class _HomeViewState extends State<HomeView> {
   @override
   Widget build(BuildContext context) => Stack(children: [
     Positioned.fill(child: _img(10, w: double.infinity, h: double.infinity)),
-    Positioned.fill(child: Container(color: Colors.white.withOpacity(0.87))),
+    Positioned.fill(child: Container(color: Colors.white.withOpacity(0.72))), // was 0.87 — let backgrounds breathe
     SafeArea(bottom: false, child: CustomScrollView(physics: const BouncingScrollPhysics(), slivers: [
       SliverToBoxAdapter(child: Padding(padding: const EdgeInsets.all(22), child: Column(children: [
         // Header
@@ -1025,16 +1308,16 @@ class _HomeViewState extends State<HomeView> {
           const NishAffsLogo(size: 32),
         ]).animate().fadeIn(duration: 600.ms),
  
-        // â”€â”€ AFFIRMATION OF THE DAY â”€â”€
+        // ── AFFIRMATION OF THE DAY ──
         const SizedBox(height: 18),
         _AffirmationOfDayCard(liked: _todayLiked, onLike: () => setState(() => _todayLiked = !_todayLiked)),
  
-        // â”€â”€ MOOD CHECK-IN â”€â”€
+        // ── MOOD CHECK-IN ──
         const SizedBox(height: 18),
         ValueListenableBuilder<int>(valueListenable: AppState.instance.mood, builder: (_, mood, __) =>
           mood == -1 ? const _MoodCheckIn() : _MoodBadge(mood, onNavigate: widget.onNavigate)),
  
-        // â”€â”€ MOOD RECOMMENDATIONS â”€â”€
+        // ── MOOD RECOMMENDATIONS ──
         const SizedBox(height: 16),
         ValueListenableBuilder<int>(valueListenable: AppState.instance.mood, builder: (_, mood, __) =>
           mood >= 0 ? _MoodRecommendations(mood: mood, onNavigate: widget.onNavigate) : const SizedBox.shrink()),
@@ -1057,18 +1340,18 @@ class _HomeViewState extends State<HomeView> {
             decoration: BoxDecoration(gradient: const LinearGradient(colors: [Color(0xFFFF82A9), Color(0xFFAC7BED)]),
               borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: C.pinkTheme.withOpacity(0.3), blurRadius: 12, offset: const Offset(0, 4))]),
             child: Row(children: [
-              const Text('ðŸ”¥', style: TextStyle(fontSize: 26)), const SizedBox(width: 12),
+              const Text('🔥', style: TextStyle(fontSize: 26)), const SizedBox(width: 12),
               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text('$streak ${L.isHindi ? 'à¤¦à¤¿à¤¨ à¤•à¥€ à¤¸à¥à¤Ÿà¥à¤°à¥€à¤•!' : 'Day Streak!'}', style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white)),
-                Text(L.isHindi ? 'à¤¹à¤° à¤¦à¤¿à¤¨ à¤®à¥ˆà¤¨à¤¿à¤«à¥‡à¤¸à¥à¤Ÿ à¤•à¤°à¤¤à¥€ à¤°à¤¹à¥‡à¤‚ âœ¨' : 'Keep manifesting every day âœ¨', style: GoogleFonts.poppins(fontSize: 11, color: Colors.white.withOpacity(0.85))),
+                Text('$streak ${L.isHindi ? 'दिन की स्ट्रीक!' : 'Day Streak!'}', style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white)),
+                Text(L.isHindi ? 'हर दिन मैनिफेस्ट करती रहें ✨' : 'Keep manifesting every day ✨', style: GoogleFonts.poppins(fontSize: 11, color: Colors.white.withOpacity(0.85))),
               ])),
               GestureDetector(onTap: () => Navigator.push(context, _pageRoute(const Challenge55x5Screen())),
                 child: Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(color: Colors.white.withOpacity(0.25), borderRadius: BorderRadius.circular(100)),
-                  child: Text('55Ã—5', style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white)))),
+                  child: Text('55×5', style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white)))),
             ])) : const SizedBox.shrink()),
  
-        // â”€â”€ CURATED SECTION â€” dynamic counts â”€â”€
+        // ── CURATED SECTION — dynamic counts ──
         const SizedBox(height: 26),
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Text(L.t('curated'), style: GoogleFonts.poppins(fontSize: 19, fontWeight: FontWeight.bold, color: C.textDark)),
@@ -1098,21 +1381,22 @@ class _HomeViewState extends State<HomeView> {
         Container(padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(color: C.pink1, borderRadius: BorderRadius.circular(22), border: Border.all(color: C.pink2, width: 1.2)),
           child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: ['ðŸ“','ðŸ¼','ðŸ§¸','ðŸŽ€','ðŸ¦„'].map((e) => Text(e, style: const TextStyle(fontSize: 26))).toList()))
+            children: ['🍓','🐼','🧸','🎀','🦄'].map((e) => Text(e, style: const TextStyle(fontSize: 26))).toList()))
           .animate(delay: 350.ms).fadeIn(),
         const SizedBox(height: 120),
       ]))),
     ])),
   ]);
+  }
   Widget _qPill(String label, Color bg, VoidCallback onTap) => Expanded(child: GestureDetector(onTap: onTap,
     child: Container(padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(16), border: Border.all(color: C.pink2, width: 1.2)),
       child: Center(child: Text(label, style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w700, color: C.textDark))))));
 }
  
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 //  AFFIRMATION OF THE DAY CARD
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 class _AffirmationOfDayCard extends StatelessWidget {
   final bool liked; final VoidCallback onLike;
   const _AffirmationOfDayCard({required this.liked, required this.onLike});
@@ -1149,7 +1433,7 @@ class _AffirmationOfDayCard extends StatelessWidget {
             child: Row(mainAxisSize: MainAxisSize.min, children: [
               Icon(liked ? Icons.favorite_rounded : Icons.favorite_border_rounded, color: liked ? Colors.white : C.pinkTheme, size: 16),
               const SizedBox(width: 6),
-              Text(liked ? (L.isHindi ? 'à¤ªà¤¸à¤‚à¤¦ à¤¹à¥ˆ âœ¨' : 'Loved âœ¨') : (L.isHindi ? 'à¤®à¤¹à¤¸à¥‚à¤¸ à¤•à¤°à¥‡à¤‚' : 'Feel It'),
+              Text(liked ? (L.isHindi ? 'पसंद है ✨' : 'Loved ✨') : (L.isHindi ? 'महसूस करें' : 'Feel It'),
                 style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w700, color: liked ? Colors.white : C.pinkTheme)),
             ]))),
           const Spacer(),
@@ -1159,23 +1443,23 @@ class _AffirmationOfDayCard extends StatelessWidget {
               child: Row(mainAxisSize: MainAxisSize.min, children: [
                 const Icon(Icons.book_outlined, color: C.pinkDark, size: 14),
                 const SizedBox(width: 5),
-                Text(L.isHindi ? 'à¤œà¤°à¥à¤¨à¤²' : 'Journal', style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w600, color: C.pinkDark)),
+                Text(L.isHindi ? 'जर्नल' : 'Journal', style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w600, color: C.pinkDark)),
               ]))),
         ]),
       ])).animate().fadeIn(duration: 500.ms);
   }
 }
  
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-//  MOOD INTELLIGENCE â€” recommendations based on selected mood
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
+//  MOOD INTELLIGENCE — recommendations based on selected mood
+// ════════════════════════════════════════════════════════════════════
 class _MoodCheckIn extends StatelessWidget {
   const _MoodCheckIn();
   @override
   Widget build(BuildContext context) {
-    const emojis = ['ðŸ˜”','ðŸ˜','ðŸ™‚','ðŸ˜Š','ðŸŒŸ'];
+    const emojis = ['😔','😐','🙂','😊','🌟'];
     const labelsEn = ['Low Vibe','Meh','Good','Happy','Glowing'];
-    const labelsHi = ['à¤¥à¤•à¤¾à¤¨','à¤ à¥€à¤•-à¤ à¤¾à¤•','à¤…à¤šà¥à¤›à¤¾','à¤–à¥à¤¶','à¤šà¤®à¤•à¤¦à¤¾à¤°'];
+    const labelsHi = ['थकान','ठीक-ठाक','अच्छा','खुश','चमकदार'];
     return Container(padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(color: C.pink1, borderRadius: BorderRadius.circular(22), border: Border.all(color: C.pink2, width: 1.2)),
       child: Column(children: [
@@ -1197,9 +1481,9 @@ class _MoodBadge extends StatelessWidget {
   const _MoodBadge(this.mood, {required this.onNavigate});
   @override
   Widget build(BuildContext context) {
-    const emojis = ['ðŸ˜”','ðŸ˜','ðŸ™‚','ðŸ˜Š','ðŸŒŸ'];
-    const msgsEn = ['Take it easy today ðŸŒ¸','You\'ve got this ðŸ’ª','Nice energy! âœ¨','Shining bright! ðŸ’«','Absolutely glowing! ðŸŒŸ'];
-    const msgsHi = ['à¤†à¤œ à¤†à¤°à¤¾à¤® à¤•à¤°à¥‡à¤‚ ðŸŒ¸','à¤†à¤ª à¤•à¤° à¤¸à¤•à¤¤à¥€ à¤¹à¥ˆà¤‚ ðŸ’ª','à¤…à¤šà¥à¤›à¥€ à¤à¤¨à¤°à¥à¤œà¥€! âœ¨','à¤šà¤®à¤• à¤°à¤¹à¥€ à¤¹à¥ˆà¤‚! ðŸ’«','à¤¬à¤¿à¤²à¥à¤•à¥à¤² à¤¦à¤®à¤•à¤¦à¤¾à¤°! ðŸŒŸ'];
+    const emojis = ['😔','😐','🙂','😊','🌟'];
+    const msgsEn = ['Take it easy today 🌸','You\'ve got this 💪','Nice energy! ✨','Shining bright! 💫','Absolutely glowing! 🌟'];
+    const msgsHi = ['आज आराम करें 🌸','आप कर सकती हैं 💪','अच्छी एनर्जी! ✨','चमक रही हैं! 💫','बिल्कुल दमकदार! 🌟'];
     return Container(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(gradient: const LinearGradient(colors: [C.pink1, C.purpleLgt]),
         borderRadius: BorderRadius.circular(18), border: Border.all(color: C.pink2, width: 1.2)),
@@ -1207,7 +1491,7 @@ class _MoodBadge extends StatelessWidget {
         Text(emojis[mood], style: const TextStyle(fontSize: 30)),
         const SizedBox(width: 12),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(L.isHindi ? 'à¤†à¤œ à¤•à¤¾ à¤®à¥‚à¤¡ à¤¸à¥‡à¤Ÿ à¤¹à¥ˆ!' : 'Today\'s vibe is set!', style: GoogleFonts.poppins(fontSize: 11, color: C.textSub, fontWeight: FontWeight.w600)),
+          Text(L.isHindi ? 'आज का मूड सेट है!' : 'Today\'s vibe is set!', style: GoogleFonts.poppins(fontSize: 11, color: C.textSub, fontWeight: FontWeight.w600)),
           Text(L.isHindi ? msgsHi[mood] : msgsEn[mood], style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.bold, color: C.textDark)),
         ])),
         GestureDetector(onTap: () => AppState.instance.mood.value = -1,
@@ -1250,7 +1534,7 @@ class _MoodRecommendations extends StatelessWidget {
         Container(margin: const EdgeInsets.fromLTRB(12, 0, 12, 8), padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: C.pink2.withOpacity(0.5))),
           child: Row(children: [
-            const Text('ðŸŽµ', style: TextStyle(fontSize: 22)),
+            const Text('🎵', style: TextStyle(fontSize: 22)),
             const SizedBox(width: 10),
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(L.t('healing_freq'), style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w700, color: C.pinkDark)),
@@ -1262,7 +1546,7 @@ class _MoodRecommendations extends StatelessWidget {
           child: Container(margin: const EdgeInsets.fromLTRB(12, 0, 12, 14), padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: C.pink2.withOpacity(0.5))),
             child: Row(children: [
-              const Text('ðŸ“', style: TextStyle(fontSize: 22)),
+              const Text('📝', style: TextStyle(fontSize: 22)),
               const SizedBox(width: 10),
               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text(L.t('journal_prompt'), style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w700, color: C.pinkDark)),
@@ -1274,9 +1558,9 @@ class _MoodRecommendations extends StatelessWidget {
   }
 }
  
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 //  LIBRARY VIEW
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 class LibraryView extends StatefulWidget {
   const LibraryView({super.key});
   @override State<LibraryView> createState() => _LibraryViewState();
@@ -1303,7 +1587,7 @@ class _LibraryViewState extends State<LibraryView> with SingleTickerProviderStat
           labelStyle: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w700),
           indicator: BoxDecoration(gradient: const LinearGradient(colors: [C.pinkTheme, C.purple]), borderRadius: BorderRadius.circular(12)),
           indicatorSize: TabBarIndicatorSize.tab,
-          tabs: [Tab(text: L.isHindi ? 'ðŸ“š à¤•à¤¿à¤¤à¤¾à¤¬à¥‡à¤‚' : 'ðŸ“š Books'), Tab(text: L.isHindi ? 'âœ¨ à¤…à¤«à¤°à¥à¤®à¥‡à¤¶à¤¨' : 'âœ¨ Affirmations')])),
+          tabs: [Tab(text: L.isHindi ? '📚 किताबें' : '📚 Books'), Tab(text: L.isHindi ? '✨ अफर्मेशन' : '✨ Affirmations')])),
       const SizedBox(height: 12),
       Expanded(child: TabBarView(controller: _tc, children: [
         // Books Tab
@@ -1349,7 +1633,7 @@ class _LibraryViewState extends State<LibraryView> with SingleTickerProviderStat
                 ]).animate(delay: (i * 80).ms).fadeIn().slideY(begin: 0.1));
             })),
         ]),
-        // Affirmations Tab â€” categories grid
+        // Affirmations Tab — categories grid
         GridView.builder(padding: const EdgeInsets.all(16), itemCount: kAffCategories.length,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, crossAxisSpacing: 12, mainAxisSpacing: 12, childAspectRatio: 1.1),
           itemBuilder: (ctx, i) {
@@ -1374,9 +1658,9 @@ class _LibraryViewState extends State<LibraryView> with SingleTickerProviderStat
     ])));
 }
  
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-//  CATEGORY DETAIL SCREEN â€” replaces CuratedDetailScreen
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
+//  CATEGORY DETAIL SCREEN — replaces CuratedDetailScreen
+// ════════════════════════════════════════════════════════════════════
 class CategoryDetailScreen extends StatefulWidget {
   final AffCategory category;
   const CategoryDetailScreen({super.key, required this.category});
@@ -1388,14 +1672,8 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
   @override void dispose() { _searchCtrl.dispose(); super.dispose(); }
  
   List<AffEntry> get _filtered {
-    final cat = widget.category;
-    List<AffEntry> all = [
-      for (var i = 0; i < cat.entries.length; i++)
-        AffEntry(cat.entries[i], cat.emoji,
-            i < cat.entriesHi.length ? cat.entriesHi[i] : null),
-    ];
-    if (_searchQ.isEmpty) return all;
-    return all.where((e) => e.text.toLowerCase().contains(_searchQ.toLowerCase())).toList();
+    if (_searchQ.isEmpty) return widget.category.entries;
+    return widget.category.entries.where((e) => e.text.toLowerCase().contains(_searchQ.toLowerCase())).toList();
   }
   @override
   Widget build(BuildContext context) {
@@ -1450,7 +1728,7 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
                 const SizedBox(width: 8),
                 GestureDetector(
                   onTap: () { Clipboard.setData(ClipboardData(text: entry.text)); ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: const Text('âœ¨ Copied!'), backgroundColor: C.pinkDark, behavior: SnackBarBehavior.floating, duration: const Duration(seconds: 1),
+                    content: const Text('✨ Copied!'), backgroundColor: C.pinkDark, behavior: SnackBarBehavior.floating, duration: const Duration(seconds: 1),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)))); },
                   child: const Icon(Icons.copy_rounded, size: 16, color: C.textSub)),
               ])).animate(delay: (i * 30).ms).fadeIn();
@@ -1460,18 +1738,18 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
   }
 }
  
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 //  PAGE ROUTE HELPER
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 PageRoute _pageRoute(Widget page) => PageRouteBuilder(
   pageBuilder: (_, a, __) => page, transitionDuration: const Duration(milliseconds: 400),
   transitionsBuilder: (_, anim, __, child) => SlideTransition(
     position: Tween(begin: const Offset(1, 0), end: Offset.zero).animate(CurvedAnimation(parent: anim, curve: Curves.easeOutCubic)),
     child: child));
  
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-//  KINDLE READER â€” 3D page flip
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
+//  KINDLE READER — 3D page flip
+// ════════════════════════════════════════════════════════════════════
 class KindleReader extends StatefulWidget {
   final Book book;
   const KindleReader({super.key, required this.book});
@@ -1547,14 +1825,14 @@ class _KindleReaderState extends State<KindleReader> with SingleTickerProviderSt
         const SizedBox(height: 24),
         Text(page.body, style: GoogleFonts.lora(fontSize: 17, color: const Color(0xFF4A3520), height: 2.1, letterSpacing: 0.15)),
         const SizedBox(height: 32),
-        Center(child: Text('Â· Â· Â·', style: GoogleFonts.lora(fontSize: 18, color: const Color(0xFFD4956A)))),
+        Center(child: Text('· · ·', style: GoogleFonts.lora(fontSize: 18, color: const Color(0xFFD4956A)))),
       ]))),
       Padding(padding: const EdgeInsets.fromLTRB(24, 4, 24, 14), child: Row(children: [
         if (_cur > 0) GestureDetector(onTap: () => _flip(false), child: Row(children: [
           const Icon(Icons.arrow_back_ios_rounded, size: 12, color: Color(0xFFD4956A)),
           Text('Prev', style: GoogleFonts.poppins(fontSize: 12, color: const Color(0xFFD4956A)))])),
         const Spacer(),
-        Text('â† swipe â†’', style: GoogleFonts.poppins(fontSize: 10, color: Colors.grey.shade400)),
+        Text('← swipe →', style: GoogleFonts.poppins(fontSize: 10, color: Colors.grey.shade400)),
         const Spacer(),
         if (_cur < widget.book.pages.length - 1) GestureDetector(onTap: () => _flip(true), child: Row(children: [
           Text('Next', style: GoogleFonts.poppins(fontSize: 12, color: const Color(0xFFD4956A))),
@@ -1563,9 +1841,9 @@ class _KindleReaderState extends State<KindleReader> with SingleTickerProviderSt
     ])));
 }
  
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 //  STUDIO VIEW
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 class StudioView extends StatefulWidget {
   const StudioView({super.key});
   @override State<StudioView> createState() => _StudioViewState();
@@ -1573,6 +1851,8 @@ class StudioView extends StatefulWidget {
 class _StudioViewState extends State<StudioView> {
   final _tc = TextEditingController();
   String _vibe = 'Self Love'; int _bgIdx = 0;
+  XFile? _imageFile;
+  bool _isUploading = false;
   static const _vibes = [
     ('Self Love',  C.pink2,               C.pinkDark),
     ('Abundance',  Color(0xFFD1FFE0),      Color(0xFF2A9D59)),
@@ -1581,7 +1861,7 @@ class _StudioViewState extends State<StudioView> {
     ('Gratitude',  C.goldLgt,             Color(0xFF9B7B14)),
     ('Peace',      Color(0xFFE8FFF5),      Color(0xFF2A9D7A)),
   ];
-  static const _exampleLabels = ['ðŸ’— Self Love','ðŸ’Ž Abundance','ðŸ‘‘ Confidence','ðŸŒ¿ Healing','â˜®ï¸ Peace'];
+  static const _exampleLabels = ['💗 Self Love','💎 Abundance','👑 Confidence','🌿 Healing','☮️ Peace'];
   static const _examples = [
     'I am a magnet for abundance and all good things.',
     'Love flows to me freely and I receive it openly.',
@@ -1590,20 +1870,38 @@ class _StudioViewState extends State<StudioView> {
     'My body is healthy, my mind is clear, my soul is at peace.',
   ];
   @override void dispose() { _tc.dispose(); super.dispose(); }
+  
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery, imageQuality: 70);
+    if (pickedFile != null) setState(() => _imageFile = pickedFile);
+  }
+
   void _showPreview() {
     final text = _tc.text.trim();
-    if (text.isEmpty) { ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('âœï¸ Write your affirmation first!'), backgroundColor: C.pinkDark, behavior: SnackBarBehavior.floating, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)))); return; }
+    if (text.isEmpty) { ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('✍️ Write your affirmation first!'), backgroundColor: C.pinkDark, behavior: SnackBarBehavior.floating, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)))); return; }
     showModalBottomSheet(context: context, isScrollControlled: true, backgroundColor: Colors.transparent,
-      builder: (ctx) => _PostPreviewSheet(text: text, vibe: _vibe, bgIdx: _bgIdx, onPost: (target) async {
+      builder: (ctx) => _isUploading ? const Center(child: CircularProgressIndicator(color: C.pinkTheme)) : _PostPreviewSheet(text: text, vibe: _vibe, bgIdx: _bgIdx, onPost: (target) async {
         if (target == 'community' || target == 'save') {
+          setState(() { _isUploading = true; Navigator.pop(ctx); });
+          String? downloadUrl;
+          try {
+            if (_imageFile != null) {
+              final ref = FirebaseStorage.instance.ref('posts/${DateTime.now().millisecondsSinceEpoch}_${_imageFile!.name}');
+              await ref.putData(await _imageFile!.readAsBytes());
+              downloadUrl = await ref.getDownloadURL();
+            }
+          } catch (e) {
+            print('Image upload failed: $e');
+          }
           final user = AppState.instance.user.value;
           if (target == 'community') {
-            await AppState.instance.addPost({'id': 'p_${DateTime.now().millisecondsSinceEpoch}','user': user?['name'] ?? 'You','avatar': user?['avatar'] ?? 'Y','time': 'Just now','imgIdx': _bgIdx,'text': text,'likes': 0,'comments': <String>[],'vibe': _vibe});
+            await AppState.instance.addPost({'id': 'p_${DateTime.now().millisecondsSinceEpoch}','user': user?['name'] ?? 'You','avatar': user?['avatar'] ?? 'Y','time': 'Just now','imgIdx': _bgIdx, 'imageUrl': downloadUrl,'text': text,'likes': 0,'comments': <String>[],'vibe': _vibe});
           }
           await AppState.instance.addAff({'text': text,'vibe': _vibe,'ts': DateTime.now().toIso8601String()});
+          if (mounted) { _tc.clear(); setState(() => _isUploading = false); ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(target == 'community' ? '🌸 Posted!' : '💾 Saved to journal!'), backgroundColor: C.pinkDark, behavior: SnackBarBehavior.floating, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)))); }
         }
-        if (mounted) { Navigator.pop(ctx); _tc.clear(); setState(() {}); ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(target == 'community' ? 'ðŸŒ¸ Posted!' : target == 'save' ? 'ðŸ’¾ Saved to journal!' : 'ðŸ“¤ Ready!'), backgroundColor: C.pinkDark, behavior: SnackBarBehavior.floating, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)))); }
       }));
   }
   @override
@@ -1611,9 +1909,9 @@ class _StudioViewState extends State<StudioView> {
     body: SafeArea(bottom: false, child: ListView(padding: const EdgeInsets.fromLTRB(22, 18, 22, 120), children: [
       Row(children: [const NishAffsLogo(size: 30), const SizedBox(width: 10), Text(L.t('studio_title'), style: GoogleFonts.playfairDisplay(fontSize: 26, fontWeight: FontWeight.bold, color: C.textDark))]),
       const SizedBox(height: 6),
-      Text(L.isHindi ? 'à¤…à¤ªà¤¨à¥€ à¤…à¤«à¤°à¥à¤®à¥‡à¤¶à¤¨ à¤ªà¥‹à¤¸à¥à¤Ÿ à¤¬à¤¨à¤¾à¤à¤‚ âœ¨' : 'Create your affirmation post âœ¨', style: GoogleFonts.poppins(fontSize: 13, color: C.textSub)),
+      Text(L.isHindi ? 'अपनी अफर्मेशन पोस्ट बनाएं ✨' : 'Create your affirmation post ✨', style: GoogleFonts.poppins(fontSize: 13, color: C.textSub)),
       const SizedBox(height: 22),
-      Text(L.isHindi ? 'à¤ªà¥à¤°à¥‡à¤°à¤£à¤¾ à¤•à¥‡ à¤²à¤¿à¤ à¤Ÿà¥ˆà¤ª à¤•à¤°à¥‡à¤‚:' : 'Tap for inspiration:', style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w600, color: C.textSub)),
+      Text(L.isHindi ? 'प्रेरणा के लिए टैप करें:' : 'Tap for inspiration:', style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w600, color: C.textSub)),
       const SizedBox(height: 10),
       SizedBox(height: 42, child: ListView.builder(scrollDirection: Axis.horizontal, itemCount: _examples.length,
         itemBuilder: (_, i) => GestureDetector(onTap: () => setState(() => _tc.text = _examples[i]),
@@ -1629,7 +1927,7 @@ class _StudioViewState extends State<StudioView> {
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none),
             fillColor: Colors.transparent, filled: true, contentPadding: const EdgeInsets.all(18)))),
       const SizedBox(height: 20),
-      Text(L.isHindi ? 'à¤µà¤¾à¤‡à¤¬ à¤šà¥à¤¨à¥‡à¤‚' : 'Choose Your Vibe', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w700, color: C.textDark)),
+      Text(L.isHindi ? 'वाइब चुनें' : 'Choose Your Vibe', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w700, color: C.textDark)),
       const SizedBox(height: 12),
       Wrap(spacing: 10, runSpacing: 10, children: _vibes.map((v) {
         final on = _vibe == v.$1;
@@ -1641,19 +1939,33 @@ class _StudioViewState extends State<StudioView> {
             child: Text(v.$1, style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w600, color: on ? v.$3 : C.textSub))));
       }).toList()),
       const SizedBox(height: 20),
-      Text(L.isHindi ? 'à¤¬à¥ˆà¤•à¤—à¥à¤°à¤¾à¤‰à¤‚à¤¡' : 'Background', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w700, color: C.textDark)),
+      Text(L.isHindi ? 'बैकग्राउंड' : 'Background', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w700, color: C.textDark)),
       const SizedBox(height: 12),
-      SizedBox(height: 76, child: ListView.builder(scrollDirection: Axis.horizontal, itemCount: 10,
-        itemBuilder: (_, i) => GestureDetector(onTap: () => setState(() => _bgIdx = i),
-          child: AnimatedContainer(duration: const Duration(milliseconds: 200), width: 70, height: 70, margin: const EdgeInsets.only(right: 10),
-            decoration: BoxDecoration(borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: _bgIdx == i ? C.pinkDark : Colors.transparent, width: 3)),
-            child: ClipRRect(borderRadius: BorderRadius.circular(13), child: _img(i + 2, w: 70, h: 70)))))),
+      SizedBox(height: 76, child: ListView.builder(scrollDirection: Axis.horizontal, itemCount: 11,
+        itemBuilder: (_, i) {
+          if (i == 0) {
+            return GestureDetector(onTap: _pickImage,
+              child: Container(width: 70, height: 70, margin: const EdgeInsets.only(right: 10),
+                decoration: BoxDecoration(color: C.pink1, borderRadius: BorderRadius.circular(16), border: Border.all(color: _imageFile != null ? C.pinkDark : C.pink3, width: _imageFile != null ? 3 : 2)),
+                child: const Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  Icon(Icons.add_photo_alternate_rounded, color: C.pinkDark),
+                  Text('Upload', style: TextStyle(fontSize: 10, color: C.pinkDark))
+                ])));
+          }
+          final idx = i - 1;
+          return GestureDetector(onTap: () => setState(() { _bgIdx = idx; _imageFile = null; }),
+            child: AnimatedContainer(duration: const Duration(milliseconds: 200), width: 70, height: 70, margin: const EdgeInsets.only(right: 10),
+              decoration: BoxDecoration(borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: (_bgIdx == idx && _imageFile == null) ? C.pinkDark : Colors.transparent, width: 3)),
+              child: ClipRRect(borderRadius: BorderRadius.circular(13), child: _img(idx + 2, w: 70, h: 70))));
+        })),
       const SizedBox(height: 22),
-      Text(L.isHindi ? 'à¤ªà¥à¤°à¥€à¤µà¥à¤¯à¥‚' : 'Preview', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w700, color: C.textDark)),
+      Text(L.isHindi ? 'प्रीव्यू' : 'Preview', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w700, color: C.textDark)),
       const SizedBox(height: 10),
       ClipRRect(borderRadius: BorderRadius.circular(22), child: SizedBox(height: 185, child: Stack(children: [
-        Positioned.fill(child: _img(_bgIdx + 2, w: double.infinity, h: double.infinity)),
+        Positioned.fill(child: _imageFile != null 
+          ? Image.network(_imageFile!.path, fit: BoxFit.cover, errorBuilder: (_,__,___) => Container(color: C.pink2)) 
+          : _img(_bgIdx + 2, w: double.infinity, h: double.infinity)),
         Positioned.fill(child: Container(color: Colors.black.withOpacity(0.38))),
         Positioned(top: 10, right: 10, child: const NishAffsLogo(size: 22)),
         Center(child: Padding(padding: const EdgeInsets.all(20), child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -1662,20 +1974,21 @@ class _StudioViewState extends State<StudioView> {
           const SizedBox(height: 8),
           Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
             decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(7)),
-            child: Text('#NishAffs Â· $_vibe', style: GoogleFonts.poppins(fontSize: 9, color: Colors.white.withOpacity(0.9), fontWeight: FontWeight.w600))),
+            child: Text('#NishAffs · $_vibe', style: GoogleFonts.poppins(fontSize: 9, color: Colors.white.withOpacity(0.9), fontWeight: FontWeight.w600))),
         ]))),
       ]))),
       const SizedBox(height: 24),
       GestureDetector(onTap: _showPreview, child: Container(width: double.infinity, height: 54,
         decoration: BoxDecoration(gradient: const LinearGradient(colors: [C.pinkTheme, C.purple]), borderRadius: BorderRadius.circular(100),
           boxShadow: [BoxShadow(color: C.pinkTheme.withOpacity(0.4), blurRadius: 16, offset: const Offset(0, 6))]),
-        child: Center(child: Text(L.isHindi ? 'à¤¬à¤¨à¤¾à¤à¤‚ à¤”à¤° à¤¶à¥‡à¤¯à¤° à¤•à¤°à¥‡à¤‚ âœ¨' : 'Create & Share âœ¨', style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white))))),
+        child: Center(child: Text(L.isHindi ? 'बनाएं और शेयर करें ✨' : 'Create & Share ✨', style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white))))),
     ])));
 }
  
 class _PostPreviewSheet extends StatelessWidget {
   final String text, vibe; final int bgIdx; final void Function(String) onPost;
-  const _PostPreviewSheet({required this.text, required this.vibe, required this.bgIdx, required this.onPost});
+  final XFile? imageFile;
+  const _PostPreviewSheet({required this.text, required this.vibe, required this.bgIdx, required this.onPost, this.imageFile});
   @override
   Widget build(BuildContext context) => Container(
     decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(32))),
@@ -1683,24 +1996,26 @@ class _PostPreviewSheet extends StatelessWidget {
     child: Column(mainAxisSize: MainAxisSize.min, children: [
       Container(width: 44, height: 5, decoration: BoxDecoration(color: C.pink2, borderRadius: BorderRadius.circular(3))),
       const SizedBox(height: 16),
-      Row(children: [const NishAffsLogo(size: 28), const SizedBox(width: 10), Text('Ready to share! ðŸŒ¸', style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold, color: C.textDark))]),
+      Row(children: [const NishAffsLogo(size: 28), const SizedBox(width: 10), Text('Ready to share! 🌸', style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold, color: C.textDark))]),
       const SizedBox(height: 16),
       ClipRRect(borderRadius: BorderRadius.circular(18), child: SizedBox(height: 130, child: Stack(children: [
-        Positioned.fill(child: _img(bgIdx + 2, w: double.infinity, h: double.infinity)),
+        Positioned.fill(child: imageFile != null 
+          ? Image.network(imageFile!.path, fit: BoxFit.cover, errorBuilder: (_,__,___) => Container(color: C.pink2)) 
+          : _img(bgIdx + 2, w: double.infinity, h: double.infinity)),
         Positioned.fill(child: Container(color: Colors.black.withOpacity(0.38))),
         Center(child: Padding(padding: const EdgeInsets.all(18), child: Text('"$text"', textAlign: TextAlign.center,
           style: GoogleFonts.lora(fontSize: 13, color: Colors.white, fontStyle: FontStyle.italic), maxLines: 4, overflow: TextOverflow.ellipsis))),
       ]))),
       const SizedBox(height: 20),
       Row(children: [
-        Expanded(child: _btn(context, 'ðŸŒ¸ Community', C.pink1, C.pinkDark, 'community')),
+        Expanded(child: _btn(context, '🌸 Community', C.pink1, C.pinkDark, 'community')),
         const SizedBox(width: 10),
-        Expanded(child: _btn(context, 'ðŸ’¾ Journal', C.purpleLgt, C.purple, 'save')),
+        Expanded(child: _btn(context, '💾 Journal', C.purpleLgt, C.purple, 'save')),
         const SizedBox(width: 10),
-        Expanded(child: _btn(context, 'ðŸ“¤ Share', C.goldLgt, const Color(0xFF9B7B14), 'external')),
+        Expanded(child: _btn(context, '📤 Share', C.goldLgt, const Color(0xFF9B7B14), 'external')),
       ]),
       const SizedBox(height: 10),
-      _btn(context, 'ðŸ“± Post as Story', C.bg, C.textDark, 'story', full: true),
+      _btn(context, '📱 Post as Story', C.bg, C.textDark, 'story', full: true),
     ]));
   Widget _btn(BuildContext ctx, String label, Color bg, Color fg, String target, {bool full = false}) =>
     GestureDetector(onTap: () => onPost(target), child: Container(
@@ -1709,9 +2024,9 @@ class _PostPreviewSheet extends StatelessWidget {
       child: Center(child: Text(label, style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w700, color: fg), textAlign: TextAlign.center))));
 }
  
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 //  COMMUNITY VIEW
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 class CommunityView extends StatefulWidget {
   const CommunityView({super.key});
   @override State<CommunityView> createState() => _CommunityViewState();
@@ -1743,8 +2058,8 @@ class _CommunityViewState extends State<CommunityView> {
         final filtered = _q.isEmpty ? posts : posts.where((p) =>
           (p['text'] as String).toLowerCase().contains(_q) || (p['user'] as String).toLowerCase().contains(_q) || (p['vibe'] as String).toLowerCase().contains(_q)).toList();
         if (filtered.isEmpty) return Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          const Text('ðŸ”', style: TextStyle(fontSize: 40)), const SizedBox(height: 12),
-          Text(_q.isEmpty ? 'No posts yet! Create from Studio ðŸŽ¨' : 'No posts found for "$_q"', style: GoogleFonts.poppins(fontSize: 14, color: C.textSub))]));
+          const Text('🔍', style: TextStyle(fontSize: 40)), const SizedBox(height: 12),
+          Text(_q.isEmpty ? 'No posts yet! Create from Studio 🎨' : 'No posts found for "$_q"', style: GoogleFonts.poppins(fontSize: 14, color: C.textSub))]));
         return ListView.builder(padding: const EdgeInsets.only(bottom: 120), itemCount: filtered.length,
           itemBuilder: (ctx, i) => _PostCard(post: filtered[i]));
       })),
@@ -1752,12 +2067,12 @@ class _CommunityViewState extends State<CommunityView> {
 }
  
 final _storiesData = [
-  {'user': 'Ananya','avatar': 'A','pages': ['I am worthy of all the love in the universe. ðŸŒ¸','Today I choose joy, no matter what. âœ¨']},
-  {'user': 'Priya','avatar': 'P','pages': ['I attract miracles effortlessly. ðŸ’«']},
-  {'user': 'Meeraâœ¨','avatar': 'M','pages': ['The universe is my co-creator. ðŸŒŒ','I trust my journey completely.','Abundance is my birthright! ðŸ’°']},
-  {'user': 'Siya','avatar': 'S','pages': ['I am healing and glowing every day. ðŸŒ¿']},
-  {'user': 'Radha','avatar': 'R','pages': ['My vibe attracts my tribe. ðŸ¦‹','Love flows to me from all directions. ðŸ’–']},
-  {'user': 'Nova','avatar': 'N','pages': ['I am the energy I wish to see. âœ¨']},
+  {'user': 'Ananya','avatar': 'A','pages': ['I am worthy of all the love in the universe. 🌸','Today I choose joy, no matter what. ✨']},
+  {'user': 'Priya','avatar': 'P','pages': ['I attract miracles effortlessly. 💫']},
+  {'user': 'Meera✨','avatar': 'M','pages': ['The universe is my co-creator. 🌌','I trust my journey completely.','Abundance is my birthright! 💰']},
+  {'user': 'Siya','avatar': 'S','pages': ['I am healing and glowing every day. 🌿']},
+  {'user': 'Radha','avatar': 'R','pages': ['My vibe attracts my tribe. 🦋','Love flows to me from all directions. 💖']},
+  {'user': 'Nova','avatar': 'N','pages': ['I am the energy I wish to see. ✨']},
 ];
  
 class _StoryBubble extends StatelessWidget {
@@ -1780,9 +2095,9 @@ class _StoryBubble extends StatelessWidget {
     ])));
 }
  
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 //  STORY VIEWER
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 class StoryViewer extends StatefulWidget {
   final List<Map<String, dynamic>> stories; final int initialIndex;
   const StoryViewer({super.key, required this.stories, required this.initialIndex});
@@ -1835,9 +2150,9 @@ class _StoryViewerState extends State<StoryViewer> with TickerProviderStateMixin
   }
 }
  
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 //  POST CARD
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 class _PostCard extends StatefulWidget {
   final Map<String, dynamic> post;
   const _PostCard({required this.post});
@@ -1862,12 +2177,14 @@ class _PostCardState extends State<_PostCard> {
         const SizedBox(width: 10),
         Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(post['user'] ?? '', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.bold, color: C.textDark)),
-          Text('${post['time']} Â· #${post['vibe']}', style: GoogleFonts.poppins(fontSize: 11, color: C.textSub)),
+          Text('${post['time']} · #${post['vibe']}', style: GoogleFonts.poppins(fontSize: 11, color: C.textSub)),
         ]),
         const Spacer(), const Icon(Icons.more_horiz_rounded, color: C.textSub),
       ])),
       SizedBox(height: 370, child: Stack(children: [
-        Positioned.fill(child: _img((post['imgIdx'] as int? ?? 0) + 3, w: double.infinity, h: double.infinity)),
+        Positioned.fill(child: post.containsKey('imageUrl') && post['imageUrl'] != null
+          ? Image.network(post['imageUrl'] as String, fit: BoxFit.cover, errorBuilder: (_,__,___) => Container(color: C.pink2))
+          : _img((post['imgIdx'] as int? ?? 0) + 3, w: double.infinity, h: double.infinity)),
         Positioned.fill(child: Container(color: Colors.black.withOpacity(0.36))),
         Positioned(top: 12, right: 12, child: const NishAffsLogo(size: 24)),
         Center(child: Padding(padding: const EdgeInsets.all(28), child: Text('"${post['text']}"', textAlign: TextAlign.center,
@@ -1887,14 +2204,14 @@ class _PostCardState extends State<_PostCard> {
           Text('${cmts.length}', style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w600, color: C.textDark)),
         ])),
         const SizedBox(width: 20),
-        GestureDetector(onTap: () => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('ðŸ“¤ Link copied!'), backgroundColor: C.purple, behavior: SnackBarBehavior.floating, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)))),
+        GestureDetector(onTap: () => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('📤 Link copied!'), backgroundColor: C.purple, behavior: SnackBarBehavior.floating, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)))),
           child: const Icon(Icons.send_outlined, color: C.textDark, size: 24)),
         const Spacer(),
         GestureDetector(onTap: () async { await AppState.instance.toggleSave(id); setState(() => _saved = AppState.instance.saved.value.contains(id)); },
           child: Icon(_saved ? Icons.bookmark_rounded : Icons.bookmark_border_rounded, color: _saved ? C.pinkDark : C.textDark, size: 26)),
       ])),
       if (cmts.isNotEmpty) Padding(padding: const EdgeInsets.fromLTRB(20, 0, 20, 4),
-        child: Text('ðŸ’¬ ${cmts.first}', style: GoogleFonts.poppins(fontSize: 13, color: C.textDark), maxLines: 1, overflow: TextOverflow.ellipsis)),
+        child: Text('💬 ${cmts.first}', style: GoogleFonts.poppins(fontSize: 13, color: C.textDark), maxLines: 1, overflow: TextOverflow.ellipsis)),
       if (cmts.length > 1) Padding(padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
         child: GestureDetector(onTap: () => _showComments(context, id, cmts),
           child: Text('View all ${cmts.length} comments', style: GoogleFonts.poppins(fontSize: 13, color: C.textSub)))),
@@ -1910,16 +2227,16 @@ class _PostCardState extends State<_PostCard> {
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Container(width: 44, height: 5, decoration: BoxDecoration(color: C.pink2, borderRadius: BorderRadius.circular(3))),
           const SizedBox(height: 14),
-          Row(children: [const NishAffsLogo(size: 24), const SizedBox(width: 8), Text('Comments ðŸ’¬', style: GoogleFonts.poppins(fontSize: 17, fontWeight: FontWeight.bold, color: C.textDark))]),
+          Row(children: [const NishAffsLogo(size: 24), const SizedBox(width: 8), Text('Comments 💬', style: GoogleFonts.poppins(fontSize: 17, fontWeight: FontWeight.bold, color: C.textDark))]),
           const SizedBox(height: 14),
           ValueListenableBuilder(valueListenable: AppState.instance.posts, builder: (_, posts, __) {
             final p = posts.firstWhere((e) => e['id'] == id, orElse: () => widget.post);
             final cmts = p['comments'] as List? ?? [];
             return ConstrainedBox(constraints: const BoxConstraints(maxHeight: 230), child: cmts.isEmpty
-              ? Center(child: Text('Be the first to comment! ðŸŒ¸', style: GoogleFonts.poppins(fontSize: 13, color: C.textSub)))
+              ? Center(child: Text('Be the first to comment! 🌸', style: GoogleFonts.poppins(fontSize: 13, color: C.textSub)))
               : ListView(shrinkWrap: true, children: cmts.map((c) => Padding(padding: const EdgeInsets.only(bottom: 10),
                   child: Row(children: [
-                    Container(width: 32, height: 32, decoration: BoxDecoration(color: C.pink2, shape: BoxShape.circle), child: const Center(child: Text('ðŸŒ¸', style: TextStyle(fontSize: 15)))),
+                    Container(width: 32, height: 32, decoration: BoxDecoration(color: C.pink2, shape: BoxShape.circle), child: const Center(child: Text('🌸', style: TextStyle(fontSize: 15)))),
                     const SizedBox(width: 8),
                     Expanded(child: Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: C.pink1, borderRadius: BorderRadius.circular(12)),
                       child: Text(c.toString(), style: GoogleFonts.poppins(fontSize: 13, color: C.textDark)))),
@@ -1928,7 +2245,7 @@ class _PostCardState extends State<_PostCard> {
           const SizedBox(height: 14),
           Row(children: [
             Expanded(child: TextField(controller: tc, style: GoogleFonts.poppins(fontSize: 13, color: C.textDark),
-              decoration: InputDecoration(hintText: 'Add a comment... ðŸ’¬', hintStyle: GoogleFonts.poppins(color: C.textSub, fontSize: 13),
+              decoration: InputDecoration(hintText: 'Add a comment... 💬', hintStyle: GoogleFonts.poppins(color: C.textSub, fontSize: 13),
                 filled: true, fillColor: C.pink1, border: OutlineInputBorder(borderRadius: BorderRadius.circular(100), borderSide: BorderSide.none),
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11)))),
             const SizedBox(width: 10),
@@ -1940,9 +2257,9 @@ class _PostCardState extends State<_PostCard> {
   }
 }
  
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 //  PROFILE VIEW
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 class ProfileView extends StatefulWidget {
   final void Function(int) onNavigate;
   const ProfileView({super.key, required this.onNavigate});
@@ -1954,14 +2271,14 @@ class _ProfileViewState extends State<ProfileView> with SingleTickerProviderStat
   @override void dispose() { _tc.dispose(); super.dispose(); }
  
   static const _sounds = [
-    ('432Hz Deep Healing',   'Binaural Beats',    '45 min','ðŸŽµ', C.purpleLgt,      Color(0xFF8B5CF6)),
-    ('Morning Abundance',    'Solfeggio 528Hz',   '30 min','â˜€ï¸', C.goldLgt,         C.gold),
-    ('Inner Peace Rain',     'Nature Sounds',     '60 min','ðŸŒ§ï¸', Color(0xFFD1EAFF), Color(0xFF4A90D9)),
-    ('Deep Sleep Delta',     'Delta Waves',       '8 hrs', 'ðŸŒ™', Color(0xFFE8E0FF), Color(0xFF6B5CE7)),
-    ('Study Focus Beta',     'Beta Waves',        '45 min','ðŸ“š', Color(0xFFD1FFE0), Color(0xFF2A9D7A)),
-    ('Manifest While Sleep', 'Affirmation+Music', '6 hrs', 'âœ¨', C.pink1,           C.pinkDark),
-    ('Chakra Balancing',     '7 Chakra Tones',    '25 min','ðŸŒˆ', C.goldLgt,         C.gold),
-    ('Self Love Morning',    'Guided + Music',    '15 min','ðŸ’—', C.pink2,           C.pinkDark),
+    ('432Hz Deep Healing',   'Binaural Beats',    '45 min','🎵', C.purpleLgt,      Color(0xFF8B5CF6)),
+    ('Morning Abundance',    'Solfeggio 528Hz',   '30 min','☀️', C.goldLgt,         C.gold),
+    ('Inner Peace Rain',     'Nature Sounds',     '60 min','🌧️', Color(0xFFD1EAFF), Color(0xFF4A90D9)),
+    ('Deep Sleep Delta',     'Delta Waves',       '8 hrs', '🌙', Color(0xFFE8E0FF), Color(0xFF6B5CE7)),
+    ('Study Focus Beta',     'Beta Waves',        '45 min','📚', Color(0xFFD1FFE0), Color(0xFF2A9D7A)),
+    ('Manifest While Sleep', 'Affirmation+Music', '6 hrs', '✨', C.pink1,           C.pinkDark),
+    ('Chakra Balancing',     '7 Chakra Tones',    '25 min','🌈', C.goldLgt,         C.gold),
+    ('Self Love Morning',    'Guided + Music',    '15 min','💗', C.pink2,           C.pinkDark),
   ];
   @override
   Widget build(BuildContext context) => Scaffold(backgroundColor: C.bg,
@@ -1980,10 +2297,10 @@ class _ProfileViewState extends State<ProfileView> with SingleTickerProviderStat
           const SizedBox(width: 14),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(user?['name'] ?? 'Guest', style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold, color: C.textDark)),
-            Text(L.isHindi ? '2026 à¤¸à¥‡ à¤®à¥ˆà¤¨à¤¿à¤«à¥‡à¤¸à¥à¤Ÿ à¤•à¤° à¤°à¤¹à¥€ à¤¹à¥‚à¤‚ âœ¨' : 'Manifesting since 2026 âœ¨', style: GoogleFonts.poppins(fontSize: 12, color: C.textSub)),
+            Text(L.isHindi ? '2026 से मैनिफेस्ट कर रही हूं ✨' : 'Manifesting since 2026 ✨', style: GoogleFonts.poppins(fontSize: 12, color: C.textSub)),
             const SizedBox(height: 8),
             ValueListenableBuilder<int>(valueListenable: AppState.instance.streak, builder: (_, s, __) =>
-              Row(children: [_sPill('$sðŸ”¥', 'Streak'), const SizedBox(width: 7), _sPill('${kTotalAffirmations}âœ¨', 'Affs'), const SizedBox(width: 7), _sPill('${_books.length}ðŸ“š', 'Books')])),
+              Row(children: [_sPill('$s🔥', 'Streak'), const SizedBox(width: 7), _sPill('${kTotalAffirmations}✨', 'Affs'), const SizedBox(width: 7), _sPill('${_books.length}📚', 'Books')])),
           ])),
           GestureDetector(onTap: () => AppState.instance.logout(),
             child: Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
@@ -1996,7 +2313,7 @@ class _ProfileViewState extends State<ProfileView> with SingleTickerProviderStat
           labelStyle: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w700),
           indicator: BoxDecoration(gradient: const LinearGradient(colors: [C.pinkTheme, C.purple]), borderRadius: BorderRadius.circular(14)),
           indicatorSize: TabBarIndicatorSize.tab,
-          tabs: [Tab(text: 'ðŸŽµ Sounds'), Tab(text: 'ðŸ““ Journal'), Tab(text: 'ðŸŽ¨ Themes'), Tab(text: 'âš™ï¸ Settings')])),
+          tabs: [Tab(text: '🎵 Sounds'), Tab(text: '📓 Journal'), Tab(text: '🎨 Themes'), Tab(text: '⚙️ Settings')])),
       Expanded(child: TabBarView(controller: _tc, children: [
         // SOUNDS
         ListView.builder(padding: const EdgeInsets.fromLTRB(20, 16, 20, 120), itemCount: _sounds.length,
@@ -2018,9 +2335,9 @@ class _ProfileViewState extends State<ProfileView> with SingleTickerProviderStat
     ]));
 }
  
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 //  JOURNAL QUICK VIEW (in Profile tab)
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 class _JournalQuickView extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ValueListenableBuilder<List<JournalEntry>>(
@@ -2031,12 +2348,12 @@ class _JournalQuickView extends StatelessWidget {
         child: Container(width: double.infinity, height: 50,
           decoration: BoxDecoration(gradient: const LinearGradient(colors: [C.pinkTheme, C.purple]), borderRadius: BorderRadius.circular(100),
             boxShadow: [BoxShadow(color: C.pinkTheme.withOpacity(0.3), blurRadius: 12)]),
-          child: Center(child: Text(L.isHindi ? '+ à¤¨à¤ˆ à¤œà¤°à¥à¤¨à¤² à¤à¤‚à¤Ÿà¥à¤°à¥€' : '+ New Journal Entry', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white)))))),
+          child: Center(child: Text(L.isHindi ? '+ नई जर्नल एंट्री' : '+ New Journal Entry', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white)))))),
       Expanded(child: entries.isEmpty
         ? Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-            const Text('ðŸ““', style: TextStyle(fontSize: 48)), const SizedBox(height: 14),
-            Text(L.isHindi ? 'à¤…à¤­à¥€ à¤¤à¤• à¤•à¥‹à¤ˆ à¤à¤‚à¤Ÿà¥à¤°à¥€ à¤¨à¤¹à¥€à¤‚!' : 'No entries yet!', style: GoogleFonts.poppins(fontSize: 14, color: C.textSub)),
-            Text(L.isHindi ? 'à¤Šà¤ªà¤° à¤¬à¤Ÿà¤¨ à¤¸à¥‡ à¤œà¥‹à¤¡à¤¼à¥‡à¤‚ âœ¨' : 'Tap above to start âœ¨', style: GoogleFonts.poppins(fontSize: 12, color: C.textSub))]))
+            const Text('📓', style: TextStyle(fontSize: 48)), const SizedBox(height: 14),
+            Text(L.isHindi ? 'अभी तक कोई एंट्री नहीं!' : 'No entries yet!', style: GoogleFonts.poppins(fontSize: 14, color: C.textSub)),
+            Text(L.isHindi ? 'ऊपर बटन से जोड़ें ✨' : 'Tap above to start ✨', style: GoogleFonts.poppins(fontSize: 12, color: C.textSub))]))
         : ListView.builder(padding: const EdgeInsets.fromLTRB(20, 0, 20, 120), itemCount: entries.length,
             itemBuilder: (ctx, i) {
               final e = entries[i];
@@ -2045,7 +2362,7 @@ class _JournalQuickView extends StatelessWidget {
                   border: Border.all(color: C.pink2, width: 1.2), boxShadow: [BoxShadow(color: C.pink2.withOpacity(0.3), blurRadius: 8)]),
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Row(children: [
-                    Text('ðŸ“…', style: const TextStyle(fontSize: 14)),
+                    Text('📅', style: const TextStyle(fontSize: 14)),
                     const SizedBox(width: 6),
                     Text('${e.date.day}/${e.date.month}/${e.date.year}', style: GoogleFonts.poppins(fontSize: 11, color: C.textSub)),
                     const Spacer(),
@@ -2055,24 +2372,24 @@ class _JournalQuickView extends StatelessWidget {
                       child: const Icon(Icons.delete_outline_rounded, size: 18, color: C.textSub)),
                   ]),
                   const SizedBox(height: 8),
-                  Text('ðŸŒŸ ${e.manifesting}', style: GoogleFonts.lora(fontSize: 13, color: C.textDark, height: 1.5), maxLines: 2, overflow: TextOverflow.ellipsis),
+                  Text('🌟 ${e.manifesting}', style: GoogleFonts.lora(fontSize: 13, color: C.textDark, height: 1.5), maxLines: 2, overflow: TextOverflow.ellipsis),
                   const SizedBox(height: 4),
-                  Text('ðŸ™ ${e.grateful}', style: GoogleFonts.lora(fontSize: 13, color: C.textDark, height: 1.5), maxLines: 2, overflow: TextOverflow.ellipsis),
+                  Text('🙏 ${e.grateful}', style: GoogleFonts.lora(fontSize: 13, color: C.textDark, height: 1.5), maxLines: 2, overflow: TextOverflow.ellipsis),
                 ])).animate(delay: (i * 40).ms).fadeIn();
             })),
     ]));
 }
  
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 //  THEMES TAB
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 class _ThemesTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ListView(padding: const EdgeInsets.fromLTRB(20, 20, 20, 120), children: [
     const NishAffsLogo(size: 44), const SizedBox(height: 12),
-    Text(L.isHindi ? 'à¤¥à¥€à¤® à¤šà¥à¤¨à¥‡à¤‚' : 'Choose Your Theme', style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold, color: C.textDark)),
+    Text(L.isHindi ? 'थीम चुनें' : 'Choose Your Theme', style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold, color: C.textDark)),
     const SizedBox(height: 6),
-    Text(L.isHindi ? 'à¤Ÿà¥ˆà¤ª à¤•à¤°à¥‡à¤‚ â€” à¤ªà¥‚à¤°à¤¾ à¤à¤ª à¤¬à¤¦à¤² à¤œà¤¾à¤à¤—à¤¾! âœ¨' : 'Tap to apply instantly â€” changes everything! âœ¨', style: GoogleFonts.poppins(fontSize: 13, color: C.textSub)),
+    Text(L.isHindi ? 'टैप करें — पूरा ऐप बदल जाएगा! ✨' : 'Tap to apply instantly — changes everything! ✨', style: GoogleFonts.poppins(fontSize: 13, color: C.textSub)),
     const SizedBox(height: 20),
     ValueListenableBuilder<int>(valueListenable: AppState.instance.themeIdx, builder: (_, idx, __) =>
       Column(children: List.generate(_appThemes.length, (i) {
@@ -2093,19 +2410,19 @@ class _ThemesTab extends StatelessWidget {
               const SizedBox(width: 16),
               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text(t.name, style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold, color: C.textDark)),
-                Text(L.isHindi ? 'à¤Ÿà¥ˆà¤ª à¤•à¤°à¥‡à¤‚' : 'Tap to apply', style: GoogleFonts.poppins(fontSize: 12, color: C.textSub)),
+                Text(L.isHindi ? 'टैप करें' : 'Tap to apply', style: GoogleFonts.poppins(fontSize: 12, color: C.textSub)),
               ])),
               if (on) Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(gradient: LinearGradient(colors: [t.primary, t.secondary]), borderRadius: BorderRadius.circular(100)),
-                child: Text('Active âœ“', style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.white))),
+                child: Text('Active ✓', style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.white))),
             ])));
       }))),
   ]);
 }
  
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-//  SETTINGS TAB â€” with language toggle
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
+//  SETTINGS TAB — with language toggle
+// ════════════════════════════════════════════════════════════════════
 class _SettingsTab extends StatefulWidget {
   @override State<_SettingsTab> createState() => _SettingsTabState();
 }
@@ -2117,7 +2434,7 @@ class _SettingsTabState extends State<_SettingsTab> {
     Container(margin: const EdgeInsets.only(bottom: 16), padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(gradient: const LinearGradient(colors: [Color(0xFFFFF0F8), Color(0xFFF0E8FF)]), borderRadius: BorderRadius.circular(18), border: Border.all(color: C.pink2, width: 1.2)),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(L.isHindi ? 'à¤­à¤¾à¤·à¤¾' : 'Language', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w700, color: C.textDark)),
+        Text(L.isHindi ? 'भाषा' : 'Language', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w700, color: C.textDark)),
         const SizedBox(height: 12),
         ValueListenableBuilder<String>(valueListenable: AppState.instance.language, builder: (_, lang, __) =>
           Row(children: [
@@ -2129,7 +2446,7 @@ class _SettingsTabState extends State<_SettingsTab> {
                   color: lang == 'en' ? null : Colors.white, borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: lang == 'en' ? Colors.transparent : C.pink2)),
                 child: Column(children: [
-                  Text('ðŸ‡¬ðŸ‡§', style: const TextStyle(fontSize: 24)),
+                  Text('🇬🇧', style: const TextStyle(fontSize: 24)),
                   const SizedBox(height: 4),
                   Text('English', style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w700, color: lang == 'en' ? Colors.white : C.textDark)),
                 ])))),
@@ -2142,27 +2459,27 @@ class _SettingsTabState extends State<_SettingsTab> {
                   color: lang == 'hi' ? null : Colors.white, borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: lang == 'hi' ? Colors.transparent : C.pink2)),
                 child: Column(children: [
-                  Text('ðŸ‡®ðŸ‡³', style: const TextStyle(fontSize: 24)),
+                  Text('🇮🇳', style: const TextStyle(fontSize: 24)),
                   const SizedBox(height: 4),
-                  Text('à¤¹à¤¿à¤¨à¥à¤¦à¥€', style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w700, color: lang == 'hi' ? Colors.white : C.textDark)),
+                  Text('हिन्दी', style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w700, color: lang == 'hi' ? Colors.white : C.textDark)),
                 ])))),
           ])),
       ])),
-    _toggle('ðŸ”” ${L.isHindi ? 'à¤¸à¥à¤¬à¤¹ 8 à¤¬à¤œà¥‡ à¤…à¤«à¤°à¥à¤®à¥‡à¤¶à¤¨' : 'Daily Affirmation 8AM'}', _notifOn, (v) => setState(() => _notifOn = v)),
-    _toggle('ðŸ“± ${L.isHindi ? 'à¤¹à¥‹à¤® à¤¸à¥à¤•à¥à¤°à¥€à¤¨ à¤µà¤¿à¤œà¥‡à¤Ÿ' : 'Home Screen Widget'}', _widgetOn, (v) => setState(() => _widgetOn = v)),
-    _toggle('ðŸŒ™ ${L.isHindi ? 'à¤¡à¤¾à¤°à¥à¤• à¤®à¥‹à¤¡' : 'Dark Mode'}', _darkMode, (v) => setState(() => _darkMode = v)),
-    _toggle('ðŸ”’ ${L.isHindi ? 'à¤ªà¥à¤°à¤¾à¤‡à¤µà¥‡à¤Ÿ à¤ªà¥à¤°à¥‹à¤«à¤¾à¤‡à¤²' : 'Private Profile'}', _privateProfile, (v) => setState(() => _privateProfile = v)),
+    _toggle('🔔 ${L.isHindi ? 'सुबह 8 बजे अफर्मेशन' : 'Daily Affirmation 8AM'}', _notifOn, (v) => setState(() => _notifOn = v)),
+    _toggle('📱 ${L.isHindi ? 'होम स्क्रीन विजेट' : 'Home Screen Widget'}', _widgetOn, (v) => setState(() => _widgetOn = v)),
+    _toggle('🌙 ${L.isHindi ? 'डार्क मोड' : 'Dark Mode'}', _darkMode, (v) => setState(() => _darkMode = v)),
+    _toggle('🔒 ${L.isHindi ? 'प्राइवेट प्रोफाइल' : 'Private Profile'}', _privateProfile, (v) => setState(() => _privateProfile = v)),
     const SizedBox(height: 14),
-    _tile('â­ ${L.isHindi ? 'NishAffs à¤°à¥‡à¤Ÿ à¤•à¤°à¥‡à¤‚' : 'Rate NishAffs'}', ''),
-    _tile('ðŸ’Œ ${L.isHindi ? 'à¤«à¥€à¤¡à¤¬à¥ˆà¤•' : 'Feedback'}', ''),
-    _tile('ðŸ“¤ ${L.isHindi ? 'à¤à¤ª à¤¶à¥‡à¤¯à¤° à¤•à¤°à¥‡à¤‚' : 'Share App'}', ''),
-    _tile('ðŸ“‹ ${L.isHindi ? 'à¤ªà¥à¤°à¤¾à¤‡à¤µà¥‡à¤¸à¥€ à¤ªà¥‰à¤²à¤¿à¤¸à¥€' : 'Privacy Policy'}', ''),
+    _tile('⭐ ${L.isHindi ? 'NishAffs रेट करें' : 'Rate NishAffs'}', ''),
+    _tile('💌 ${L.isHindi ? 'फीडबैक' : 'Feedback'}', ''),
+    _tile('📤 ${L.isHindi ? 'ऐप शेयर करें' : 'Share App'}', ''),
+    _tile('📋 ${L.isHindi ? 'प्राइवेसी पॉलिसी' : 'Privacy Policy'}', ''),
     const SizedBox(height: 24),
     Center(child: Column(children: [
       const NishAffsLogo(size: 52), const SizedBox(height: 10),
       Text('NishAffs v6.0', style: GoogleFonts.pacifico(fontSize: 20, color: C.pinkDark)), const SizedBox(height: 4),
       Text(L.t('made_in_india'), style: GoogleFonts.poppins(fontSize: 12, color: C.textSub)),
-      Text('${kTotalAffirmations} ${L.t('affirmations')} âœ¨', style: GoogleFonts.poppins(fontSize: 11, color: C.textSub)),
+      Text('${kTotalAffirmations} ${L.t('affirmations')} ✨', style: GoogleFonts.poppins(fontSize: 11, color: C.textSub)),
     ])),
   ]);
   Widget _toggle(String label, bool val, Function(bool) cb) =>
@@ -2178,9 +2495,9 @@ class _SettingsTabState extends State<_SettingsTab> {
         const Icon(Icons.chevron_right_rounded, size: 16, color: C.textSub)]));
 }
  
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 //  SOUND CARD
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 class _SoundCard extends StatelessWidget {
   final int idx; final (String, String, String, String, Color, Color) data;
   const _SoundCard({required this.idx, required this.data});
@@ -2203,7 +2520,7 @@ class _SoundCard extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text(data.$1, style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.bold, color: C.textDark)),
-                Text('${data.$2} Â· ${data.$3}', style: GoogleFonts.poppins(fontSize: 11, color: C.textSub)),
+                Text('${data.$2} · ${data.$3}', style: GoogleFonts.poppins(fontSize: 11, color: C.textSub)),
               ])),
               ValueListenableBuilder<bool>(valueListenable: svc.isPlaying, builder: (_, isp, __) =>
                 Container(width: 42, height: 42, decoration: BoxDecoration(shape: BoxShape.circle,
@@ -2254,9 +2571,9 @@ class _WavePainter extends CustomPainter {
   @override bool shouldRepaint(_WavePainter o) => o.t != t;
 }
  
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-//  JOURNAL SCREEN â€” full CRUD
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
+//  JOURNAL SCREEN — full CRUD
+// ════════════════════════════════════════════════════════════════════
 class JournalScreen extends StatefulWidget {
   final String? prefillPrompt;
   const JournalScreen({super.key, this.prefillPrompt});
@@ -2268,7 +2585,7 @@ class _JournalScreenState extends State<JournalScreen> with SingleTickerProvider
   final _gratefulCtrl  = TextEditingController();
   String _mood = '';
   bool _saving = false;
-  static const _moodEmojis = ['ðŸ˜”','ðŸ˜','ðŸ™‚','ðŸ˜Š','ðŸŒŸ'];
+  static const _moodEmojis = ['😔','😐','🙂','😊','🌟'];
   @override void initState() {
     super.initState();
     _tc = TabController(length: 2, vsync: this);
@@ -2278,7 +2595,7 @@ class _JournalScreenState extends State<JournalScreen> with SingleTickerProvider
  
   Future<void> _save() async {
     if (_manifestCtrl.text.trim().isEmpty && _gratefulCtrl.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('âœï¸ Write something first!'), backgroundColor: C.pinkDark, behavior: SnackBarBehavior.floating, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)))); return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('✍️ Write something first!'), backgroundColor: C.pinkDark, behavior: SnackBarBehavior.floating, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)))); return;
     }
     setState(() => _saving = true);
     await Future.delayed(const Duration(milliseconds: 400));
@@ -2291,7 +2608,7 @@ class _JournalScreenState extends State<JournalScreen> with SingleTickerProvider
     ));
     setState(() { _saving = false; _manifestCtrl.clear(); _gratefulCtrl.clear(); _mood = ''; });
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('âœ¨ Entry saved to your journal!'), backgroundColor: C.pinkDark, behavior: SnackBarBehavior.floating, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('✨ Entry saved to your journal!'), backgroundColor: C.pinkDark, behavior: SnackBarBehavior.floating, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))));
       _tc.animateTo(1);
     }
   }
@@ -2308,7 +2625,7 @@ class _JournalScreenState extends State<JournalScreen> with SingleTickerProvider
           labelStyle: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w700),
           indicator: BoxDecoration(gradient: const LinearGradient(colors: [C.pinkTheme, C.purple]), borderRadius: BorderRadius.circular(12)),
           indicatorSize: TabBarIndicatorSize.tab,
-          tabs: [Tab(text: L.isHindi ? 'âœï¸ à¤²à¤¿à¤–à¥‡à¤‚' : 'âœï¸ Write'), Tab(text: L.isHindi ? 'ðŸ“– à¤‡à¤¤à¤¿à¤¹à¤¾à¤¸' : 'ðŸ“– History')])),
+          tabs: [Tab(text: L.isHindi ? '✍️ लिखें' : '✍️ Write'), Tab(text: L.isHindi ? '📖 इतिहास' : '📖 History')])),
       Expanded(child: TabBarView(controller: _tc, children: [
         // WRITE tab
         SingleChildScrollView(padding: const EdgeInsets.all(20), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -2321,7 +2638,7 @@ class _JournalScreenState extends State<JournalScreen> with SingleTickerProvider
             ])),
           const SizedBox(height: 20),
           // Mood selector for journal
-          Text(L.isHindi ? 'à¤†à¤œ à¤•à¤¾ à¤®à¥‚à¤¡' : 'Today\'s mood', style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w700, color: C.textSub)),
+          Text(L.isHindi ? 'आज का मूड' : 'Today\'s mood', style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w700, color: C.textSub)),
           const SizedBox(height: 8),
           Row(children: _moodEmojis.map((e) => GestureDetector(onTap: () => setState(() => _mood = e),
             child: AnimatedContainer(duration: const Duration(milliseconds: 200),
@@ -2337,7 +2654,7 @@ class _JournalScreenState extends State<JournalScreen> with SingleTickerProvider
             child: TextField(controller: _manifestCtrl, maxLines: 4,
               style: GoogleFonts.lora(fontSize: 15, color: C.textDark, height: 1.7),
               decoration: InputDecoration(
-                hintText: L.isHindi ? 'à¤†à¤œ à¤®à¥ˆà¤‚ à¤®à¥ˆà¤¨à¤¿à¤«à¥‡à¤¸à¥à¤Ÿ à¤•à¤°à¤¤à¥€ à¤¹à¥‚à¤‚...' : 'Today I am manifesting...',
+                hintText: L.isHindi ? 'आज मैं मैनिफेस्ट करती हूं...' : 'Today I am manifesting...',
                 hintStyle: GoogleFonts.lora(fontSize: 14, color: C.textSub.withOpacity(0.55), fontStyle: FontStyle.italic),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(18), borderSide: BorderSide.none),
                 fillColor: Colors.transparent, filled: true, contentPadding: const EdgeInsets.all(16)))),
@@ -2349,7 +2666,7 @@ class _JournalScreenState extends State<JournalScreen> with SingleTickerProvider
             child: TextField(controller: _gratefulCtrl, maxLines: 4,
               style: GoogleFonts.lora(fontSize: 15, color: C.textDark, height: 1.7),
               decoration: InputDecoration(
-                hintText: L.isHindi ? 'à¤®à¥ˆà¤‚ à¤†à¤­à¤¾à¤°à¥€ à¤¹à¥‚à¤‚...' : 'I am grateful for...',
+                hintText: L.isHindi ? 'मैं आभारी हूं...' : 'I am grateful for...',
                 hintStyle: GoogleFonts.lora(fontSize: 14, color: C.textSub.withOpacity(0.55), fontStyle: FontStyle.italic),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(18), borderSide: BorderSide.none),
                 fillColor: Colors.transparent, filled: true, contentPadding: const EdgeInsets.all(16)))),
@@ -2365,10 +2682,10 @@ class _JournalScreenState extends State<JournalScreen> with SingleTickerProvider
         // HISTORY tab
         ValueListenableBuilder<List<JournalEntry>>(valueListenable: AppState.instance.journal, builder: (_, entries, __) =>
           entries.isEmpty ? Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-            const Text('ðŸ““', style: TextStyle(fontSize: 56)), const SizedBox(height: 16),
-            Text(L.isHindi ? 'à¤…à¤­à¥€ à¤¤à¤• à¤•à¥‹à¤ˆ à¤à¤‚à¤Ÿà¥à¤°à¥€ à¤¨à¤¹à¥€à¤‚' : 'No entries yet', style: GoogleFonts.poppins(fontSize: 15, color: C.textSub)),
+            const Text('📓', style: TextStyle(fontSize: 56)), const SizedBox(height: 16),
+            Text(L.isHindi ? 'अभी तक कोई एंट्री नहीं' : 'No entries yet', style: GoogleFonts.poppins(fontSize: 15, color: C.textSub)),
             const SizedBox(height: 6),
-            Text(L.isHindi ? 'à¤ªà¤¹à¤²à¥€ à¤à¤‚à¤Ÿà¥à¤°à¥€ à¤²à¤¿à¤–à¥‡à¤‚ âœ¨' : 'Write your first entry âœ¨', style: GoogleFonts.poppins(fontSize: 13, color: C.textSub))]))
+            Text(L.isHindi ? 'पहली एंट्री लिखें ✨' : 'Write your first entry ✨', style: GoogleFonts.poppins(fontSize: 13, color: C.textSub))]))
           : ListView.builder(padding: const EdgeInsets.all(16), itemCount: entries.length, itemBuilder: (_, i) {
               final e = entries[i];
               return Container(margin: const EdgeInsets.only(bottom: 14), padding: const EdgeInsets.all(18),
@@ -2383,21 +2700,21 @@ class _JournalScreenState extends State<JournalScreen> with SingleTickerProvider
                     if (e.mood.isNotEmpty) Text(e.mood, style: const TextStyle(fontSize: 18)),
                     const SizedBox(width: 8),
                     GestureDetector(onTap: () => showDialog(context: context, builder: (_) => AlertDialog(
-                      title: Text(L.isHindi ? 'à¤¹à¤Ÿà¤¾à¤à¤‚?' : 'Delete entry?', style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
-                      content: Text(L.isHindi ? 'à¤¯à¤¹ à¤à¤‚à¤Ÿà¥à¤°à¥€ à¤¹à¤®à¥‡à¤¶à¤¾ à¤•à¥‡ à¤²à¤¿à¤ à¤¹à¤Ÿ à¤œà¤¾à¤à¤—à¥€à¥¤' : 'This entry will be permanently deleted.', style: GoogleFonts.poppins()),
+                      title: Text(L.isHindi ? 'हटाएं?' : 'Delete entry?', style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
+                      content: Text(L.isHindi ? 'यह एंट्री हमेशा के लिए हट जाएगी।' : 'This entry will be permanently deleted.', style: GoogleFonts.poppins()),
                       actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text('Cancel')), TextButton(onPressed: () { AppState.instance.deleteJournalEntry(e.id); Navigator.pop(context); }, child: Text('Delete', style: TextStyle(color: C.pinkDark)))],
                     )), child: const Icon(Icons.delete_outline_rounded, size: 18, color: C.textSub)),
                   ]),
                   const SizedBox(height: 12),
                   if (e.manifesting.isNotEmpty) ...[
                     Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      const Text('ðŸŒŸ ', style: TextStyle(fontSize: 16)),
+                      const Text('🌟 ', style: TextStyle(fontSize: 16)),
                       Expanded(child: Text(e.manifesting, style: GoogleFonts.lora(fontSize: 14, color: C.textDark, height: 1.6))),
                     ]),
                     const SizedBox(height: 8),
                   ],
                   if (e.grateful.isNotEmpty) Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    const Text('ðŸ™ ', style: TextStyle(fontSize: 16)),
+                    const Text('🙏 ', style: TextStyle(fontSize: 16)),
                     Expanded(child: Text(e.grateful, style: GoogleFonts.lora(fontSize: 14, color: C.textDark, height: 1.6))),
                   ]),
                 ])).animate(delay: (i * 40).ms).fadeIn();
@@ -2406,9 +2723,9 @@ class _JournalScreenState extends State<JournalScreen> with SingleTickerProvider
     ]));
 }
  
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-//  55Ã—5 CHALLENGE
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
+//  55×5 CHALLENGE
+// ════════════════════════════════════════════════════════════════════
 class Challenge55x5Screen extends StatefulWidget {
   const Challenge55x5Screen({super.key});
   @override State<Challenge55x5Screen> createState() => _Challenge55x5ScreenState();
@@ -2421,7 +2738,7 @@ class _Challenge55x5ScreenState extends State<Challenge55x5Screen> {
     appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0, centerTitle: true,
       leading: const BackButton(color: C.pinkDark),
       title: Row(mainAxisSize: MainAxisSize.min, children: [const NishAffsLogo(size: 24), const SizedBox(width: 8),
-        Text('55Ã—5 Challenge', style: GoogleFonts.poppins(fontSize: 17, fontWeight: FontWeight.bold, color: C.textDark))])),
+        Text('55×5 Challenge', style: GoogleFonts.poppins(fontSize: 17, fontWeight: FontWeight.bold, color: C.textDark))])),
     body: ValueListenableBuilder(valueListenable: AppState.instance.challenge, builder: (_, ch, __) =>
       (ch == null || (ch['text'] as String? ?? '').isEmpty) ? _ChallengeSetup(tc: _tc) : _ChallengeActive(ch: ch)));
 }
@@ -2430,8 +2747,8 @@ class _ChallengeSetup extends StatelessWidget {
   @override
   Widget build(BuildContext context) => SingleChildScrollView(padding: const EdgeInsets.all(24), child: Column(children: [
     Container(padding: const EdgeInsets.all(24), decoration: BoxDecoration(gradient: const LinearGradient(colors: [Color(0xFFFFE4F0), Color(0xFFF0DCFF)]), borderRadius: BorderRadius.circular(28), border: Border.all(color: C.pink3.withOpacity(0.5), width: 1.5)),
-      child: Column(children: [const Text('âœ¨', style: TextStyle(fontSize: 48)), const SizedBox(height: 12),
-        Text('The 55Ã—5 Method', style: GoogleFonts.playfairDisplay(fontSize: 22, fontWeight: FontWeight.bold, color: C.textDark)), const SizedBox(height: 10),
+      child: Column(children: [const Text('✨', style: TextStyle(fontSize: 48)), const SizedBox(height: 12),
+        Text('The 55×5 Method', style: GoogleFonts.playfairDisplay(fontSize: 22, fontWeight: FontWeight.bold, color: C.textDark)), const SizedBox(height: 10),
         Text('Write your affirmation 55 times per day for 5 consecutive days. This technique overwhelms your subconscious and accelerates manifestation.', textAlign: TextAlign.center, style: GoogleFonts.poppins(fontSize: 14, color: C.textSub, height: 1.65))])),
     const SizedBox(height: 24),
     Container(decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: C.pink2.withOpacity(0.4), blurRadius: 12, offset: const Offset(0, 4))]),
@@ -2443,7 +2760,7 @@ class _ChallengeSetup extends StatelessWidget {
     const SizedBox(height: 20),
     GestureDetector(onTap: () { if (tc.text.trim().isEmpty) return; AppState.instance.startChallenge(tc.text.trim()); },
       child: Container(width: double.infinity, height: 54, decoration: BoxDecoration(gradient: const LinearGradient(colors: [C.pinkTheme, C.purple]), borderRadius: BorderRadius.circular(100), boxShadow: [BoxShadow(color: C.pinkTheme.withOpacity(0.4), blurRadius: 14, offset: const Offset(0, 6))]),
-        child: Center(child: Text('Start My 55Ã—5 Journey ðŸŒŸ', style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white))))),
+        child: Center(child: Text('Start My 55×5 Journey 🌟', style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white))))),
   ]));
 }
 class _ChallengeActive extends StatelessWidget {
@@ -2467,7 +2784,7 @@ class _ChallengeActive extends StatelessWidget {
           Container(width: 46, height: 46, decoration: BoxDecoration(shape: BoxShape.circle,
             gradient: done ? const LinearGradient(colors: [C.pinkTheme, C.purple]) : null,
             color: done ? null : isToday ? C.pink2 : Colors.white, border: Border.all(color: done ? Colors.transparent : isToday ? C.pinkTheme : C.pink2, width: 2)),
-            child: Center(child: Text(done ? 'âœ“' : '${i+1}', style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold, color: done ? Colors.white : isToday ? C.pinkDark : C.textSub)))),
+            child: Center(child: Text(done ? '✓' : '${i+1}', style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold, color: done ? Colors.white : isToday ? C.pinkDark : C.textSub)))),
           const SizedBox(height: 6),
           Text('Day ${i+1}', style: GoogleFonts.poppins(fontSize: 10, color: C.textSub)),
           if (cnt > 0 && !done) Text('$cnt', style: GoogleFonts.poppins(fontSize: 9, color: C.pinkDark, fontWeight: FontWeight.bold)),
@@ -2484,98 +2801,74 @@ class _ChallengeActive extends StatelessWidget {
             child: Container(width: double.infinity, height: 54, decoration: BoxDecoration(
               gradient: todayCnt >= 55 ? null : const LinearGradient(colors: [C.pinkTheme, C.purple]), color: todayCnt >= 55 ? C.pink2 : null, borderRadius: BorderRadius.circular(100),
               boxShadow: todayCnt < 55 ? [BoxShadow(color: C.pinkTheme.withOpacity(0.4), blurRadius: 12, offset: const Offset(0, 4))] : []),
-              child: Center(child: Text(todayCnt >= 55 ? 'âœ“ Done for today! ðŸŒŸ' : '+ Write it once  (${55 - todayCnt} more to go)', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w700, color: todayCnt >= 55 ? C.textSub : Colors.white))))),
+              child: Center(child: Text(todayCnt >= 55 ? '✓ Done for today! 🌟' : '+ Write it once  (${55 - todayCnt} more to go)', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w700, color: todayCnt >= 55 ? C.textSub : Colors.white))))),
         ])),
       if (daysDone >= 5) ...[const SizedBox(height: 20),
         Container(padding: const EdgeInsets.all(20), decoration: BoxDecoration(gradient: const LinearGradient(colors: [C.pinkTheme, C.purple]), borderRadius: BorderRadius.circular(22)),
-          child: Column(children: [const Text('ðŸŽ‰', style: TextStyle(fontSize: 48)),
+          child: Column(children: [const Text('🎉', style: TextStyle(fontSize: 48)),
             Text('Challenge Complete!', style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)), const SizedBox(height: 6),
-            Text('You manifested for 5 days straight. The universe has received your intention! âœ¨', textAlign: TextAlign.center, style: GoogleFonts.poppins(fontSize: 13, color: Colors.white.withOpacity(0.9), height: 1.5))]))],
+            Text('You manifested for 5 days straight. The universe has received your intention! ✨', textAlign: TextAlign.center, style: GoogleFonts.poppins(fontSize: 13, color: Colors.white.withOpacity(0.9), height: 1.5))]))],
     ]));
   }
 }
  
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 //  VISION BOARD
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════
 class VisionBoardScreen extends StatelessWidget {
   const VisionBoardScreen({super.key});
   static const _prompts = ['My dream home is...','I feel deeply...','My body is...','My career is...','Love looks like...','My bank account says...','I am grateful for...','I wake up to...','My relationships are...','I travel to...'];
-
   @override
   Widget build(BuildContext context) {
-    final vbs = VisionBoardService();
     final tc = TextEditingController();
-
-    void showAddSheet() => showModalBottomSheet(
-      context: context, isScrollControlled: true, backgroundColor: Colors.transparent,
-      builder: (ctx) => Container(
-        decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
-        padding: EdgeInsets.fromLTRB(22, 18, 22, MediaQuery.of(ctx).viewInsets.bottom + 28),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Container(width: 44, height: 5, decoration: BoxDecoration(color: C.pink2, borderRadius: BorderRadius.circular(3))),
-          const SizedBox(height: 16),
-          Row(children: [const NishAffsLogo(size: 26), const SizedBox(width: 8),
-            Text(L.isHindi ? 'à¤µà¤¿à¤œà¤¨ à¤•à¤¾à¤°à¥à¤¡ à¤œà¥‹à¤¡à¤¼à¥‡à¤‚' : 'Add Vision Card', style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold, color: C.textDark))]),
-          const SizedBox(height: 14),
-          GestureDetector(
-            onTap: () async { Navigator.pop(ctx); await vbs.addImageFromGallery(); },
-            child: Container(width: double.infinity, height: 50,
-              decoration: BoxDecoration(gradient: const LinearGradient(colors: [C.pinkTheme, C.purple]), borderRadius: BorderRadius.circular(100)),
-              child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                const Icon(Icons.photo_library_rounded, color: Colors.white, size: 20), const SizedBox(width: 8),
-                Text(L.isHindi ? 'ðŸ“¸ à¤«à¤¼à¥‹à¤Ÿà¥‹ à¤œà¥‹à¤¡à¤¼à¥‡à¤‚' : 'ðŸ“¸ Add from Gallery', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white))]))),
-          const SizedBox(height: 10),
-          Text('â€” or write a dream â€”', style: GoogleFonts.poppins(fontSize: 11, color: C.textSub)),
-          const SizedBox(height: 10),
-          SizedBox(height: 40, child: ListView.builder(scrollDirection: Axis.horizontal, itemCount: _prompts.length,
-            itemBuilder: (_, i) => GestureDetector(onTap: () => tc.text = _prompts[i],
-              child: Container(margin: const EdgeInsets.only(right: 8), padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(color: C.pink1, borderRadius: BorderRadius.circular(100), border: Border.all(color: C.pink3)),
-                child: Text(_prompts[i], style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w600, color: C.pinkDark)))))),
-          const SizedBox(height: 12),
-          TextField(controller: tc, maxLines: 3, style: GoogleFonts.lora(fontSize: 15, color: C.textDark, height: 1.6),
-            decoration: InputDecoration(hintText: 'My dream life includes...', hintStyle: GoogleFonts.lora(fontSize: 14, color: C.textSub.withOpacity(0.5), fontStyle: FontStyle.italic),
-              filled: true, fillColor: C.pink1, border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none), contentPadding: const EdgeInsets.all(16))),
-          const SizedBox(height: 16),
-          GestureDetector(
-            onTap: () async {
-              if (tc.text.trim().isEmpty) return;
-              await vbs.addTextCard(tc.text.trim());
-              AppState.instance.addVisionCard(tc.text.trim());
-              if (ctx.mounted) Navigator.pop(ctx);
-            },
-            child: Container(width: double.infinity, height: 50,
-              decoration: BoxDecoration(color: C.pink2, borderRadius: BorderRadius.circular(100)),
-              child: Center(child: Text(L.isHindi ? 'à¤¬à¥‹à¤°à¥à¤¡ à¤®à¥‡à¤‚ à¤œà¥‹à¤¡à¤¼à¥‡à¤‚ âœ¨' : 'Add Text Card âœ¨', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w700, color: C.pinkDark))))),
-        ])));
-
     return Scaffold(backgroundColor: C.bg,
       appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0, centerTitle: true,
         leading: const BackButton(color: C.pinkDark),
-        title: Row(mainAxisSize: MainAxisSize.min, children: [const NishAffsLogo(size: 24), const SizedBox(width: 8),
-          Text(L.t('vision_board'), style: GoogleFonts.poppins(fontSize: 17, fontWeight: FontWeight.bold, color: C.textDark))]),
-        actions: [IconButton(icon: const Icon(Icons.add_rounded, color: C.pinkDark, size: 28), onPressed: showAddSheet)]),
-      body: ValueListenableBuilder<List<VisionBoardItem>>(
-        valueListenable: vbs.visionItems,
-        builder: (_, items, __) => items.isEmpty
-          ? Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-              const Text('ðŸŒŸ', style: TextStyle(fontSize: 56)), const SizedBox(height: 14),
-              Text(L.isHindi ? 'à¤†à¤ªà¤•à¤¾ à¤µà¤¿à¤œà¤¨ à¤¬à¥‹à¤°à¥à¤¡ à¤–à¤¾à¤²à¥€ à¤¹à¥ˆ!' : 'Your vision board is empty!',
-                style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold, color: C.textSub)), const SizedBox(height: 6),
-              Text(L.isHindi ? '+ à¤Ÿà¥ˆà¤ª à¤•à¤°à¥‡à¤‚ à¤”à¤° à¤¸à¤ªà¤¨à¤¾ à¤œà¥‹à¤¡à¤¼à¥‡à¤‚ âœ¨' : 'Tap + to add photos or dreams âœ¨',
-                style: GoogleFonts.poppins(fontSize: 13, color: C.textSub))]))
-          : GridView.builder(
-              padding: const EdgeInsets.all(16), itemCount: items.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, crossAxisSpacing: 12, mainAxisSpacing: 12, childAspectRatio: 0.9),
-              itemBuilder: (ctx, i) => VisionBoardItemCard(
-                item: items[i],
-                onLongPress: () => vbs.deleteItem(items[i].id),
-              ).animate(delay: (i * 50).ms).fadeIn().scale(begin: const Offset(0.95, 0.95)))));
+        title: Row(mainAxisSize: MainAxisSize.min, children: [const NishAffsLogo(size: 24), const SizedBox(width: 8), Text(L.t('vision_board'), style: GoogleFonts.poppins(fontSize: 17, fontWeight: FontWeight.bold, color: C.textDark))]),
+        actions: [IconButton(icon: const Icon(Icons.add_rounded, color: C.pinkDark, size: 28), onPressed: () => showModalBottomSheet(context: context, isScrollControlled: true, backgroundColor: Colors.transparent,
+          builder: (ctx) => Container(decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
+            padding: EdgeInsets.fromLTRB(22, 18, 22, MediaQuery.of(ctx).viewInsets.bottom + 28),
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              Container(width: 44, height: 5, decoration: BoxDecoration(color: C.pink2, borderRadius: BorderRadius.circular(3))),
+              const SizedBox(height: 16),
+              Row(children: [const NishAffsLogo(size: 26), const SizedBox(width: 8), Text(L.isHindi ? 'विजन कार्ड जोड़ें' : 'Add Vision Card', style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold, color: C.textDark))]),
+              const SizedBox(height: 14),
+              SizedBox(height: 40, child: ListView.builder(scrollDirection: Axis.horizontal, itemCount: _prompts.length,
+                itemBuilder: (_, i) => GestureDetector(onTap: () => tc.text = _prompts[i], child: Container(margin: const EdgeInsets.only(right: 8), padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(color: C.pink1, borderRadius: BorderRadius.circular(100), border: Border.all(color: C.pink3)),
+                  child: Text(_prompts[i], style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w600, color: C.pinkDark)))))),
+              const SizedBox(height: 12),
+              TextField(controller: tc, maxLines: 3, style: GoogleFonts.lora(fontSize: 15, color: C.textDark, height: 1.6),
+                decoration: InputDecoration(hintText: 'My dream life includes...', hintStyle: GoogleFonts.lora(fontSize: 14, color: C.textSub.withOpacity(0.5), fontStyle: FontStyle.italic),
+                  filled: true, fillColor: C.pink1, border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none), contentPadding: const EdgeInsets.all(16))),
+              const SizedBox(height: 16),
+              GestureDetector(onTap: () { if (tc.text.trim().isEmpty) return; AppState.instance.addVisionCard(tc.text.trim()); Navigator.pop(ctx); },
+                child: Container(width: double.infinity, height: 50, decoration: BoxDecoration(gradient: const LinearGradient(colors: [C.pinkTheme, C.purple]), borderRadius: BorderRadius.circular(100)),
+                  child: Center(child: Text(L.isHindi ? 'बोर्ड में जोड़ें ✨' : 'Add to Board ✨', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white))))),
+            ]))))]),
+      body: ValueListenableBuilder<List<String>>(valueListenable: AppState.instance.visionBoard, builder: (_, cards, __) =>
+        cards.isEmpty ? Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+          const Text('🌟', style: TextStyle(fontSize: 56)), const SizedBox(height: 14),
+          Text(L.isHindi ? 'आपका विजन बोर्ड खाली है!' : 'Your vision board is empty!', style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold, color: C.textSub)), const SizedBox(height: 6),
+          Text(L.isHindi ? '+ टैप करें और अपना पहला सपना जोड़ें ✨' : 'Tap + to add your first dream ✨', style: GoogleFonts.poppins(fontSize: 13, color: C.textSub))]))
+        : GridView.builder(padding: const EdgeInsets.all(16), itemCount: cards.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, crossAxisSpacing: 12, mainAxisSpacing: 12, childAspectRatio: 0.9),
+            itemBuilder: (ctx, i) => GestureDetector(onLongPress: () => AppState.instance.removeVisionCard(i),
+              child: ClipRRect(borderRadius: BorderRadius.circular(22), child: Stack(children: [
+                Positioned.fill(child: _img((i * 3 + 5) % 22, w: double.infinity, h: double.infinity)),
+                Positioned.fill(child: Container(color: Colors.black.withOpacity(0.42))),
+                Positioned(top: 8, right: 8, child: const NishAffsLogo(size: 20)),
+                Center(child: Padding(padding: const EdgeInsets.all(14), child: Text(cards[i], textAlign: TextAlign.center, style: GoogleFonts.lora(fontSize: 14, color: Colors.white, fontWeight: FontWeight.w600, height: 1.55), maxLines: 5, overflow: TextOverflow.ellipsis))),
+                Positioned(bottom: 8, left: 8, child: Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(6)),
+                  child: Text('#vision', style: GoogleFonts.poppins(fontSize: 9, color: Colors.white.withOpacity(0.9), fontWeight: FontWeight.w600)))),
+              ])).animate(delay: (i * 50).ms).fadeIn().scale(begin: const Offset(0.95, 0.95))))));
   }
 }
-
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+ 
+// ════════════════════════════════════════════════════════════════════
+//  CURATED LIST SCREEN
+// ════════════════════════════════════════════════════════════════════
 class CuratedListScreen extends StatelessWidget {
   const CuratedListScreen({super.key});
   @override
@@ -2583,7 +2876,7 @@ class CuratedListScreen extends StatelessWidget {
     appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0, centerTitle: true,
       leading: const BackButton(color: C.pinkDark),
       title: Row(mainAxisSize: MainAxisSize.min, children: [const NishAffsLogo(size: 24), const SizedBox(width: 8),
-        Text(L.isHindi ? 'à¤¸à¤­à¥€ à¤¸à¤‚à¤—à¥à¤°à¤¹' : 'All Collections', style: GoogleFonts.poppins(fontSize: 17, fontWeight: FontWeight.bold, color: C.textDark))])),
+        Text(L.isHindi ? 'सभी संग्रह' : 'All Collections', style: GoogleFonts.poppins(fontSize: 17, fontWeight: FontWeight.bold, color: C.textDark))])),
     body: GridView.builder(padding: const EdgeInsets.all(18), itemCount: kAffCategories.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, crossAxisSpacing: 14, mainAxisSpacing: 14, childAspectRatio: 0.85),
       itemBuilder: (ctx, i) {

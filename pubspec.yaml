@@ -23,6 +23,15 @@ dependencies:
   image_picker: ^1.1.2
   # Path Provider for file storage
   path_provider: ^2.1.4
+  # Firebase Backend
+  firebase_core: ^3.0.0
+  firebase_auth: ^5.0.0
+  cloud_firestore: ^5.0.0
+  firebase_storage: ^12.0.0
+  firebase_messaging: ^15.0.0
+  firebase_analytics: ^11.0.0
+  google_sign_in: ^6.2.1
+  sign_in_with_apple: ^3.3.0
 
 
 dev_dependencies:
@@ -136,49 +145,4 @@ flutter:
 #   - Story viewer uses scale + fade transition
 #   - Left drawer slides with CurvedAnimation
 #
-# ═══════════════════════════════════════════════════════════════════
-#  SETUP INSTRUCTIONS
-# ═══════════════════════════════════════════════════════════════════
-#
-# 1. Replace lib/main.dart with main_v4.dart
-# 2. Replace pubspec.yaml with this file
-# 3. Run: flutter pub get
-# 4. Add your images to: assets/images/
-#    (See previous pubspec for image name → file mapping)
-# 5. Run: flutter run
-#
-# ═══════════════════════════════════════════════════════════════════
-#  TO ADD REAL AUDIO (Soundscapes)
-# ═══════════════════════════════════════════════════════════════════
-#
-# Add to pubspec.yaml dependencies:
-#   just_audio: ^0.9.39
-#   audio_session: ^0.1.18
-#
-# Add audio files to: assets/audio/
-#   - 432hz.mp3
-#   - morning.mp3
-#   etc.
-#
-# In _SoundCard.onTap(), add:
-#   final player = AudioPlayer();
-#   await player.setAsset('assets/audio/432hz.mp3');
-#   player.play();
-#
-# ═══════════════════════════════════════════════════════════════════
-#  TO SWAP TO FIREBASE BACKEND
-# ═══════════════════════════════════════════════════════════════════
-#
-# 1. flutter pub add firebase_core firebase_auth cloud_firestore
-# 2. Run: flutterfire configure (installs google-services.json)
-# 3. In AppState.init(): replace SharedPreferences with Firestore reads
-# 4. In AppState.login(): use FirebaseAuth.instance.signInWithEmailAndPassword()
-# 5. In AppState.addPost(): use FirebaseFirestore.instance.collection('posts').add()
-# 6. In CommunityView: replace ValueListenableBuilder with StreamBuilder on Firestore
-#
-# Firebase data structure:
-#   users/{uid}: {name, email, streak, joined}
-#   posts/{postId}: {user, text, vibe, likes, comments[], timestamp}
-#   userLikes/{uid}/liked: [postId1, postId2...]
-#   userSaved/{uid}/saved: [postId1, postId2...]
-#   affirmations/{uid}/entries: [{text, vibe, timestamp}]
+# Production v6.0 dependencies aligned with stable release
