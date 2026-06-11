@@ -1,19 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../core/constants.dart';
-import '../../providers/theme_provider.dart';
-import '../../widgets/nishaffs_logo.dart';
+
+import '../../core/theme.dart';
+
+class MoodOverrideNotifier extends Notifier<int?> {
+  @override
+  int? build() => null;
+  void set(int? val) => state = val;
+}
+final moodOverrideProvider = NotifierProvider<MoodOverrideNotifier, int?>(MoodOverrideNotifier.new);
 
 class HomeView extends ConsumerWidget {
   const HomeView({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = ref.watch(currentThemeProvider);
+    final theme = ref.watch(appThemeProvider);
+    final mood = ref.watch(moodOverrideProvider);
+    final primary = theme.colorScheme.primary;
 
     return Scaffold(
-      backgroundColor: theme.background,
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
@@ -23,13 +30,10 @@ class HomeView extends ConsumerWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const NishAffsLogo(size: 28),
+                    Text('NishAffs', style: GoogleFonts.playfairDisplay(fontSize: 24, fontWeight: FontWeight.bold, color: primary)),
                     CircleAvatar(
-                      backgroundColor: theme.primary.withValues(alpha: 0.2),
-                      child: Text(
-                        '✨',
-                        style: TextStyle(color: theme.primary, fontWeight: FontWeight.bold),
-                      ),
+                      backgroundColor: primary.withValues(alpha: 0.2),
+                      child: Text('✨', style: TextStyle(color: primary, fontWeight: FontWeight.bold)),
                     ),
                   ],
                 ),
@@ -41,44 +45,30 @@ class HomeView extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Namaste, Beautiful 🌸',
-                      style: GoogleFonts.playfairDisplay(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                        color: C.textDark,
-                      ),
-                    ),
+                    Text('Namaste, Beautiful 🌸', style: GoogleFonts.playfairDisplay(fontSize: 32, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 8),
-                    Text(
-                      'Your daily vibe check:',
-                      style: GoogleFonts.poppins(
-                        fontSize: 16,
-                        color: C.textSub,
-                      ),
-                    ),
+                    Text('How\'s your vibe today?', style: GoogleFonts.poppins(fontSize: 16, color: Colors.grey.shade700)),
                     const SizedBox(height: 16),
-                    // Theme Selector
                     SizedBox(
                       height: 50,
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,
-                        itemCount: 7,
+                        itemCount: 5,
                         itemBuilder: (context, index) {
                           return GestureDetector(
                             onTap: () {
-                              ref.read(moodOverrideProvider.notifier).setMood(index);
+                              ref.read(moodOverrideProvider.notifier).set(index);
                             },
                             child: Container(
                               margin: const EdgeInsets.only(right: 12),
                               width: 50,
                               decoration: BoxDecoration(
-                                color: index == ref.watch(moodOverrideProvider) ? Colors.black26 : Colors.transparent,
+                                color: index == mood ? Colors.black26 : Colors.transparent,
                                 shape: BoxShape.circle,
                                 border: Border.all(color: Colors.black12),
                               ),
                               child: Center(
-                                child: Text(['🌸', '💜', '🌿', '✨', '💎', '🌙', '🦋'][index], style: const TextStyle(fontSize: 24)),
+                                child: Text(['🌸', '💜', '🌿', '✨', '💎'][index], style: const TextStyle(fontSize: 24)),
                               ),
                             ),
                           );
@@ -86,34 +76,50 @@ class HomeView extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    // The Strawberry Panda Quote
+                    // Theme Selector
+                    Text('Select Theme:', style: GoogleFonts.poppins(fontSize: 16, color: Colors.grey.shade700)),
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      height: 40,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: kAppThemes.length,
+                        itemBuilder: (context, index) {
+                          final t = kAppThemes[index];
+                          return GestureDetector(
+                            onTap: () {
+                              ref.read(themeIndexProvider.notifier).set(index);
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.only(right: 12),
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              decoration: BoxDecoration(
+                                color: t.primary.withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(color: t.primary),
+                              ),
+                              child: Center(
+                                child: Text(t.name, style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.bold, color: t.primary)),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 24),
                     Container(
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
-                        color: theme.primary.withValues(alpha: 0.1),
+                        color: primary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: theme.primary.withValues(alpha: 0.3)),
+                        border: Border.all(color: primary.withValues(alpha: 0.3)),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'Strawberry Panda Says...',
-                            style: GoogleFonts.poppins(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: theme.primary,
-                            ),
-                          ),
+                          Text('Affirmation of the Day', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.bold, color: primary)),
                           const SizedBox(height: 16),
-                          Text(
-                            '"I am stepping into my highest timeline. The universe is working in my favor."',
-                            style: GoogleFonts.lora(
-                              fontSize: 24,
-                              fontStyle: FontStyle.italic,
-                              color: C.textDark,
-                            ),
-                          ),
+                          Text('"I am stepping into my highest timeline. The universe is working in my favor."', style: GoogleFonts.lora(fontSize: 24, fontStyle: FontStyle.italic)),
                         ],
                       ),
                     ),

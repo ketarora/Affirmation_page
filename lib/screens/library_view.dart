@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-class CommunityView extends StatelessWidget {
-  const CommunityView({super.key});
+class LibraryView extends StatelessWidget {
+  const LibraryView({super.key});
 
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
-      body: Center(child: Text("Community")),
+      body: Center(child: Text("Library")),
     );
   }
 }
