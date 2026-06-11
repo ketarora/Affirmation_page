@@ -1104,7 +1104,6 @@ class _HomeViewState extends State<HomeView> {
       ]))),
     ])),
   ]);
-  }
   Widget _qPill(String label, Color bg, VoidCallback onTap) => Expanded(child: GestureDetector(onTap: onTap,
     child: Container(padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(16), border: Border.all(color: C.pink2, width: 1.2)),
