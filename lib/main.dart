@@ -1674,9 +1674,14 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
   final _searchCtrl = TextEditingController();
   @override void dispose() { _searchCtrl.dispose(); super.dispose(); }
  
-  List<String> get _filtered {
-    if (_searchQ.isEmpty) return widget.category.entries;
-    return widget.category.entries.where((e) => e.toLowerCase().contains(_searchQ.toLowerCase())).toList();
+  List<AffEntry> get _filtered {
+    final cat = widget.category;
+    final List<AffEntry> allAffs = [];
+    for (int i = 0; i < cat.entries.length; i++) {
+      allAffs.add(AffEntry(cat.entries[i], cat.emoji, i < cat.entriesHi.length ? cat.entriesHi[i] : null));
+    }
+    if (_searchQ.isEmpty) return allAffs;
+    return allAffs.where((e) => e.text.toLowerCase().contains(_searchQ.toLowerCase())).toList();
   }
   @override
   Widget build(BuildContext context) {
