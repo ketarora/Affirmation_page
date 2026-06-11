@@ -1816,7 +1816,7 @@ class _StoryViewerState extends State<StoryViewer> with TickerProviderStateMixin
                 : i == _pIdx ? AnimatedBuilder(animation: _prog, builder: (_, __) => FractionallySizedBox(
                     widthFactor: _prog.value, alignment: Alignment.centerLeft,
                     child: Container(decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(2)))))
-                : const SizedBox.shrink())))),
+                : const SizedBox.shrink()))))),
           Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: Row(children: [
             Container(width: 38, height: 38, decoration: BoxDecoration(shape: BoxShape.circle, gradient: const LinearGradient(colors: [C.pinkTheme, C.purple]), border: Border.all(color: Colors.white, width: 2)),
               child: Center(child: Text(story['avatar'] ?? '?', style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 17)))),
