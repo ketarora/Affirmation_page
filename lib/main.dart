@@ -647,8 +647,12 @@ class AppState {
 AffEntry get todaysAffirmation {
   final d    = DateTime.now();
   final seed = d.year * 10000 + d.month * 100 + d.day;
-  // combine all affirmations from all categories
-  final allAffs = kAffCategories.expand((c) => c.entries).toList();
+  final List<AffEntry> allAffs = [];
+  for (var c in kAffCategories) {
+    for (int i = 0; i < c.entries.length; i++) {
+      allAffs.add(AffEntry(c.entries[i], c.emoji, i < c.entriesHi.length ? c.entriesHi[i] : null));
+    }
+  }
   return allAffs[seed % allAffs.length];
 }
  
@@ -1387,7 +1391,6 @@ class _HomeViewState extends State<HomeView> {
       ]))),
     ])),
   ]);
-  }
   Widget _qPill(String label, Color bg, VoidCallback onTap) => Expanded(child: GestureDetector(onTap: onTap,
     child: Container(padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(16), border: Border.all(color: C.pink2, width: 1.2)),
@@ -1671,9 +1674,9 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
   final _searchCtrl = TextEditingController();
   @override void dispose() { _searchCtrl.dispose(); super.dispose(); }
  
-  List<AffEntry> get _filtered {
+  List<String> get _filtered {
     if (_searchQ.isEmpty) return widget.category.entries;
-    return widget.category.entries.where((e) => e.text.toLowerCase().contains(_searchQ.toLowerCase())).toList();
+    return widget.category.entries.where((e) => e.toLowerCase().contains(_searchQ.toLowerCase())).toList();
   }
   @override
   Widget build(BuildContext context) {
