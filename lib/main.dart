@@ -182,7 +182,7 @@ Widget _img(int i, {double? w, double? h, BoxFit fit = BoxFit.cover}) =>
     Image.asset(A.get(i), width: w, height: h, fit: fit,
       errorBuilder: (_, __, ___) => Container(
         width: w, height: h,
-        decoration: const BoxDecoration(gradient: LinearGradient(
+        decoration: BoxDecoration(gradient: LinearGradient(
           colors: [C.pink2, AppState.instance.theme.secondary.withOpacity(0.3)],
           begin: Alignment.topLeft, end: Alignment.bottomRight)),
         child: Center(child: Text(A.fb(i), style: TextStyle(fontSize: (w ?? 40) * 0.5)))));
@@ -701,7 +701,7 @@ class NishAffsLogo extends StatelessWidget {
 
   Widget _fallback() => Container(
     width: size, height: size,
-    decoration: const BoxDecoration(
+    decoration: BoxDecoration(
       shape: BoxShape.circle,
       gradient: LinearGradient(colors: [Color(0xFFFF82A9), Color(0xFFAC7BED)]),
     ),
@@ -909,7 +909,7 @@ class _SplashView extends StatelessWidget {
       body: Stack(fit: StackFit.expand, children: [
         // ── Cinematic gradient background ──
         Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
@@ -1173,7 +1173,7 @@ class _LeftDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     width: 290, height: double.infinity,
-    decoration: const BoxDecoration(
+    decoration: BoxDecoration(
       gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter,
         colors: [Color(0xFFFFF0F8), Color(0xFFF5E8FF)]),
       boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 24, offset: Offset(6, 0))]),
@@ -1603,7 +1603,7 @@ class _LibraryViewState extends State<LibraryView> with SingleTickerProviderStat
                       boxShadow: [BoxShadow(color: book.grad.last.withOpacity(0.4), blurRadius: 16, offset: const Offset(5, 6))]),
                     child: Stack(children: [
                       Positioned(left: 0, top: 0, bottom: 0, width: 10, child: Container(color: Colors.black.withOpacity(0.2),
-                        decoration: const BoxDecoration(borderRadius: BorderRadius.only(topLeft: Radius.circular(4), bottomLeft: Radius.circular(4))))),
+                        decoration: BoxDecoration(borderRadius: BorderRadius.only(topLeft: Radius.circular(4), bottomLeft: Radius.circular(4))))),
                       Center(child: Padding(padding: const EdgeInsets.all(14), child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
                         Text(book.emoji, style: const TextStyle(fontSize: 36)), const SizedBox(height: 8),
                         Text(book.name, textAlign: TextAlign.center, style: GoogleFonts.playfairDisplay(fontSize: 14, color: Colors.white, fontWeight: FontWeight.bold, height: 1.3)),
@@ -1937,7 +1937,7 @@ class _PostPreviewSheet extends StatelessWidget {
   _PostPreviewSheet({required this.text, required this.vibe, required this.bgIdx, required this.onPost, this.imageFile});
   @override
   Widget build(BuildContext context) => Container(
-    decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(32))),
+    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(32))),
     padding: EdgeInsets.fromLTRB(22, 18, 22, MediaQuery.of(context).viewInsets.bottom + 28),
     child: Column(mainAxisSize: MainAxisSize.min, children: [
       Container(width: 44, height: 5, decoration: BoxDecoration(color: C.pink2, borderRadius: BorderRadius.circular(3))),
@@ -2168,7 +2168,7 @@ class _PostCardState extends State<_PostCard> {
     final tc = TextEditingController();
     showModalBottomSheet(context: context, isScrollControlled: true, backgroundColor: Colors.transparent,
       builder: (ctx) => StatefulBuilder(builder: (ctx, setS) => Container(
-        decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
         padding: EdgeInsets.fromLTRB(22, 18, 22, MediaQuery.of(ctx).viewInsets.bottom + 24),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Container(width: 44, height: 5, decoration: BoxDecoration(color: C.pink2, borderRadius: BorderRadius.circular(3))),
@@ -2779,7 +2779,7 @@ class VisionBoardScreen extends StatelessWidget {
         leading: const BackButton(color: C.pinkDark),
         title: Row(mainAxisSize: MainAxisSize.min, children: [const NishAffsLogo(size: 28, showText: true), const SizedBox(width: 8), Text(L.t('vision_board'), style: GoogleFonts.poppins(fontSize: 17, fontWeight: FontWeight.bold, color: C.textDark))]),
         actions: [IconButton(icon: const Icon(Icons.add_rounded, color: C.pinkDark, size: 28), onPressed: () => showModalBottomSheet(context: context, isScrollControlled: true, backgroundColor: Colors.transparent,
-          builder: (ctx) => Container(decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
+          builder: (ctx) => Container(decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
             padding: EdgeInsets.fromLTRB(22, 18, 22, MediaQuery.of(ctx).viewInsets.bottom + 28),
             child: Column(mainAxisSize: MainAxisSize.min, children: [
               Container(width: 44, height: 5, decoration: BoxDecoration(color: C.pink2, borderRadius: BorderRadius.circular(3))),
