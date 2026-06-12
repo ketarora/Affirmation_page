@@ -669,10 +669,10 @@ class Book {
  
 const _books = [
   Book(name: 'Dance Your Way to God', author: 'Osho', emoji: '💃', tag: 'Joy', grad: [Color(0xFFE9D5FF), Color(0xFFFFD1DF)], file: 'Dance Your Way to God.pdf'),
-  Book(name: 'From Bondage to Freedom', author: 'Osho', emoji: '🕊️', tag: 'Freedom', grad: [Color(0xFFFFD1DF), Color(0xFFFFF0F5)], file: 'from bondage to freedom.pdf'),
+  Book(name: 'From Bondage to Freedom', author: 'Osho', emoji: '🕊️', tag: 'Freedom', grad: [Color(0xFFFFD1DF), Color(0xFFFFF0F5)], file: 'From Bondage to Freedom.pdf'),
   Book(name: 'From Misery to Enlightenment', author: 'Osho', emoji: '🪻', tag: 'Awakening', grad: [Color(0xFFAC7BED), Color(0xFFE9D5FF)], file: 'From Misery to Enlightenment.pdf'),
-  Book(name: 'Let Go!', author: 'Osho', emoji: '🍃', tag: 'Surrender', grad: [Color(0xFFFFB3CA), Color(0xFFFFD1DF)], file: 'Let Go.pdf'),
-  Book(name: 'Nothing to Lose But Your Head', author: 'Osho', emoji: '🦋', tag: 'Zen', grad: [Color(0xFFE0F7FA), Color(0xFFB2EBF2)], file: 'Nothing to Lose but your head.pdf'),
+  Book(name: 'Let Go!', author: 'Osho', emoji: '🍃', tag: 'Surrender', grad: [Color(0xFFFFB3CA), Color(0xFFFFD1DF)], file: 'Let Go!.pdf'),
+  Book(name: 'Nothing to Lose But Your Head', author: 'Osho', emoji: '🦋', tag: 'Zen', grad: [Color(0xFFE0F7FA), Color(0xFFB2EBF2)], file: 'Nothing to Lose But Your Head.pdf'),
 ];
  
 // ════════════════════════════════════════════════════════════════════
@@ -1041,7 +1041,7 @@ class _LoginScreenState extends State<LoginScreen> {
     Container(color: Colors.black.withOpacity(0.42)),
     SafeArea(child: SingleChildScrollView(padding: const EdgeInsets.all(28), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       const SizedBox(height: 40),
-      Center(child: Container(decoration: BoxDecoration(shape: BoxShape.circle, boxShadow: [BoxShadow(color: AppState.instance.theme.primary.withOpacity(0.35), blurRadius: 40, spreadRadius: 10)]), child: const NishAffsLogo(size: 64, showText: true).animate().fadeIn(duration: 600.ms))),
+      Center(child: Container(decoration: BoxDecoration(shape: BoxShape.circle, boxShadow: [BoxShadow(color: AppState.instance.theme.primary.withOpacity(0.35), blurRadius: 40, spreadRadius: 10)]), child: const NishAffsLogo(size: 64, showText: true, textColor: Colors.white).animate().fadeIn(duration: 600.ms))),
       const SizedBox(height: 16),
       Center(child: Text(_isLogin ? 'Welcome back, beautiful soul 🌸' : 'Start your magic journey ✨', style: GoogleFonts.poppins(fontSize: 16, color: Colors.white, fontWeight: FontWeight.w600)).animate(delay: 200.ms).fadeIn()),
       const SizedBox(height: 40),
