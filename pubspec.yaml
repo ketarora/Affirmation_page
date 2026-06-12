@@ -1,7 +1,7 @@
 name: nishaffs
 description: "NishAffs ✨ — India's Cutest Affirmation App — Full Working v4"
 publish_to: 'none'
-version: 1.0.0+4
+version: 2.0.0+1
 
 environment:
   sdk: '>=3.2.0 <4.0.0'
@@ -44,105 +44,5 @@ flutter:
   assets:
     - assets/images/
     - assets/audio/
-
-# ═══════════════════════════════════════════════════════════════════
-#  WHAT'S NEW IN v4 — EVERYTHING WORKING
-# ═══════════════════════════════════════════════════════════════════
-#
-# ✅ LOGIN SCREEN
-#   - Cute animated login with backdrop blur on top of aesthetic image
-#   - Name + Email + Password fields
-#   - Guest login option
-#   - Sign up / sign in toggle
-#   - Stored in SharedPreferences (swap with Firebase Auth)
-#
-# ✅ LEFT SWIPE DRAWER
-#   - Swipe RIGHT on any screen → panel slides in from left
-#   - Shows: avatar, name, streak stats
-#   - Bookmarks section with saved affirmations
-#   - All nav links (Saved, Liked Posts, My Affirmations, Settings)
-#   - Sign Out button
-#   - Tap anywhere outside to close
-#
-# ✅ DAILY AFFIRMATION (date-based rotation)
-#   - 31 unique affirmations
-#   - Rotates automatically based on year×month×day formula
-#   - Never repeats same affirmation within a month
-#   - Also cycles every 6 seconds on home screen
-#
-# ✅ KINDLE PAGE FLIP (Real 3D animation)
-#   - Swipe LEFT to go to next page
-#   - Swipe RIGHT to go to previous page
-#   - Tap RIGHT side of screen → next page
-#   - Tap LEFT side of screen → previous page
-#   - Real perspective 3D flip using Matrix4.rotateY()
-#   - Two-phase: page flips OUT (0→90°) then next page flips IN (90°→0°)
-#   - Shadow cast under flipping page for realism
-#   - Warm cream book background (Color 0xFFFAF6F0)
-#   - Progress bar at top of reader
-#   - 4 full books with real LOA content
-#
-# ✅ STORY VIEWER
-#   - Tap any story bubble → full-screen story viewer
-#   - Progress bars at top auto-advance (4s per story)
-#   - Tap LEFT half → previous story
-#   - Tap RIGHT half → next story / next user
-#   - Auto-advances between users
-#   - Swipe down to close
-#
-# ✅ WORKING LIKE / COMMENT / SHARE / BOOKMARK
-#   - Like: tap heart → animates scale → count updates → saves to SharedPreferences
-#   - Comment: opens bottom sheet → type + send → appears instantly
-#   - Share: shows snackbar "link copied"
-#   - Bookmark: saves post ID to SharedPreferences → shows in Left Drawer
-#   - All state persists between app restarts
-#
-# ✅ STUDIO → POST CREATION FLOW
-#   - Type your affirmation
-#   - Pick vibe (Self Love, Abundance, Confidence, Healing, Gratitude, Peace)
-#   - Pick background (8 options)
-#   - Preview renders live
-#   - Press "Create & Share" → popup appears with 4 options:
-#     • "Post to Community" → appears in community feed instantly
-#     • "Save" → saves to your journal
-#     • "Share" → share to other apps
-#     • "Post as Story" → (story posting)
-#
-# ✅ COMMUNITY FEED
-#   - 5 seed posts with real affirmation content
-#   - Stories row at top (6 users)
-#   - Working likes that persist
-#   - Working comments with real-time update
-#   - When you post from Studio → appears at TOP of feed
-#
-# ✅ SOUNDSCAPES (8 tracks with player UI)
-#   - 432Hz Deep Healing, Morning Abundance Flow
-#   - Inner Peace Rain, Deep Sleep Delta, Study Focus Beta
-#   - Manifest While You Sleep, Chakra Balancing, Self Love Morning
-#   - Tap play → wave animation + card highlights + state toggles
-#   - Pause by tapping again
-#   - (Connect just_audio for real audio: add to pubspec then replace onTap logic)
-#
-# ✅ JOURNAL TAB (in Me page)
-#   - Shows all affirmations created from Studio
-#   - Shows vibe + date
-#   - Updates in real-time as you create new ones
-#
-# ✅ SETTINGS TAB (in Me page)
-#   - Daily notification toggle (8AM)
-#   - Home screen widget toggle
-#   - Dark mode toggle
-#   - Theme, Language, Rate Us, Feedback, Share App
-#
-# ✅ SPARKLE OVERLAY
-#   - Floating sparkle particles on every screen
-#   - Based on sin wave so they feel organic, not random
-#
-# ✅ TRANSITIONS
-#   - All screen pushes use custom slide transitions
-#   - Login → Shell uses AnimatedSwitcher with easeOutCubic
-#   - Tab switches use indexed stack (instant, no lag)
-#   - Story viewer uses scale + fade transition
-#   - Left drawer slides with CurvedAnimation
-#
-# Production v6.0 dependencies aligned with stable release
+    - assets/books/
+    - assets/icon/

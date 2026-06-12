@@ -672,47 +672,40 @@ class Book {
 }
  
 const _books = [
-  Book(name: 'Manifesting Magic', author: 'Luna Starr', emoji: '✨', tag: 'LOA',
+  Book(name: 'Dance Your Way to God', author: 'Osho', emoji: '💃', tag: 'Joy',
     grad: [Color(0xFFE9D5FF), Color(0xFFFFD1DF)],
     pages: [
-      BookPage('Chapter 1', 'You Are The Universe',
-        'You are not a drop in the ocean. You are the entire ocean in a drop.\n\nManifestation begins with a single, radical act: believing you already have what you desire.\n\nThe Law of Attraction is not wishful thinking. It is the universe responding to the energetic frequency you broadcast 24 hours a day — whether you are aware of it or not.\n\nWhen you worry, you attract more to worry about. When you love, you attract more love. This is physics, not poetry.'),
-      BookPage('Chapter 1', 'The Visualization Secret',
-        'Your subconscious mind does not know the difference between imagination and reality.\n\nWhen you vividly picture your dream life — your apartment, your relationship, your bank account — your brain begins wiring new neural pathways as if it were already true.\n\nVisualize every morning for 5 minutes. Be specific. Feel the emotions. Use all five senses. The universe will match your inner state.'),
-      BookPage('Chapter 2', 'Words Are Spells',
-        'Replace every "I want" with "I have."\n\nLanguage is a spell. Every word you speak is a command to the universe.\n\n"I want love" keeps you in a state of wanting.\n"I am loved" shifts you into a state of having.\n\nSpend 21 days replacing your wanting language with having language. Watch your reality begin to morph.'),
-      BookPage('Chapter 2', 'The Gratitude Portal',
-        'Gratitude is the highest vibrational frequency a human can emit.\n\nEvery morning, before you look at your phone, write 5 things you are genuinely grateful for.\n\nThis practice rewires your brain for abundance within 30 days. Neuroscience confirms it. The universe responds to it. Your life will prove it.'),
+      BookPage('Chapter 1', 'The Cosmic Dance', 'Life is not a journey to a destination; it is a dance. The faster you learn to dance with it, the faster you will see divinity in everything around you. Stop taking everything so seriously.'),
+      BookPage('Chapter 2', 'Silence and Celebration', 'Meditation is not about sitting silently in a corner. You can meditate while running, while dancing, while singing. Celebration is the highest form of prayer.'),
+      BookPage('Chapter 3', 'Dropping the Ego', 'To dance fully, the dancer must disappear. Only the dance remains. When the ego completely vanishes in celebration, you have found truth.'),
     ]),
-  Book(name: 'Inner Peace Guide', author: 'Serenity Bell', emoji: '🪷', tag: 'Mindfulness',
+  Book(name: 'From Bondage to Freedom', author: 'Osho', emoji: '🕊️', tag: 'Freedom',
     grad: [Color(0xFFFFD1DF), Color(0xFFFFF0F5)],
     pages: [
-      BookPage('Chapter 1', 'The Stillness Within',
-        'Peace is not the absence of chaos. Peace is finding calm in the centre of the storm.\n\nMost people wait for their external world to calm down before they allow themselves to feel at peace. This is backwards.\n\nYou must cultivate inner stillness first. Then — and only then — will your outer world reflect that stillness back to you.'),
-      BookPage('Chapter 1', 'Your 5-Minute Practice',
-        'Sit comfortably. Close your eyes. Take three deep breaths — in 4, hold 4, out 8.\n\nObserve your thoughts like clouds passing across a clear blue sky. You are not the clouds. You are the sky.\n\nJust 5 minutes of this practice daily will transform your nervous system within 8 weeks. Science confirms it.'),
-      BookPage('Chapter 2', 'The Art of Letting Go',
-        'The practice of letting go is the highest form of spiritual maturity.\n\nEvery resentment you carry is a weight around your own neck.\n\nForgiveness is not saying what happened was okay. It is saying: I refuse to carry this pain any further. I release it with love and grace.'),
+      BookPage('Chapter 1', 'The Illusion of Chains', 'You are in prison because you choose to be. The door has always been open. Your attachments are the only chains that bind you.'),
+      BookPage('Chapter 2', 'Awareness is the Key', 'The moment you become absolutely aware of your conditioning, the conditioning drops. You don\'t have to fight it. Just bring the light of awareness into the dark room.'),
+      BookPage('Chapter 3', 'True Rebellion', 'A true rebel is not fighting against society. They simply drop out of the psychological structure. They become an individual, fiercely free.'),
     ]),
-  Book(name: 'Law of Attraction', author: 'Cosmos Ray', emoji: '🌌', tag: 'Spiritual',
+  Book(name: 'From Misery to Enlightenment', author: 'Osho', emoji: '🪷', tag: 'Awakening',
     grad: [Color(0xFFAC7BED), Color(0xFFE9D5FF)],
     pages: [
-      BookPage('Chapter 1', 'The Magnetic Law',
-        'Like attracts like.\n\nThis is the most powerful and most misunderstood law in existence.\n\nYour dominant thoughts, feelings, and beliefs create a magnetic field around you. This field constantly communicates with the quantum field of all possibility.\n\nYou are always manifesting. The question is whether you are doing it consciously or unconsciously.'),
-      BookPage('Chapter 2', 'Raising Your Frequency',
-        '🎵 Listen to music that makes you feel expansive\n🌿 Spend time in nature\n🙏 Practice daily gratitude\n💃 Move your body with joy\n📖 Read books that uplift\n🧘 Meditate for clarity\n\nYour vibration is your invitation to the universe. High vibration attracts high vibration experiences.'),
-      BookPage('Chapter 3', 'The 55×5 Method',
-        'Write your core desire as an affirmation, exactly 55 times, for 5 consecutive days.\n\nThis intensive practice overwhelms your subconscious mind and plants the seed of your desire so deeply it must manifest.\n\nExample: "I am a magnet for financial abundance."\n\nWrite it 55 times. Feel it. Believe it. Do not skip a day.'),
+      BookPage('Chapter 1', 'The Roots of Misery', 'Misery is a byproduct of living in the past or the future. The present moment is completely innocent; there is no misery here.'),
+      BookPage('Chapter 2', 'Embracing the Now', 'To be enlightened simply means to be unconditionally, absolutely in the present. The mind cannot exist in the present; it demands the past or future.'),
+      BookPage('Chapter 3', 'The Inner Light', 'You are already enlightened. You have just forgotten. Look within, watch the watcher, and the misery will evaporate like dew in the morning sun.'),
     ]),
-  Book(name: 'Sacred Self-Love', author: 'Rose Quartz', emoji: '💗', tag: 'Self-Love',
+  Book(name: 'Let Go!', author: 'Osho', emoji: '🍃', tag: 'Surrender',
     grad: [Color(0xFFFFB3CA), Color(0xFFFFD1DF)],
     pages: [
-      BookPage('Chapter 1', 'The Most Important Relationship',
-        'You cannot pour from an empty cup.\n\nEvery relationship you have with another person is a direct reflection of the relationship you have with yourself.\n\nThe love you desperately seek from others is love you have not yet given to yourself. This is an invitation to turn inward and begin the most important love affair of your life.'),
-      BookPage('Chapter 1', 'The Mirror Practice',
-        'Stand before a mirror. Look into your own eyes.\n\nSay aloud: "I love you. I really, truly love you. You are enough."\n\nThe first time, you may laugh. You may cry. Do it anyway.\n\nDo it every morning for 30 days. Something profound will shift.'),
-      BookPage('Chapter 2', 'The Sacred Boundary',
-        'Boundaries are not walls. They are the fence around your garden.\n\nSaying no to what drains you is saying yes to what fills you.\n\nEvery time you honor your boundaries, you send a message to your subconscious: "I am worth protecting."'),
+      BookPage('Chapter 1', 'The Art of Relaxation', 'Tension means you are fighting with existence. Relaxation means you have trusted the river to take you to the ocean. Let go, do not push the river.'),
+      BookPage('Chapter 2', 'Dropping Control', 'A person who tries to control life is constantly in anxiety. The one who lets go of the steering wheel realizes the vehicle drives perfectly on its own.'),
+      BookPage('Chapter 3', 'Total Acceptance', 'Accept whatever comes your way. Do not call it good or bad. Once you accept totally, a deep silence arises in your being.'),
+    ]),
+  Book(name: 'Nothing to Lose But Your Head', author: 'Osho', emoji: '🦋', tag: 'Zen',
+    grad: [Color(0xFFE0F7FA), Color(0xFFB2EBF2)],
+    pages: [
+      BookPage('Chapter 1', 'The Headless Way', 'The head is the source of all your calculating, analyzing, and worrying. To taste real life, you must drop out of the head and slip into the heart.'),
+      BookPage('Chapter 2', 'Madness of the Modern', 'What you call sanity is just accepted madness. Real sanity looks like madness to the world because it is spontaneous, unpredictable, and entirely alive.'),
+      BookPage('Chapter 3', 'The Courage to Be', 'Drop the head. Lose your mind. In that beautiful emptiness, the universe rushes in to fill you. You have nothing to lose but your misery.'),
     ]),
 ];
  
@@ -728,39 +721,42 @@ class NishAffsLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final logo = Image.asset(
-      'assets/images/image.png',
-      width: size * (showText ? 1.0 : 1.4),
-      height: size * (showText ? 1.0 : 1.4),
-      fit: BoxFit.contain,
-      errorBuilder: (_, __, ___) => _fallback(),
-    );
-    if (!showText) return logo;
-    return Row(mainAxisSize: MainAxisSize.min, children: [
-      logo,
-      const SizedBox(width: 6),
-      ShaderMask(
-        shaderCallback: (r) => const LinearGradient(
-          colors: [Color(0xFFFF82A9), Color(0xFFAC7BED)],
-        ).createShader(r),
-        child: Text(
-          'NishAffs',
-          style: GoogleFonts.pacifico(fontSize: size * 0.6, color: Colors.white),
-        ),
-      ),
-    ]);
+    if (showText) {
+      return Image.asset(
+        'assets/images/image.png',
+        width: size * 5,
+        height: size,
+        fit: BoxFit.contain,
+        errorBuilder: (_, __, ___) => _fallbackText(),
+      );
+    }
+    return _fallback();
   }
 
   Widget _fallback() => Container(
     width: size, height: size,
-    decoration: BoxDecoration(
+    decoration: const BoxDecoration(
       shape: BoxShape.circle,
-      gradient: const LinearGradient(colors: [Color(0xFFFF82A9), Color(0xFFAC7BED)]),
+      gradient: LinearGradient(colors: [Color(0xFFFF82A9), Color(0xFFAC7BED)]),
     ),
     child: Center(
-      child: Text('N', style: GoogleFonts.pacifico(fontSize: size * 0.55, color: Colors.white)),
+      child: Text('N', style: GoogleFonts.pacifico(fontSize: size * 0.55, color: Colors.white, height: 1.0)),
     ),
   );
+
+  Widget _fallbackText() => Row(mainAxisSize: MainAxisSize.min, children: [
+    _fallback(),
+    const SizedBox(width: 8),
+    ShaderMask(
+      shaderCallback: (r) => const LinearGradient(
+        colors: [Color(0xFFFF82A9), Color(0xFFAC7BED)],
+      ).createShader(r),
+      child: Text(
+        'NishAffs',
+        style: GoogleFonts.pacifico(fontSize: size * 0.7, color: Colors.white),
+      ),
+    ),
+  ]);
 }
  
 // ════════════════════════════════════════════════════════════════════
