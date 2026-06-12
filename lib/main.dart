@@ -1283,6 +1283,28 @@ class HomeView extends StatefulWidget {
 class _HomeViewState extends State<HomeView> {
   bool _todayLiked = false;
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (AppState.instance.mood.value == -1) {
+        showDialog(context: context, barrierDismissible: false,
+          builder: (ctx) => BackdropFilter(filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: AlertDialog(backgroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+              contentPadding: const EdgeInsets.all(28),
+              content: Column(mainAxisSize: MainAxisSize.min, children: [
+                const Text('🌸', style: TextStyle(fontSize: 48)), const SizedBox(height: 16),
+                Text(L.isHindi ? 'आज आप कैसा महसूस कर रही हैं?' : 'How are you feeling today?', textAlign: TextAlign.center, style: GoogleFonts.playfairDisplay(fontSize: 22, fontWeight: FontWeight.bold, color: C.textDark)),
+                const SizedBox(height: 24),
+                Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: ['😔','😐','🙂','😊','🌟'].asMap().entries.map((e) =>
+                  GestureDetector(onTap: () { AppState.instance.setMood(e.key); Navigator.pop(ctx); },
+                    child: Container(width: 50, height: 50, decoration: BoxDecoration(color: C.pink1, shape: BoxShape.circle, border: Border.all(color: C.pink3)),
+                      child: Center(child: Text(e.value, style: const TextStyle(fontSize: 26)))))
+                ).toList()),
+              ]))));
+      }
+    });
+  }
+  @override
   Widget build(BuildContext context) => Stack(children: [
     Positioned.fill(child: _img(10, w: double.infinity, h: double.infinity)),
     Positioned.fill(child: Container(color: Colors.white.withOpacity(0.72))), // was 0.87 — let backgrounds breathe
@@ -1922,6 +1944,23 @@ class _StudioViewState extends State<StudioView> {
           child: Container(margin: const EdgeInsets.only(right: 8), padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(color: C.pink1, borderRadius: BorderRadius.circular(100), border: Border.all(color: C.pink3, width: 1.2)),
             child: Text(_exampleLabels[i], style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w600, color: C.pinkDark)))))),
+      const SizedBox(height: 16),
+      GestureDetector(onTap: () async {
+        showDialog(context: context, barrierDismissible: false, builder: (ctx) => AlertDialog(
+          backgroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          content: Column(mainAxisSize: MainAxisSize.min, children: [
+            const CircularProgressIndicator(color: C.pinkTheme), const SizedBox(height: 20),
+            Text('AI is manifesting your words...', style: GoogleFonts.poppins(fontSize: 14, color: C.textDark)),
+          ])));
+        await Future.delayed(const Duration(seconds: 2));
+        Navigator.pop(context);
+        final seed = DateTime.now().millisecondsSinceEpoch;
+        final list = ['I am open to receiving massive abundance today.','I radiate confidence and pure self-love.','Everything I touch turns into success and joy.','My peace is my power, and I guard it fiercely.','I am a magnet for miracles and beautiful synchronicity.'];
+        setState(() => _tc.text = list[seed % list.length]);
+      }, child: Container(padding: const EdgeInsets.symmetric(vertical: 12), decoration: BoxDecoration(color: C.purpleLgt, borderRadius: BorderRadius.circular(16), border: Border.all(color: C.purple, width: 1.5)),
+        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          const Text('✨ ', style: TextStyle(fontSize: 18)), Text('Write with AI', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w700, color: C.textDark)),
+        ]))),
       const SizedBox(height: 14),
       Container(decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: C.pink2.withOpacity(0.4), blurRadius: 12, offset: const Offset(0, 4))]),
         child: TextField(controller: _tc, maxLines: 4, onChanged: (_) => setState(() {}),
@@ -2690,7 +2729,13 @@ class _JournalScreenState extends State<JournalScreen> with SingleTickerProvider
             Text(L.isHindi ? 'अभी तक कोई एंट्री नहीं' : 'No entries yet', style: GoogleFonts.poppins(fontSize: 15, color: C.textSub)),
             const SizedBox(height: 6),
             Text(L.isHindi ? 'पहली एंट्री लिखें ✨' : 'Write your first entry ✨', style: GoogleFonts.poppins(fontSize: 13, color: C.textSub))]))
-          : ListView.builder(padding: const EdgeInsets.all(16), itemCount: entries.length, itemBuilder: (_, i) {
+          : Column(children: [
+            GestureDetector(onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => SlideshowViewer(entries: entries))),
+              child: Container(margin: const EdgeInsets.fromLTRB(16, 16, 16, 0), padding: const EdgeInsets.symmetric(vertical: 14), decoration: BoxDecoration(gradient: const LinearGradient(colors: [C.pinkTheme, C.purple]), borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: C.pinkTheme.withOpacity(0.4), blurRadius: 10, offset: const Offset(0, 4))]),
+                child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 28), const SizedBox(width: 8), Text('Play Slideshow', style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white)),
+                ]))),
+            Expanded(child: ListView.builder(padding: const EdgeInsets.all(16), itemCount: entries.length, itemBuilder: (_, i) {
               final e = entries[i];
               return Container(margin: const EdgeInsets.only(bottom: 14), padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20),
@@ -2722,7 +2767,8 @@ class _JournalScreenState extends State<JournalScreen> with SingleTickerProvider
                     Expanded(child: Text(e.grateful, style: GoogleFonts.lora(fontSize: 14, color: C.textDark, height: 1.6))),
                   ]),
                 ])).animate(delay: (i * 40).ms).fadeIn();
-            })),
+            }))
+          ]),
       ])),
     ]));
 }
@@ -2899,4 +2945,35 @@ class CuratedListScreen extends StatelessWidget {
             ])),
           ])).animate(delay: (i * 60).ms).fadeIn().scale(begin: const Offset(0.95, 0.95)));
       }));
+}
+
+class SlideshowViewer extends StatelessWidget {
+  final List<JournalEntry> entries;
+  const SlideshowViewer({super.key, required this.entries});
+  @override
+  Widget build(BuildContext context) => Scaffold(backgroundColor: C.bg,
+    appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0, leading: const BackButton(color: C.pinkDark)),
+    body: PageView.builder(itemCount: entries.length, physics: const BouncingScrollPhysics(), itemBuilder: (ctx, i) {
+      final e = entries[i];
+      return Padding(padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+        child: Container(decoration: BoxDecoration(gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFFFFF0F8), Color(0xFFF0DCFF)]), borderRadius: BorderRadius.circular(32), border: Border.all(color: Colors.white, width: 3), boxShadow: [BoxShadow(color: C.pinkTheme.withOpacity(0.3), blurRadius: 20, offset: const Offset(0, 10))]),
+          padding: const EdgeInsets.all(32),
+          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+            if (e.mood.isNotEmpty) Text(e.mood, style: const TextStyle(fontSize: 64)).animate().scale(delay: 200.ms, curve: Curves.elasticOut),
+            const SizedBox(height: 32),
+            if (e.manifesting.isNotEmpty) ...[
+              Text('I am manifesting...', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w600, color: C.pinkDark)),
+              const SizedBox(height: 12),
+              Text('"${e.manifesting}"', textAlign: TextAlign.center, style: GoogleFonts.lora(fontSize: 22, color: C.textDark, height: 1.6, fontStyle: FontStyle.italic)),
+              const SizedBox(height: 32),
+            ],
+            if (e.grateful.isNotEmpty) ...[
+              Text('I am grateful for...', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w600, color: C.pinkDark)),
+              const SizedBox(height: 12),
+              Text('"${e.grateful}"', textAlign: TextAlign.center, style: GoogleFonts.lora(fontSize: 22, color: C.textDark, height: 1.6, fontStyle: FontStyle.italic)),
+            ],
+            const Spacer(),
+            Text('${e.date.day}/${e.date.month}/${e.date.year}', style: GoogleFonts.poppins(fontSize: 12, color: C.textSub)),
+          ])));
+    }));
 }
