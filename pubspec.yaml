@@ -31,8 +31,8 @@ dependencies:
   firebase_messaging: ^15.0.0
   firebase_analytics: ^11.0.0
   google_sign_in: ^6.2.1
-  sign_in_with_apple: ^3.3.0
-  syncfusion_flutter_pdfviewer: ^25.2.3
+  sign_in_with_apple: ^8.1.0
+  syncfusion_flutter_pdfviewer: ^33.2.12
   share_plus: ^7.2.2
   screenshot: ^2.1.1
 
