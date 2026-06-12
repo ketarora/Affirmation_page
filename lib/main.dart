@@ -2768,7 +2768,7 @@ class _JournalScreenState extends State<JournalScreen> with SingleTickerProvider
                   ]),
                 ])).animate(delay: (i * 40).ms).fadeIn();
             }))
-          ]),
+          ])),
       ])),
     ]));
 }
