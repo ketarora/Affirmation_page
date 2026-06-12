@@ -34,7 +34,7 @@ dependencies:
   sign_in_with_apple: ^8.1.0
   syncfusion_flutter_pdfviewer: ^33.2.12
   share_plus: ^7.2.2
-  screenshot: ^2.1.1
+  screenshot: any
 
 
 dev_dependencies:

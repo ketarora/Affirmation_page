@@ -183,7 +183,7 @@ Widget _img(int i, {double? w, double? h, BoxFit fit = BoxFit.cover}) =>
       errorBuilder: (_, __, ___) => Container(
         width: w, height: h,
         decoration: const BoxDecoration(gradient: LinearGradient(
-          colors: [C.pink2, AppState.instance.theme.secondaryLgt],
+          colors: [C.pink2, AppState.instance.theme.secondary.withOpacity(0.3)],
           begin: Alignment.topLeft, end: Alignment.bottomRight)),
         child: Center(child: Text(A.fb(i), style: TextStyle(fontSize: (w ?? 40) * 0.5)))));
  
@@ -714,7 +714,7 @@ class NishAffsLogo extends StatelessWidget {
     _fallback(),
     const SizedBox(width: 8),
     ShaderMask(
-      shaderCallback: (r) => const LinearGradient(
+      shaderCallback: (r) => LinearGradient(
         colors: [Color(0xFFFF82A9), Color(0xFFAC7BED)],
       ).createShader(r),
       child: Text(
@@ -1086,7 +1086,7 @@ class _LoginScreenState extends State<LoginScreen> {
         filled: true, fillColor: Colors.white.withOpacity(0.1),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: Colors.white.withOpacity(0.2))),
         enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: Colors.white.withOpacity(0.2))),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: AppState.instance.theme.primary, width: 1.5)),
+        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: AppState.instance.theme.primary, width: 1.5)),
         contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14)));
 }
  
@@ -1312,7 +1312,7 @@ class _HomeViewState extends State<HomeView> {
         // Quick Pills
         const SizedBox(height: 16),
         Row(children: [
-          _qPill(L.t('read'),   AppState.instance.theme.secondaryLgt, () => widget.onNavigate(1)),
+          _qPill(L.t('read'),   AppState.instance.theme.secondary.withOpacity(0.3), () => widget.onNavigate(1)),
           const SizedBox(width: 10),
           _qPill(L.t('sounds'), C.goldLgt,   () => widget.onNavigate(4)),
           const SizedBox(width: 10),
@@ -1324,7 +1324,7 @@ class _HomeViewState extends State<HomeView> {
         ValueListenableBuilder<int>(valueListenable: AppState.instance.streak, builder: (_, streak, __) =>
           streak > 0 ? Container(
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-            decoration: BoxDecoration(gradient: const LinearGradient(colors: [Color(0xFFFF82A9), Color(0xFFAC7BED)]),
+            decoration: BoxDecoration(gradient: LinearGradient(colors: [Color(0xFFFF82A9), Color(0xFFAC7BED)]),
               borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: AppState.instance.theme.primary.withOpacity(0.3), blurRadius: 12, offset: const Offset(0, 4))]),
             child: Row(children: [
               const Text('🔥', style: TextStyle(fontSize: 26)), const SizedBox(width: 12),
@@ -1391,7 +1391,7 @@ class _AffirmationOfDayCard extends StatelessWidget {
     final aff = todaysAffirmation;
     return Container(padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFFFFF0F8), Color(0xFFF0E8FF)]),
+        gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFFFFF0F8), Color(0xFFF0E8FF)]),
         borderRadius: BorderRadius.circular(28), border: Border.all(color: C.pink3.withOpacity(0.5), width: 1.5),
         boxShadow: [BoxShadow(color: AppState.instance.theme.primary.withOpacity(0.12), blurRadius: 20, offset: const Offset(0, 6))]),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -1471,7 +1471,7 @@ class _MoodBadge extends StatelessWidget {
     const msgsEn = ['Take it easy today 🌸','You\'ve got this 💪','Nice energy! ✨','Shining bright! 💫','Absolutely glowing! 🌟'];
     const msgsHi = ['आज आराम करें 🌸','आप कर सकती हैं 💪','अच्छी एनर्जी! ✨','चमक रही हैं! 💫','बिल्कुल दमकदार! 🌟'];
     return Container(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(gradient: const LinearGradient(colors: [C.pink1, AppState.instance.theme.secondaryLgt]),
+      decoration: BoxDecoration(gradient: LinearGradient(colors: [C.pink1, AppState.instance.theme.secondary.withOpacity(0.3)]),
         borderRadius: BorderRadius.circular(18), border: Border.all(color: C.pink2, width: 1.2)),
       child: Row(children: [
         Text(emojis[mood], style: const TextStyle(fontSize: 30)),
@@ -1769,10 +1769,10 @@ class _StudioViewState extends State<StudioView> {
   String _vibe = 'Self Love'; int _bgIdx = 0;
   XFile? _imageFile;
   bool _isUploading = false;
-  static const _vibes = [
+  List<(String, Color, Color)> get _vibes => [
     ('Self Love',  C.pink2,               C.pinkDark),
     ('Abundance',  Color(0xFFD1FFE0),      Color(0xFF2A9D59)),
-    ('Confidence', AppState.instance.theme.secondaryLgt,           AppState.instance.theme.secondary),
+    ('Confidence', AppState.instance.theme.secondary.withOpacity(0.3),           AppState.instance.theme.secondary),
     ('Healing',    Color(0xFFD1EAFF),      Color(0xFF3A7FD4)),
     ('Gratitude',  C.goldLgt,             Color(0xFF9B7B14)),
     ('Peace',      Color(0xFFE8FFF5),      Color(0xFF2A9D7A)),
@@ -1850,7 +1850,7 @@ class _StudioViewState extends State<StudioView> {
         showDialog(context: context, barrierDismissible: false, builder: (ctx) => AlertDialog(
           backgroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           content: Column(mainAxisSize: MainAxisSize.min, children: [
-            const CircularProgressIndicator(color: AppState.instance.theme.primary), const SizedBox(height: 20),
+            CircularProgressIndicator(color: AppState.instance.theme.primary), const SizedBox(height: 20),
             Text('AI is manifesting your words...', style: GoogleFonts.poppins(fontSize: 14, color: C.textDark)),
           ])));
         await Future.delayed(const Duration(seconds: 2));
@@ -1858,7 +1858,7 @@ class _StudioViewState extends State<StudioView> {
         final seed = DateTime.now().millisecondsSinceEpoch;
         final list = ['I am open to receiving massive abundance today.','I radiate confidence and pure self-love.','Everything I touch turns into success and joy.','My peace is my power, and I guard it fiercely.','I am a magnet for miracles and beautiful synchronicity.'];
         setState(() => _tc.text = list[seed % list.length]);
-      }, child: Container(padding: const EdgeInsets.symmetric(vertical: 12), decoration: BoxDecoration(color: AppState.instance.theme.secondaryLgt, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppState.instance.theme.secondary, width: 1.5)),
+      }, child: Container(padding: const EdgeInsets.symmetric(vertical: 12), decoration: BoxDecoration(color: AppState.instance.theme.secondary.withOpacity(0.3), borderRadius: BorderRadius.circular(16), border: Border.all(color: AppState.instance.theme.secondary, width: 1.5)),
         child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
           const Text('✨ ', style: TextStyle(fontSize: 18)), Text('Write with AI', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w700, color: C.textDark)),
         ]))),
@@ -1956,7 +1956,7 @@ class _PostPreviewSheet extends StatelessWidget {
       Row(children: [
         Expanded(child: _btn(context, '🌸 Community', C.pink1, C.pinkDark, 'community')),
         const SizedBox(width: 10),
-        Expanded(child: _btn(context, '💾 Journal', AppState.instance.theme.secondaryLgt, AppState.instance.theme.secondary, 'save')),
+        Expanded(child: _btn(context, '💾 Journal', AppState.instance.theme.secondary.withOpacity(0.3), AppState.instance.theme.secondary, 'save')),
         const SizedBox(width: 10),
         Expanded(child: _btn(context, '📤 Share', C.goldLgt, const Color(0xFF9B7B14), 'external')),
       ]),
@@ -2033,7 +2033,7 @@ class _StoryBubble extends StatelessWidget {
         scale: Tween(begin: 0.88, end: 1.0).animate(CurvedAnimation(parent: a, curve: Curves.easeOut)), child: child)))),
     child: Container(margin: const EdgeInsets.only(right: 14), child: Column(mainAxisSize: MainAxisSize.min, children: [
       Container(width: 62, height: 62, decoration: BoxDecoration(shape: BoxShape.circle,
-        gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [AppState.instance.theme.primary, AppState.instance.theme.secondary]),
+        gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [AppState.instance.theme.primary, AppState.instance.theme.secondary]),
         border: Border.all(color: C.bg, width: 2.5), boxShadow: [BoxShadow(color: AppState.instance.theme.primary.withOpacity(0.35), blurRadius: 8, offset: const Offset(0, 3))]),
         child: Center(child: Text(story['avatar'] ?? '?', style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 22, color: Colors.white)))),
       const SizedBox(height: 5),
@@ -2216,8 +2216,8 @@ class _ProfileViewState extends State<ProfileView> with SingleTickerProviderStat
   @override void initState() { super.initState(); _tc = TabController(length: 4, vsync: this); }
   @override void dispose() { _tc.dispose(); super.dispose(); }
  
-  static const _sounds = [
-    ('432Hz Deep Healing',   'Binaural Beats',    '45 min','🎵', AppState.instance.theme.secondaryLgt,      Color(0xFF8B5CF6)),
+  List<(String, String, String, String, Color, Color)> get _sounds => [
+    ('432Hz Deep Healing',   'Binaural Beats',    '45 min','🎵', AppState.instance.theme.secondary.withOpacity(0.3),      Color(0xFF8B5CF6)),
     ('Morning Abundance',    'Solfeggio 528Hz',   '30 min','☀️', C.goldLgt,         C.gold),
     ('Inner Peace Rain',     'Nature Sounds',     '60 min','🌧️', Color(0xFFD1EAFF), Color(0xFF4A90D9)),
     ('Deep Sleep Delta',     'Delta Waves',       '8 hrs', '🌙', Color(0xFFE8E0FF), Color(0xFF6B5CE7)),
@@ -2378,7 +2378,7 @@ class _SettingsTabState extends State<_SettingsTab> {
   Widget build(BuildContext context) => ListView(padding: const EdgeInsets.fromLTRB(20, 16, 20, 120), children: [
     // Language Toggle
     Container(margin: const EdgeInsets.only(bottom: 16), padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(gradient: const LinearGradient(colors: [Color(0xFFFFF0F8), Color(0xFFF0E8FF)]), borderRadius: BorderRadius.circular(18), border: Border.all(color: C.pink2, width: 1.2)),
+      decoration: BoxDecoration(gradient: LinearGradient(colors: [Color(0xFFFFF0F8), Color(0xFFF0E8FF)]), borderRadius: BorderRadius.circular(18), border: Border.all(color: C.pink2, width: 1.2)),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(L.isHindi ? 'भाषा' : 'Language', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w700, color: C.textDark)),
         const SizedBox(height: 12),
@@ -2577,7 +2577,7 @@ class _JournalScreenState extends State<JournalScreen> with SingleTickerProvider
         SingleChildScrollView(padding: const EdgeInsets.all(20), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           // Today's aff prompt
           Container(padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(gradient: const LinearGradient(colors: [Color(0xFFFFF0F8), Color(0xFFF0E8FF)]), borderRadius: BorderRadius.circular(18), border: Border.all(color: C.pink3.withOpacity(0.4))),
+            decoration: BoxDecoration(gradient: LinearGradient(colors: [Color(0xFFFFF0F8), Color(0xFFF0E8FF)]), borderRadius: BorderRadius.circular(18), border: Border.all(color: C.pink3.withOpacity(0.4))),
             child: Row(children: [
               Text(todaysAffirmation.emoji, style: const TextStyle(fontSize: 20)), const SizedBox(width: 10),
               Expanded(child: Text('"${todaysAffirmation.text}"', style: GoogleFonts.lora(fontSize: 13, color: C.textDark, fontStyle: FontStyle.italic, height: 1.5))),
@@ -2699,7 +2699,7 @@ class _ChallengeSetup extends StatelessWidget {
   final TextEditingController tc; const _ChallengeSetup({required this.tc});
   @override
   Widget build(BuildContext context) => SingleChildScrollView(padding: const EdgeInsets.all(24), child: Column(children: [
-    Container(padding: const EdgeInsets.all(24), decoration: BoxDecoration(gradient: const LinearGradient(colors: [Color(0xFFFFE4F0), Color(0xFFF0DCFF)]), borderRadius: BorderRadius.circular(28), border: Border.all(color: C.pink3.withOpacity(0.5), width: 1.5)),
+    Container(padding: const EdgeInsets.all(24), decoration: BoxDecoration(gradient: LinearGradient(colors: [Color(0xFFFFE4F0), Color(0xFFF0DCFF)]), borderRadius: BorderRadius.circular(28), border: Border.all(color: C.pink3.withOpacity(0.5), width: 1.5)),
       child: Column(children: [const Text('✨', style: TextStyle(fontSize: 48)), const SizedBox(height: 12),
         Text('The 55×5 Method', style: GoogleFonts.playfairDisplay(fontSize: 22, fontWeight: FontWeight.bold, color: C.textDark)), const SizedBox(height: 10),
         Text('Write your affirmation 55 times per day for 5 consecutive days. This technique overwhelms your subconscious and accelerates manifestation.', textAlign: TextAlign.center, style: GoogleFonts.poppins(fontSize: 14, color: C.textSub, height: 1.65))])),
@@ -2728,7 +2728,7 @@ class _ChallengeActive extends StatelessWidget {
     final startDay = ch['startDay'] as String? ?? today; final todayCnt = days[today] as int? ?? 0;
     final daysDone = days.values.where((v) => (v as int) >= 55).length;
     return SingleChildScrollView(padding: const EdgeInsets.all(22), child: Column(children: [
-      Container(padding: const EdgeInsets.all(20), decoration: BoxDecoration(gradient: const LinearGradient(colors: [Color(0xFFFFE4F0), Color(0xFFF0DCFF)]), borderRadius: BorderRadius.circular(24)),
+      Container(padding: const EdgeInsets.all(20), decoration: BoxDecoration(gradient: LinearGradient(colors: [Color(0xFFFFE4F0), Color(0xFFF0DCFF)]), borderRadius: BorderRadius.circular(24)),
         child: Text('"${ch['text']}"', textAlign: TextAlign.center, style: GoogleFonts.lora(fontSize: 18, color: C.textDark, fontWeight: FontWeight.w600, height: 1.5))),
       const SizedBox(height: 22),
       Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: List.generate(5, (i) {
@@ -2859,7 +2859,7 @@ class SlideshowViewer extends StatelessWidget {
     body: PageView.builder(itemCount: entries.length, physics: const BouncingScrollPhysics(), itemBuilder: (ctx, i) {
       final e = entries[i];
       return Padding(padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
-        child: Container(decoration: BoxDecoration(gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFFFFF0F8), Color(0xFFF0DCFF)]), borderRadius: BorderRadius.circular(32), border: Border.all(color: Colors.white, width: 3), boxShadow: [BoxShadow(color: AppState.instance.theme.primary.withOpacity(0.3), blurRadius: 20, offset: const Offset(0, 10))]),
+        child: Container(decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFFFFF0F8), Color(0xFFF0DCFF)]), borderRadius: BorderRadius.circular(32), border: Border.all(color: Colors.white, width: 3), boxShadow: [BoxShadow(color: AppState.instance.theme.primary.withOpacity(0.3), blurRadius: 20, offset: const Offset(0, 10))]),
           padding: const EdgeInsets.all(32),
           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
             if (e.mood.isNotEmpty) Text(e.mood, style: const TextStyle(fontSize: 64)).animate().scale(delay: 200.ms, curve: Curves.elasticOut),
