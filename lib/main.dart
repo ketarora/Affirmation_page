@@ -14,6 +14,10 @@ import 'dart:math';
 import 'dart:ui';
  
 import 'package:flutter/material.dart';
+import 'dart:io' as java_io;
+import 'package:share_plus/share_plus.dart';
+import 'package:screenshot/screenshot.dart';
+import 'package:path_provider/path_provider.dart' as path_provider;
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -30,6 +34,7 @@ import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:image_picker/image_picker.dart';
  
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'data/affirmations_data.dart';
  
 // ════════════════════════════════════════════════════════════════════
@@ -178,7 +183,7 @@ Widget _img(int i, {double? w, double? h, BoxFit fit = BoxFit.cover}) =>
       errorBuilder: (_, __, ___) => Container(
         width: w, height: h,
         decoration: const BoxDecoration(gradient: LinearGradient(
-          colors: [C.pink2, C.purpleLgt],
+          colors: [C.pink2, AppState.instance.theme.secondaryLgt],
           begin: Alignment.topLeft, end: Alignment.bottomRight)),
         child: Center(child: Text(A.fb(i), style: TextStyle(fontSize: (w ?? 40) * 0.5)))));
  
@@ -234,14 +239,10 @@ class SoundPlayerService {
     isPlaying.value = true;
     
     try {
-      // 1. Try Firebase Storage
-      final url = await FirebaseStorage.instance
-          .ref('audio/${_filenames[i % _filenames.length]}')
-          .getDownloadURL();
+      final url = 'https://actions.google.com/sounds/v1/water/rain_on_roof.ogg';
       await _player.setUrl(url);
     } catch (e) {
-      print('Firebase Audio Failed (falling back to mock timer): $e');
-      // If Firebase isn't set up yet, fallback to local asset or mock
+      print('Audio Failed: $e');
       _mockPlay(i);
       return;
     }
@@ -659,54 +660,19 @@ AffEntry get todaysAffirmation {
 // ════════════════════════════════════════════════════════════════════
 //  BOOKS DATA
 // ════════════════════════════════════════════════════════════════════
-class BookPage {
-  final String chapter, title, body;
-  const BookPage(this.chapter, this.title, this.body);
-}
 class Book {
-  final String name, author, emoji, tag;
+  final String name, author, emoji, tag, file;
   final List<Color> grad;
-  final List<BookPage> pages;
   const Book({required this.name, required this.author, required this.emoji,
-    required this.tag, required this.grad, required this.pages});
+    required this.tag, required this.grad, required this.file});
 }
  
 const _books = [
-  Book(name: 'Dance Your Way to God', author: 'Osho', emoji: '💃', tag: 'Joy',
-    grad: [Color(0xFFE9D5FF), Color(0xFFFFD1DF)],
-    pages: [
-      BookPage('Chapter 1', 'The Cosmic Dance', 'Life is not a journey to a destination; it is a dance. The faster you learn to dance with it, the faster you will see divinity in everything around you. Stop taking everything so seriously.'),
-      BookPage('Chapter 2', 'Silence and Celebration', 'Meditation is not about sitting silently in a corner. You can meditate while running, while dancing, while singing. Celebration is the highest form of prayer.'),
-      BookPage('Chapter 3', 'Dropping the Ego', 'To dance fully, the dancer must disappear. Only the dance remains. When the ego completely vanishes in celebration, you have found truth.'),
-    ]),
-  Book(name: 'From Bondage to Freedom', author: 'Osho', emoji: '🕊️', tag: 'Freedom',
-    grad: [Color(0xFFFFD1DF), Color(0xFFFFF0F5)],
-    pages: [
-      BookPage('Chapter 1', 'The Illusion of Chains', 'You are in prison because you choose to be. The door has always been open. Your attachments are the only chains that bind you.'),
-      BookPage('Chapter 2', 'Awareness is the Key', 'The moment you become absolutely aware of your conditioning, the conditioning drops. You don\'t have to fight it. Just bring the light of awareness into the dark room.'),
-      BookPage('Chapter 3', 'True Rebellion', 'A true rebel is not fighting against society. They simply drop out of the psychological structure. They become an individual, fiercely free.'),
-    ]),
-  Book(name: 'From Misery to Enlightenment', author: 'Osho', emoji: '🪷', tag: 'Awakening',
-    grad: [Color(0xFFAC7BED), Color(0xFFE9D5FF)],
-    pages: [
-      BookPage('Chapter 1', 'The Roots of Misery', 'Misery is a byproduct of living in the past or the future. The present moment is completely innocent; there is no misery here.'),
-      BookPage('Chapter 2', 'Embracing the Now', 'To be enlightened simply means to be unconditionally, absolutely in the present. The mind cannot exist in the present; it demands the past or future.'),
-      BookPage('Chapter 3', 'The Inner Light', 'You are already enlightened. You have just forgotten. Look within, watch the watcher, and the misery will evaporate like dew in the morning sun.'),
-    ]),
-  Book(name: 'Let Go!', author: 'Osho', emoji: '🍃', tag: 'Surrender',
-    grad: [Color(0xFFFFB3CA), Color(0xFFFFD1DF)],
-    pages: [
-      BookPage('Chapter 1', 'The Art of Relaxation', 'Tension means you are fighting with existence. Relaxation means you have trusted the river to take you to the ocean. Let go, do not push the river.'),
-      BookPage('Chapter 2', 'Dropping Control', 'A person who tries to control life is constantly in anxiety. The one who lets go of the steering wheel realizes the vehicle drives perfectly on its own.'),
-      BookPage('Chapter 3', 'Total Acceptance', 'Accept whatever comes your way. Do not call it good or bad. Once you accept totally, a deep silence arises in your being.'),
-    ]),
-  Book(name: 'Nothing to Lose But Your Head', author: 'Osho', emoji: '🦋', tag: 'Zen',
-    grad: [Color(0xFFE0F7FA), Color(0xFFB2EBF2)],
-    pages: [
-      BookPage('Chapter 1', 'The Headless Way', 'The head is the source of all your calculating, analyzing, and worrying. To taste real life, you must drop out of the head and slip into the heart.'),
-      BookPage('Chapter 2', 'Madness of the Modern', 'What you call sanity is just accepted madness. Real sanity looks like madness to the world because it is spontaneous, unpredictable, and entirely alive.'),
-      BookPage('Chapter 3', 'The Courage to Be', 'Drop the head. Lose your mind. In that beautiful emptiness, the universe rushes in to fill you. You have nothing to lose but your misery.'),
-    ]),
+  Book(name: 'Dance Your Way to God', author: 'Osho', emoji: '💃', tag: 'Joy', grad: [Color(0xFFE9D5FF), Color(0xFFFFD1DF)], file: 'Dance Your Way to God.pdf'),
+  Book(name: 'From Bondage to Freedom', author: 'Osho', emoji: '🕊️', tag: 'Freedom', grad: [Color(0xFFFFD1DF), Color(0xFFFFF0F5)], file: 'from bondage to freedom.pdf'),
+  Book(name: 'From Misery to Enlightenment', author: 'Osho', emoji: '🪻', tag: 'Awakening', grad: [Color(0xFFAC7BED), Color(0xFFE9D5FF)], file: 'From Misery to Enlightenment.pdf'),
+  Book(name: 'Let Go!', author: 'Osho', emoji: '🍃', tag: 'Surrender', grad: [Color(0xFFFFB3CA), Color(0xFFFFD1DF)], file: 'Let Go.pdf'),
+  Book(name: 'Nothing to Lose But Your Head', author: 'Osho', emoji: '🦋', tag: 'Zen', grad: [Color(0xFFE0F7FA), Color(0xFFB2EBF2)], file: 'Nothing to Lose but your head.pdf'),
 ];
  
 // ════════════════════════════════════════════════════════════════════
@@ -806,7 +772,7 @@ class _SparklePainter extends CustomPainter {
   final double t; final Size sz;
   const _SparklePainter(this.t, this.sz);
 
-  static const _colors = [C.pinkTheme, C.purple, C.gold, Colors.white, Color(0xFFFFB3CA), Color(0xFFE9D5FF)];
+  static List<Color> get _colors => [AppState.instance.theme.primary, AppState.instance.theme.secondary, C.gold, Colors.white, Color(0xFFFFB3CA), Color(0xFFE9D5FF)];
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -848,9 +814,9 @@ class MiniPlayer extends StatelessWidget {
         margin: const EdgeInsets.fromLTRB(20, 0, 20, 6),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          gradient: const LinearGradient(colors: [C.pinkTheme, C.purple]),
+          gradient: LinearGradient(colors: [AppState.instance.theme.primary, AppState.instance.theme.secondary]),
           borderRadius: BorderRadius.circular(20),
-          boxShadow: [BoxShadow(color: C.pinkTheme.withOpacity(0.4), blurRadius: 12, offset: const Offset(0, 4))]),
+          boxShadow: [BoxShadow(color: AppState.instance.theme.primary.withOpacity(0.4), blurRadius: 12, offset: const Offset(0, 4))]),
         child: Row(children: [
           Text(_soundEmojis[i % _soundEmojis.length], style: const TextStyle(fontSize: 18)),
           const SizedBox(width: 10),
@@ -958,7 +924,7 @@ class _SplashView extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: RadialGradient(
-                colors: [C.pinkTheme.withOpacity(0.28), Colors.transparent],
+                colors: [AppState.instance.theme.primary.withOpacity(0.28), Colors.transparent],
               ),
             ),
           ),
@@ -987,7 +953,7 @@ class _SplashView extends StatelessWidget {
                 style: GoogleFonts.poppins(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
-                  color: C.pinkTheme.withOpacity(0.9),
+                  color: AppState.instance.theme.primary.withOpacity(0.9),
                   letterSpacing: 0.6,
                 ),
               )
@@ -1035,7 +1001,7 @@ class _SplashView extends StatelessWidget {
                   width: 6, height: 6,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: C.pinkTheme.withOpacity(0.7),
+                    color: AppState.instance.theme.primary.withOpacity(0.7),
                   ),
                 ).animate(delay: (1600 + i * 150).ms)
                   .fadeIn(duration: 400.ms)
@@ -1075,10 +1041,9 @@ class _LoginScreenState extends State<LoginScreen> {
     Container(color: Colors.black.withOpacity(0.42)),
     SafeArea(child: SingleChildScrollView(padding: const EdgeInsets.all(28), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       const SizedBox(height: 40),
-      NishAffsLogo(size: 48, showText: true).animate().fadeIn(duration: 600.ms),
-      const SizedBox(height: 10),
-      Text(_isLogin ? 'Welcome back, beautiful soul 🌸' : 'Start your magic journey ✨',
-        style: GoogleFonts.poppins(fontSize: 15, color: Colors.white.withOpacity(0.85), fontWeight: FontWeight.w500)).animate(delay: 200.ms).fadeIn(),
+      Center(child: Container(decoration: BoxDecoration(shape: BoxShape.circle, boxShadow: [BoxShadow(color: AppState.instance.theme.primary.withOpacity(0.35), blurRadius: 40, spreadRadius: 10)]), child: const NishAffsLogo(size: 64, showText: true).animate().fadeIn(duration: 600.ms))),
+      const SizedBox(height: 16),
+      Center(child: Text(_isLogin ? 'Welcome back, beautiful soul 🌸' : 'Start your magic journey ✨', style: GoogleFonts.poppins(fontSize: 16, color: Colors.white, fontWeight: FontWeight.w600)).animate(delay: 200.ms).fadeIn()),
       const SizedBox(height: 40),
       GlassCard(radius: 32, opacity: 0.2, padding: const EdgeInsets.all(26), child: Column(children: [
         if (!_isLogin) ...[_field(_name, 'Your Name', Icons.person_outline_rounded), const SizedBox(height: 14)],
@@ -1089,9 +1054,9 @@ class _LoginScreenState extends State<LoginScreen> {
         GestureDetector(onTap: _loading ? null : _submit, child: Container(
           width: double.infinity, height: 54,
           decoration: BoxDecoration(
-            gradient: const LinearGradient(colors: [C.pinkTheme, C.purple]),
+            gradient: LinearGradient(colors: [AppState.instance.theme.primary, AppState.instance.theme.secondary]),
             borderRadius: BorderRadius.circular(100),
-            boxShadow: [BoxShadow(color: C.pinkTheme.withOpacity(0.4), blurRadius: 16, offset: const Offset(0, 6))]),
+            boxShadow: [BoxShadow(color: AppState.instance.theme.primary.withOpacity(0.4), blurRadius: 16, offset: const Offset(0, 6))]),
           child: Center(child: _loading
             ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
             : Text(_isLogin ? 'Sign In ✨' : 'Create Account 🌸',
@@ -1121,7 +1086,7 @@ class _LoginScreenState extends State<LoginScreen> {
         filled: true, fillColor: Colors.white.withOpacity(0.1),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: Colors.white.withOpacity(0.2))),
         enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: Colors.white.withOpacity(0.2))),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: C.pinkTheme, width: 1.5)),
+        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: AppState.instance.theme.primary, width: 1.5)),
         contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14)));
 }
  
@@ -1190,7 +1155,7 @@ class _NavBtn extends StatelessWidget {
     return GestureDetector(onTap: onTap, behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(duration: const Duration(milliseconds: 260),
         padding: EdgeInsets.symmetric(horizontal: on ? 12 : 7, vertical: 9),
-        decoration: BoxDecoration(color: on ? C.pinkTheme.withOpacity(0.15) : Colors.transparent, borderRadius: BorderRadius.circular(22)),
+        decoration: BoxDecoration(color: on ? AppState.instance.theme.primary.withOpacity(0.15) : Colors.transparent, borderRadius: BorderRadius.circular(22)),
         child: Row(mainAxisSize: MainAxisSize.min, children: [
           Icon(icon, color: on ? C.pinkDark : C.textSub, size: 22),
           if (on) ...[const SizedBox(width: 5),
@@ -1214,7 +1179,7 @@ class _LeftDrawer extends StatelessWidget {
       boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 24, offset: Offset(6, 0))]),
     child: SafeArea(child: ValueListenableBuilder(valueListenable: AppState.instance.user, builder: (_, user, __) =>
       ListView(padding: const EdgeInsets.all(20), children: [
-        Row(children: [const NishAffsLogo(size: 44), const SizedBox(width: 10),
+        Row(children: [const NishAffsLogo(size: 44, showText: true), const SizedBox(width: 10),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(user?['name'] ?? 'Guest', style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.bold, color: C.textDark)),
             Text(user?['email'] ?? '', style: GoogleFonts.poppins(fontSize: 11, color: C.textSub), maxLines: 1, overflow: TextOverflow.ellipsis),
@@ -1222,7 +1187,7 @@ class _LeftDrawer extends StatelessWidget {
         const SizedBox(height: 20),
         ValueListenableBuilder<int>(valueListenable: AppState.instance.streak, builder: (_, streak, __) =>
           Container(padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(gradient: const LinearGradient(colors: [C.pinkTheme, C.purple]), borderRadius: BorderRadius.circular(18)),
+            decoration: BoxDecoration(gradient: LinearGradient(colors: [AppState.instance.theme.primary, AppState.instance.theme.secondary]), borderRadius: BorderRadius.circular(18)),
             child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
               _dStat('$streak🔥', 'Streak'),
               Container(width: 1, height: 32, color: Colors.white.withOpacity(0.3)),
@@ -1232,12 +1197,12 @@ class _LeftDrawer extends StatelessWidget {
             ]))),
         const SizedBox(height: 20),
         _dItem(Icons.home_filled, L.t('home'), C.pinkDark, () { onClose(); onNavigate(0); }),
-        _dItem(Icons.auto_stories_rounded, L.t('library'), C.purple, () { onClose(); onNavigate(1); }),
+        _dItem(Icons.auto_stories_rounded, L.t('library'), AppState.instance.theme.secondary, () { onClose(); onNavigate(1); }),
         _dItem(Icons.add_circle_rounded, L.t('studio'), C.gold, () { onClose(); onNavigate(2); }),
-        _dItem(Icons.favorite_rounded, L.t('vibes'), C.pinkTheme, () { onClose(); onNavigate(3); }),
+        _dItem(Icons.favorite_rounded, L.t('vibes'), AppState.instance.theme.primary, () { onClose(); onNavigate(3); }),
         _dItem(Icons.book_outlined, L.t('journal'), C.pinkDark, () { onClose(); Navigator.push(context, _pageRoute(const JournalScreen())); }),
         _dItem(Icons.emoji_events_rounded, L.t('challenge'), C.pinkDark, () { onClose(); Navigator.push(context, _pageRoute(const Challenge55x5Screen())); }),
-        _dItem(Icons.grid_view_rounded, L.t('vision_board'), C.purple, () { onClose(); Navigator.push(context, _pageRoute(const VisionBoardScreen())); }),
+        _dItem(Icons.grid_view_rounded, L.t('vision_board'), AppState.instance.theme.secondary, () { onClose(); Navigator.push(context, _pageRoute(const VisionBoardScreen())); }),
         const SizedBox(height: 20),
         Text(L.isHindi ? 'सेव की गई अफर्मेशन' : 'Saved Affirmations',
           style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.bold, color: C.textDark)),
@@ -1292,7 +1257,7 @@ class _HomeViewState extends State<HomeView> {
             child: AlertDialog(backgroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
               contentPadding: const EdgeInsets.all(28),
               content: Column(mainAxisSize: MainAxisSize.min, children: [
-                const Text('🌸', style: TextStyle(fontSize: 48)), const SizedBox(height: 16),
+                Stack(children: [const Positioned.fill(child: SparkleOverlay(child: SizedBox())), Center(child: const NishAffsLogo(size: 58, showText: true).animate(onPlay: (c) => c.repeat(reverse: true)).scale(begin: const Offset(0.95, 0.95), end: const Offset(1.05, 1.05), duration: 2500.ms).shimmer(duration: 2000.ms))]), const SizedBox(height: 16),
                 Text(L.isHindi ? 'आज आप कैसा महसूस कर रही हैं?' : 'How are you feeling today?', textAlign: TextAlign.center, style: GoogleFonts.playfairDisplay(fontSize: 22, fontWeight: FontWeight.bold, color: C.textDark)),
                 const SizedBox(height: 24),
                 Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: ['😔','😐','🙂','😊','🌟'].asMap().entries.map((e) =>
@@ -1315,9 +1280,9 @@ class _HomeViewState extends State<HomeView> {
           GestureDetector(onTap: widget.onOpenDrawer, child: ValueListenableBuilder(valueListenable: AppState.instance.user,
             builder: (_, user, __) => Container(width: 44, height: 44,
               decoration: BoxDecoration(shape: BoxShape.circle,
-                gradient: const LinearGradient(colors: [C.pinkTheme, C.purple]),
+                gradient: LinearGradient(colors: [AppState.instance.theme.primary, AppState.instance.theme.secondary]),
                 border: Border.all(color: Colors.white, width: 2),
-                boxShadow: [BoxShadow(color: C.pinkTheme.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 3))]),
+                boxShadow: [BoxShadow(color: AppState.instance.theme.primary.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 3))]),
               child: Center(child: Text(user?['avatar'] ?? 'N',
                 style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 18)))))),
           const SizedBox(width: 12),
@@ -1327,7 +1292,7 @@ class _HomeViewState extends State<HomeView> {
               Text(L.t('hey_beautiful', args: {'name': user?['name'] ?? 'Beautiful'}),
                 style: GoogleFonts.poppins(fontSize: 17, fontWeight: FontWeight.bold, color: C.textDark))),
           ])),
-          const NishAffsLogo(size: 32),
+          const NishAffsLogo(size: 32, showText: true),
         ]).animate().fadeIn(duration: 600.ms),
  
         // ── AFFIRMATION OF THE DAY ──
@@ -1347,7 +1312,7 @@ class _HomeViewState extends State<HomeView> {
         // Quick Pills
         const SizedBox(height: 16),
         Row(children: [
-          _qPill(L.t('read'),   C.purpleLgt, () => widget.onNavigate(1)),
+          _qPill(L.t('read'),   AppState.instance.theme.secondaryLgt, () => widget.onNavigate(1)),
           const SizedBox(width: 10),
           _qPill(L.t('sounds'), C.goldLgt,   () => widget.onNavigate(4)),
           const SizedBox(width: 10),
@@ -1360,7 +1325,7 @@ class _HomeViewState extends State<HomeView> {
           streak > 0 ? Container(
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
             decoration: BoxDecoration(gradient: const LinearGradient(colors: [Color(0xFFFF82A9), Color(0xFFAC7BED)]),
-              borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: C.pinkTheme.withOpacity(0.3), blurRadius: 12, offset: const Offset(0, 4))]),
+              borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: AppState.instance.theme.primary.withOpacity(0.3), blurRadius: 12, offset: const Offset(0, 4))]),
             child: Row(children: [
               const Text('🔥', style: TextStyle(fontSize: 26)), const SizedBox(width: 12),
               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -1428,11 +1393,11 @@ class _AffirmationOfDayCard extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFFFFF0F8), Color(0xFFF0E8FF)]),
         borderRadius: BorderRadius.circular(28), border: Border.all(color: C.pink3.withOpacity(0.5), width: 1.5),
-        boxShadow: [BoxShadow(color: C.pinkTheme.withOpacity(0.12), blurRadius: 20, offset: const Offset(0, 6))]),
+        boxShadow: [BoxShadow(color: AppState.instance.theme.primary.withOpacity(0.12), blurRadius: 20, offset: const Offset(0, 6))]),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
           Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(color: C.pinkTheme.withOpacity(0.12), borderRadius: BorderRadius.circular(20)),
+            decoration: BoxDecoration(color: AppState.instance.theme.primary.withOpacity(0.12), borderRadius: BorderRadius.circular(20)),
             child: Row(mainAxisSize: MainAxisSize.min, children: [
               const Icon(Icons.wb_sunny_rounded, color: C.gold, size: 12),
               const SizedBox(width: 5),
@@ -1448,14 +1413,14 @@ class _AffirmationOfDayCard extends StatelessWidget {
           GestureDetector(onTap: onLike, child: AnimatedContainer(duration: const Duration(milliseconds: 200),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
             decoration: BoxDecoration(
-              gradient: liked ? const LinearGradient(colors: [C.pinkTheme, C.purple]) : null,
+              gradient: liked ? LinearGradient(colors: [AppState.instance.theme.primary, AppState.instance.theme.secondary]) : null,
               color: liked ? null : Colors.white, borderRadius: BorderRadius.circular(100),
               border: Border.all(color: liked ? Colors.transparent : C.pink2, width: 1.2)),
             child: Row(mainAxisSize: MainAxisSize.min, children: [
-              Icon(liked ? Icons.favorite_rounded : Icons.favorite_border_rounded, color: liked ? Colors.white : C.pinkTheme, size: 16),
+              Icon(liked ? Icons.favorite_rounded : Icons.favorite_border_rounded, color: liked ? Colors.white : AppState.instance.theme.primary, size: 16),
               const SizedBox(width: 6),
               Text(liked ? (L.isHindi ? 'पसंद है ✨' : 'Loved ✨') : (L.isHindi ? 'महसूस करें' : 'Feel It'),
-                style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w700, color: liked ? Colors.white : C.pinkTheme)),
+                style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w700, color: liked ? Colors.white : AppState.instance.theme.primary)),
             ]))),
           const Spacer(),
           GestureDetector(onTap: () => Navigator.push(context, _pageRoute(const JournalScreen())),
@@ -1506,7 +1471,7 @@ class _MoodBadge extends StatelessWidget {
     const msgsEn = ['Take it easy today 🌸','You\'ve got this 💪','Nice energy! ✨','Shining bright! 💫','Absolutely glowing! 🌟'];
     const msgsHi = ['आज आराम करें 🌸','आप कर सकती हैं 💪','अच्छी एनर्जी! ✨','चमक रही हैं! 💫','बिल्कुल दमकदार! 🌟'];
     return Container(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(gradient: const LinearGradient(colors: [C.pink1, C.purpleLgt]),
+      decoration: BoxDecoration(gradient: const LinearGradient(colors: [C.pink1, AppState.instance.theme.secondaryLgt]),
         borderRadius: BorderRadius.circular(18), border: Border.all(color: C.pink2, width: 1.2)),
       child: Row(children: [
         Text(emojis[mood], style: const TextStyle(fontSize: 30)),
@@ -1597,7 +1562,7 @@ class _LibraryViewState extends State<LibraryView> with SingleTickerProviderStat
   Widget build(BuildContext context) => Scaffold(backgroundColor: C.bg,
     body: SafeArea(bottom: false, child: Column(children: [
       Padding(padding: const EdgeInsets.fromLTRB(22, 18, 22, 0), child: Row(children: [
-        const NishAffsLogo(size: 30), const SizedBox(width: 10),
+        const NishAffsLogo(size: 30, showText: true), const SizedBox(width: 10),
         Text(L.t('wisdom_library'), style: GoogleFonts.playfairDisplay(fontSize: 22, fontWeight: FontWeight.bold, color: C.textDark)),
       ])),
       const SizedBox(height: 12),
@@ -1606,7 +1571,7 @@ class _LibraryViewState extends State<LibraryView> with SingleTickerProviderStat
         decoration: BoxDecoration(color: C.pink1, borderRadius: BorderRadius.circular(14)),
         child: TabBar(controller: _tc, labelColor: Colors.white, unselectedLabelColor: C.textSub,
           labelStyle: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w700),
-          indicator: BoxDecoration(gradient: const LinearGradient(colors: [C.pinkTheme, C.purple]), borderRadius: BorderRadius.circular(12)),
+          indicator: BoxDecoration(gradient: LinearGradient(colors: [AppState.instance.theme.primary, AppState.instance.theme.secondary]), borderRadius: BorderRadius.circular(12)),
           indicatorSize: TabBarIndicatorSize.tab,
           tabs: [Tab(text: L.isHindi ? '📚 किताबें' : '📚 Books'), Tab(text: L.isHindi ? '✨ अफर्मेशन' : '✨ Affirmations')])),
       const SizedBox(height: 12),
@@ -1618,7 +1583,7 @@ class _LibraryViewState extends State<LibraryView> with SingleTickerProviderStat
               child: AnimatedContainer(duration: const Duration(milliseconds: 220),
                 margin: const EdgeInsets.only(right: 10), padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
                 decoration: BoxDecoration(
-                  gradient: _cat == _cats[i] ? const LinearGradient(colors: [C.pinkTheme, C.purple]) : null,
+                  gradient: _cat == _cats[i] ? LinearGradient(colors: [AppState.instance.theme.primary, AppState.instance.theme.secondary]) : null,
                   color: _cat == _cats[i] ? null : Colors.white, borderRadius: BorderRadius.circular(100),
                   border: Border.all(color: _cat == _cats[i] ? Colors.transparent : C.pink2, width: 1.2)),
                 child: Text(_cats[i], style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w700, color: _cat == _cats[i] ? Colors.white : C.textSub)))))),
@@ -1727,7 +1692,7 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
         Padding(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           child: Row(children: [
             Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(color: C.pinkTheme.withOpacity(0.1), borderRadius: BorderRadius.circular(20)),
+              decoration: BoxDecoration(color: AppState.instance.theme.primary.withOpacity(0.1), borderRadius: BorderRadius.circular(20)),
               child: Text('${_filtered.length} ${L.t('affirmations')}',
                 style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w700, color: C.pinkDark))),
           ])),
@@ -1776,99 +1741,24 @@ PageRoute _pageRoute(Widget page) => PageRouteBuilder(
 // ════════════════════════════════════════════════════════════════════
 //  KINDLE READER — 3D page flip
 // ════════════════════════════════════════════════════════════════════
-class KindleReader extends StatefulWidget {
+class KindleReader extends StatelessWidget {
   final Book book;
   const KindleReader({super.key, required this.book});
-  @override State<KindleReader> createState() => _KindleReaderState();
-}
-class _KindleReaderState extends State<KindleReader> with SingleTickerProviderStateMixin {
-  int _cur = 0; late AnimationController _ctrl; late Animation<double> _anim;
-  bool _flipping = false; int _next = 0;
-  @override void initState() {
-    super.initState();
-    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 550));
-    _anim = CurvedAnimation(parent: _ctrl, curve: Curves.easeInOutCubic);
-    _ctrl.addStatusListener((s) {
-      if (s == AnimationStatus.completed && mounted) { setState(() { _cur = _next; _flipping = false; }); _ctrl.reset(); }
-    });
-  }
-  void _flip(bool fwd) {
-    if (_flipping) return;
-    final np = fwd ? _cur + 1 : _cur - 1;
-    if (np < 0) { Navigator.pop(context); return; }
-    if (np >= widget.book.pages.length) return;
-    setState(() { _flipping = true; _next = np; }); _ctrl.forward();
-  }
-  @override void dispose() { _ctrl.dispose(); super.dispose(); }
+
   @override
-  Widget build(BuildContext context) => Scaffold(backgroundColor: C.book,
-    body: GestureDetector(
-      onHorizontalDragEnd: (d) { final v = d.primaryVelocity ?? 0; if (v < -180) _flip(true); else if (v > 180) _flip(false); },
-      onTapDown: (d) { final w = MediaQuery.of(context).size.width; if (d.localPosition.dx > w * 0.6) _flip(true); else if (d.localPosition.dx < w * 0.4) _flip(false); },
-      child: AnimatedBuilder(animation: _anim, builder: (ctx, __) {
-        final sz = MediaQuery.of(ctx).size;
-        final v  = _anim.value;
-        final front = _pageContent(widget.book.pages[_cur], sz);
-        final back  = _flipping ? _pageContent(widget.book.pages[_next], sz) : front;
-        if (!_flipping) return front;
-        return Stack(children: [
-          back,
-          if (v < 0.5) Transform(transform: Matrix4.identity()..setEntry(3, 2, 0.0012)..rotateY(v * pi), alignment: Alignment.centerLeft, child: front),
-          if (v < 0.5) Positioned(right: 0, top: 0, bottom: 0, child: Container(
-            width: sz.width * (1 - v * 2).clamp(0.0, 1.0),
-            decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.centerRight, end: Alignment.centerLeft,
-              colors: [Colors.black.withOpacity(0.1 * (1 - v * 2)), Colors.transparent])))),
-          if (v >= 0.5) Transform(transform: Matrix4.identity()..setEntry(3, 2, 0.0012)..rotateY((1.0 - v) * pi), alignment: Alignment.centerLeft,
-            child: Container(color: C.book, child: Stack(children: [back,
-              Positioned(left: 0, top: 0, bottom: 0, width: 30, child: Container(
-                decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight,
-                  colors: [Colors.black.withOpacity(0.1), Colors.transparent]))))]))),
-        ]);
-      })));
- 
-  Widget _pageContent(BookPage page, Size sz) => Container(
-    width: sz.width, height: sz.height, color: C.book,
-    child: SafeArea(child: Column(children: [
-      Padding(padding: const EdgeInsets.fromLTRB(24, 14, 24, 0), child: Row(children: [
-        GestureDetector(onTap: () => Navigator.pop(context), child: const Icon(Icons.arrow_back_ios_new_rounded, size: 16, color: Color(0xFF8B6040))),
-        const Spacer(),
-        Row(mainAxisSize: MainAxisSize.min, children: [const NishAffsLogo(size: 16), const SizedBox(width: 5),
-          Text(widget.book.name, style: GoogleFonts.poppins(fontSize: 10, fontWeight: FontWeight.w600, color: const Color(0xFF8B6040)), maxLines: 1, overflow: TextOverflow.ellipsis)]),
-        const Spacer(),
-        Text('${_cur + 1} / ${widget.book.pages.length}', style: GoogleFonts.poppins(fontSize: 10, color: Colors.grey.shade400)),
-      ])),
-      Padding(padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-        child: ClipRRect(borderRadius: BorderRadius.circular(2), child: LinearProgressIndicator(
-          value: (_cur + 1) / widget.book.pages.length, minHeight: 2,
-          backgroundColor: Colors.brown.withOpacity(0.1), color: const Color(0xFFD4956A)))),
-      Container(height: 1, margin: const EdgeInsets.symmetric(horizontal: 24), color: Colors.brown.withOpacity(0.08)),
-      Expanded(child: SingleChildScrollView(padding: const EdgeInsets.fromLTRB(32, 24, 32, 24), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(page.chapter, style: GoogleFonts.poppins(fontSize: 9, fontWeight: FontWeight.w700, color: const Color(0xFFD4956A), letterSpacing: 2.5)),
-        const SizedBox(height: 12),
-        Text(page.title, style: GoogleFonts.playfairDisplay(fontSize: 26, fontWeight: FontWeight.bold, color: const Color(0xFF3D2B1F))),
-        const SizedBox(height: 10),
-        Container(height: 2, width: 44, decoration: const BoxDecoration(color: Color(0xFFD4956A), borderRadius: BorderRadius.all(Radius.circular(1)))),
-        const SizedBox(height: 24),
-        Text(page.body, style: GoogleFonts.lora(fontSize: 17, color: const Color(0xFF4A3520), height: 2.1, letterSpacing: 0.15)),
-        const SizedBox(height: 32),
-        Center(child: Text('· · ·', style: GoogleFonts.lora(fontSize: 18, color: const Color(0xFFD4956A)))),
-      ]))),
-      Padding(padding: const EdgeInsets.fromLTRB(24, 4, 24, 14), child: Row(children: [
-        if (_cur > 0) GestureDetector(onTap: () => _flip(false), child: Row(children: [
-          const Icon(Icons.arrow_back_ios_rounded, size: 12, color: Color(0xFFD4956A)),
-          Text('Prev', style: GoogleFonts.poppins(fontSize: 12, color: const Color(0xFFD4956A)))])),
-        const Spacer(),
-        Text('← swipe →', style: GoogleFonts.poppins(fontSize: 10, color: Colors.grey.shade400)),
-        const Spacer(),
-        if (_cur < widget.book.pages.length - 1) GestureDetector(onTap: () => _flip(true), child: Row(children: [
-          Text('Next', style: GoogleFonts.poppins(fontSize: 12, color: const Color(0xFFD4956A))),
-          const Icon(Icons.arrow_forward_ios_rounded, size: 12, color: Color(0xFFD4956A))])),
-      ])),
-    ])));
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: C.book,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent, 
+        elevation: 0,
+        leading: BackButton(color: AppState.instance.theme.primary),
+        title: Text(book.name, style: GoogleFonts.poppins(color: C.textDark, fontWeight: FontWeight.bold, fontSize: 16)),
+      ),
+      body: SfPdfViewer.asset('assets/books/${book.file}', canShowScrollHead: false, canShowScrollStatus: false),
+    );
+  }
 }
- 
-// ════════════════════════════════════════════════════════════════════
-//  STUDIO VIEW
 // ════════════════════════════════════════════════════════════════════
 class StudioView extends StatefulWidget {
   const StudioView({super.key});
@@ -1882,7 +1772,7 @@ class _StudioViewState extends State<StudioView> {
   static const _vibes = [
     ('Self Love',  C.pink2,               C.pinkDark),
     ('Abundance',  Color(0xFFD1FFE0),      Color(0xFF2A9D59)),
-    ('Confidence', C.purpleLgt,           C.purple),
+    ('Confidence', AppState.instance.theme.secondaryLgt,           AppState.instance.theme.secondary),
     ('Healing',    Color(0xFFD1EAFF),      Color(0xFF3A7FD4)),
     ('Gratitude',  C.goldLgt,             Color(0xFF9B7B14)),
     ('Peace',      Color(0xFFE8FFF5),      Color(0xFF2A9D7A)),
@@ -1907,7 +1797,18 @@ class _StudioViewState extends State<StudioView> {
     final text = _tc.text.trim();
     if (text.isEmpty) { ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('✍️ Write your affirmation first!'), backgroundColor: C.pinkDark, behavior: SnackBarBehavior.floating, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)))); return; }
     showModalBottomSheet(context: context, isScrollControlled: true, backgroundColor: Colors.transparent,
-      builder: (ctx) => _isUploading ? const Center(child: CircularProgressIndicator(color: C.pinkTheme)) : _PostPreviewSheet(text: text, vibe: _vibe, bgIdx: _bgIdx, onPost: (target) async {
+      builder: (ctx) => _isUploading ? Center(child: CircularProgressIndicator(color: AppState.instance.theme.primary)) : _PostPreviewSheet(text: text, vibe: _vibe, bgIdx: _bgIdx, imageFile: _imageFile, onPost: (target, sc) async {
+        if (target == 'external' || target == 'story') {
+          final bytes = await sc.capture(delay: const Duration(milliseconds: 10));
+          if (bytes != null) {
+            final directory = await path_provider.getApplicationDocumentsDirectory();
+            final tempPath = '${directory.path}/affirmation_share.png';
+            final file = java_io.File(tempPath);
+            await file.writeAsBytes(bytes);
+            await Share.shareXFiles([XFile(tempPath)], text: target == 'story' ? '' : 'Check out this affirmation from NishAffs! 🌸');
+          }
+          return;
+        }
         if (target == 'community' || target == 'save') {
           setState(() { _isUploading = true; Navigator.pop(ctx); });
           String? downloadUrl;
@@ -1933,7 +1834,7 @@ class _StudioViewState extends State<StudioView> {
   @override
   Widget build(BuildContext context) => Scaffold(backgroundColor: C.bg,
     body: SafeArea(bottom: false, child: ListView(padding: const EdgeInsets.fromLTRB(22, 18, 22, 120), children: [
-      Row(children: [const NishAffsLogo(size: 30), const SizedBox(width: 10), Text(L.t('studio_title'), style: GoogleFonts.playfairDisplay(fontSize: 26, fontWeight: FontWeight.bold, color: C.textDark))]),
+      Row(children: [const NishAffsLogo(size: 30, showText: true), const SizedBox(width: 10), Text(L.t('studio_title'), style: GoogleFonts.playfairDisplay(fontSize: 26, fontWeight: FontWeight.bold, color: C.textDark))]),
       const SizedBox(height: 6),
       Text(L.isHindi ? 'अपनी अफर्मेशन पोस्ट बनाएं ✨' : 'Create your affirmation post ✨', style: GoogleFonts.poppins(fontSize: 13, color: C.textSub)),
       const SizedBox(height: 22),
@@ -1949,7 +1850,7 @@ class _StudioViewState extends State<StudioView> {
         showDialog(context: context, barrierDismissible: false, builder: (ctx) => AlertDialog(
           backgroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           content: Column(mainAxisSize: MainAxisSize.min, children: [
-            const CircularProgressIndicator(color: C.pinkTheme), const SizedBox(height: 20),
+            const CircularProgressIndicator(color: AppState.instance.theme.primary), const SizedBox(height: 20),
             Text('AI is manifesting your words...', style: GoogleFonts.poppins(fontSize: 14, color: C.textDark)),
           ])));
         await Future.delayed(const Duration(seconds: 2));
@@ -1957,7 +1858,7 @@ class _StudioViewState extends State<StudioView> {
         final seed = DateTime.now().millisecondsSinceEpoch;
         final list = ['I am open to receiving massive abundance today.','I radiate confidence and pure self-love.','Everything I touch turns into success and joy.','My peace is my power, and I guard it fiercely.','I am a magnet for miracles and beautiful synchronicity.'];
         setState(() => _tc.text = list[seed % list.length]);
-      }, child: Container(padding: const EdgeInsets.symmetric(vertical: 12), decoration: BoxDecoration(color: C.purpleLgt, borderRadius: BorderRadius.circular(16), border: Border.all(color: C.purple, width: 1.5)),
+      }, child: Container(padding: const EdgeInsets.symmetric(vertical: 12), decoration: BoxDecoration(color: AppState.instance.theme.secondaryLgt, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppState.instance.theme.secondary, width: 1.5)),
         child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
           const Text('✨ ', style: TextStyle(fontSize: 18)), Text('Write with AI', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w700, color: C.textDark)),
         ]))),
@@ -2010,7 +1911,7 @@ class _StudioViewState extends State<StudioView> {
           ? Image.network(_imageFile!.path, fit: BoxFit.cover, errorBuilder: (_,__,___) => Container(color: C.pink2)) 
           : _img(_bgIdx + 2, w: double.infinity, h: double.infinity)),
         Positioned.fill(child: Container(color: Colors.black.withOpacity(0.38))),
-        Positioned(top: 10, right: 10, child: const NishAffsLogo(size: 22)),
+        Positioned(top: 10, right: 10, child: const NishAffsLogo(size: 36, showText: true)),
         Center(child: Padding(padding: const EdgeInsets.all(20), child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
           Text('"${_tc.text.isEmpty ? "Your affirmation here..." : _tc.text}"', textAlign: TextAlign.center,
             style: GoogleFonts.lora(fontSize: 15, color: Colors.white, height: 1.55, fontStyle: FontStyle.italic), maxLines: 5, overflow: TextOverflow.ellipsis),
@@ -2022,16 +1923,18 @@ class _StudioViewState extends State<StudioView> {
       ]))),
       const SizedBox(height: 24),
       GestureDetector(onTap: _showPreview, child: Container(width: double.infinity, height: 54,
-        decoration: BoxDecoration(gradient: const LinearGradient(colors: [C.pinkTheme, C.purple]), borderRadius: BorderRadius.circular(100),
-          boxShadow: [BoxShadow(color: C.pinkTheme.withOpacity(0.4), blurRadius: 16, offset: const Offset(0, 6))]),
+        decoration: BoxDecoration(gradient: LinearGradient(colors: [AppState.instance.theme.primary, AppState.instance.theme.secondary]), borderRadius: BorderRadius.circular(100),
+          boxShadow: [BoxShadow(color: AppState.instance.theme.primary.withOpacity(0.4), blurRadius: 16, offset: const Offset(0, 6))]),
         child: Center(child: Text(L.isHindi ? 'बनाएं और शेयर करें ✨' : 'Create & Share ✨', style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white))))),
     ])));
 }
  
 class _PostPreviewSheet extends StatelessWidget {
-  final String text, vibe; final int bgIdx; final void Function(String) onPost;
+  final String text, vibe; final int bgIdx; final void Function(String, ScreenshotController) onPost;
   final XFile? imageFile;
-  const _PostPreviewSheet({required this.text, required this.vibe, required this.bgIdx, required this.onPost, this.imageFile});
+  final ScreenshotController _sc = ScreenshotController();
+  
+  _PostPreviewSheet({required this.text, required this.vibe, required this.bgIdx, required this.onPost, this.imageFile});
   @override
   Widget build(BuildContext context) => Container(
     decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(32))),
@@ -2041,19 +1944,19 @@ class _PostPreviewSheet extends StatelessWidget {
       const SizedBox(height: 16),
       Row(children: [const NishAffsLogo(size: 28), const SizedBox(width: 10), Text('Ready to share! 🌸', style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold, color: C.textDark))]),
       const SizedBox(height: 16),
-      ClipRRect(borderRadius: BorderRadius.circular(18), child: SizedBox(height: 130, child: Stack(children: [
+      Screenshot(controller: _sc, child: ClipRRect(borderRadius: BorderRadius.circular(18), child: SizedBox(height: 130, child: Stack(children: [
         Positioned.fill(child: imageFile != null 
           ? Image.network(imageFile!.path, fit: BoxFit.cover, errorBuilder: (_,__,___) => Container(color: C.pink2)) 
           : _img(bgIdx + 2, w: double.infinity, h: double.infinity)),
         Positioned.fill(child: Container(color: Colors.black.withOpacity(0.38))),
         Center(child: Padding(padding: const EdgeInsets.all(18), child: Text('"$text"', textAlign: TextAlign.center,
           style: GoogleFonts.lora(fontSize: 13, color: Colors.white, fontStyle: FontStyle.italic), maxLines: 4, overflow: TextOverflow.ellipsis))),
-      ]))),
+      ])))),
       const SizedBox(height: 20),
       Row(children: [
         Expanded(child: _btn(context, '🌸 Community', C.pink1, C.pinkDark, 'community')),
         const SizedBox(width: 10),
-        Expanded(child: _btn(context, '💾 Journal', C.purpleLgt, C.purple, 'save')),
+        Expanded(child: _btn(context, '💾 Journal', AppState.instance.theme.secondaryLgt, AppState.instance.theme.secondary, 'save')),
         const SizedBox(width: 10),
         Expanded(child: _btn(context, '📤 Share', C.goldLgt, const Color(0xFF9B7B14), 'external')),
       ]),
@@ -2061,7 +1964,7 @@ class _PostPreviewSheet extends StatelessWidget {
       _btn(context, '📱 Post as Story', C.bg, C.textDark, 'story', full: true),
     ]));
   Widget _btn(BuildContext ctx, String label, Color bg, Color fg, String target, {bool full = false}) =>
-    GestureDetector(onTap: () => onPost(target), child: Container(
+    GestureDetector(onTap: () => onPost(target, _sc), child: Container(
       width: full ? double.infinity : null, padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 8),
       decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(16), border: Border.all(color: fg.withOpacity(0.3), width: 1.2)),
       child: Center(child: Text(label, style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w700, color: fg), textAlign: TextAlign.center))));
@@ -2130,8 +2033,8 @@ class _StoryBubble extends StatelessWidget {
         scale: Tween(begin: 0.88, end: 1.0).animate(CurvedAnimation(parent: a, curve: Curves.easeOut)), child: child)))),
     child: Container(margin: const EdgeInsets.only(right: 14), child: Column(mainAxisSize: MainAxisSize.min, children: [
       Container(width: 62, height: 62, decoration: BoxDecoration(shape: BoxShape.circle,
-        gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [C.pinkTheme, C.purple]),
-        border: Border.all(color: C.bg, width: 2.5), boxShadow: [BoxShadow(color: C.pinkTheme.withOpacity(0.35), blurRadius: 8, offset: const Offset(0, 3))]),
+        gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [AppState.instance.theme.primary, AppState.instance.theme.secondary]),
+        border: Border.all(color: C.bg, width: 2.5), boxShadow: [BoxShadow(color: AppState.instance.theme.primary.withOpacity(0.35), blurRadius: 8, offset: const Offset(0, 3))]),
         child: Center(child: Text(story['avatar'] ?? '?', style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 22, color: Colors.white)))),
       const SizedBox(height: 5),
       Text(story['user'] ?? '', style: GoogleFonts.poppins(fontSize: 10, color: C.textSub, fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis),
@@ -2176,12 +2079,12 @@ class _StoryViewerState extends State<StoryViewer> with TickerProviderStateMixin
                     child: Container(decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(2)))))
                 : const SizedBox.shrink()))))),
           Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: Row(children: [
-            Container(width: 38, height: 38, decoration: BoxDecoration(shape: BoxShape.circle, gradient: const LinearGradient(colors: [C.pinkTheme, C.purple]), border: Border.all(color: Colors.white, width: 2)),
+            Container(width: 38, height: 38, decoration: BoxDecoration(shape: BoxShape.circle, gradient: LinearGradient(colors: [AppState.instance.theme.primary, AppState.instance.theme.secondary]), border: Border.all(color: Colors.white, width: 2)),
               child: Center(child: Text(story['avatar'] ?? '?', style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 17)))),
             const SizedBox(width: 10),
             Text(story['user'] ?? '', style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 14)),
             const Spacer(),
-            const NishAffsLogo(size: 22), const SizedBox(width: 10),
+            const NishAffsLogo(size: 36, showText: true), const SizedBox(width: 10),
             GestureDetector(onTap: () => Navigator.pop(context), child: const Icon(Icons.close_rounded, color: Colors.white, size: 26)),
           ])),
           const Spacer(),
@@ -2215,7 +2118,7 @@ class _PostCardState extends State<_PostCard> {
     final post = widget.post; final id = post['id'] as String; final cmts = (post['comments'] as List? ?? []);
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Padding(padding: const EdgeInsets.fromLTRB(20, 14, 20, 10), child: Row(children: [
-        Container(width: 40, height: 40, decoration: BoxDecoration(shape: BoxShape.circle, gradient: const LinearGradient(colors: [C.pinkTheme, C.purple])),
+        Container(width: 40, height: 40, decoration: BoxDecoration(shape: BoxShape.circle, gradient: LinearGradient(colors: [AppState.instance.theme.primary, AppState.instance.theme.secondary])),
           child: Center(child: Text(post['avatar'] ?? '?', style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 17)))),
         const SizedBox(width: 10),
         Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -2247,7 +2150,7 @@ class _PostCardState extends State<_PostCard> {
           Text('${cmts.length}', style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w600, color: C.textDark)),
         ])),
         const SizedBox(width: 20),
-        GestureDetector(onTap: () => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('📤 Link copied!'), backgroundColor: C.purple, behavior: SnackBarBehavior.floating, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)))),
+        GestureDetector(onTap: () => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('📤 Link copied!'), backgroundColor: AppState.instance.theme.secondary, behavior: SnackBarBehavior.floating, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)))),
           child: const Icon(Icons.send_outlined, color: C.textDark, size: 24)),
         const Spacer(),
         GestureDetector(onTap: () async { await AppState.instance.toggleSave(id); setState(() => _saved = AppState.instance.saved.value.contains(id)); },
@@ -2293,7 +2196,7 @@ class _PostCardState extends State<_PostCard> {
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11)))),
             const SizedBox(width: 10),
             GestureDetector(onTap: () async { if (tc.text.trim().isEmpty) return; await AppState.instance.addComment(id, tc.text.trim()); tc.clear(); setS(() {}); },
-              child: Container(width: 46, height: 46, decoration: BoxDecoration(shape: BoxShape.circle, gradient: const LinearGradient(colors: [C.pinkTheme, C.purple])),
+              child: Container(width: 46, height: 46, decoration: BoxDecoration(shape: BoxShape.circle, gradient: LinearGradient(colors: [AppState.instance.theme.primary, AppState.instance.theme.secondary])),
                 child: const Icon(Icons.send_rounded, color: Colors.white, size: 20))),
           ]),
         ]))));
@@ -2314,7 +2217,7 @@ class _ProfileViewState extends State<ProfileView> with SingleTickerProviderStat
   @override void dispose() { _tc.dispose(); super.dispose(); }
  
   static const _sounds = [
-    ('432Hz Deep Healing',   'Binaural Beats',    '45 min','🎵', C.purpleLgt,      Color(0xFF8B5CF6)),
+    ('432Hz Deep Healing',   'Binaural Beats',    '45 min','🎵', AppState.instance.theme.secondaryLgt,      Color(0xFF8B5CF6)),
     ('Morning Abundance',    'Solfeggio 528Hz',   '30 min','☀️', C.goldLgt,         C.gold),
     ('Inner Peace Rain',     'Nature Sounds',     '60 min','🌧️', Color(0xFFD1EAFF), Color(0xFF4A90D9)),
     ('Deep Sleep Delta',     'Delta Waves',       '8 hrs', '🌙', Color(0xFFE8E0FF), Color(0xFF6B5CE7)),
@@ -2330,9 +2233,9 @@ class _ProfileViewState extends State<ProfileView> with SingleTickerProviderStat
         Padding(padding: const EdgeInsets.all(20), child: Row(children: [
           Stack(children: [
             Container(width: 68, height: 68, decoration: BoxDecoration(shape: BoxShape.circle,
-              gradient: const LinearGradient(colors: [C.pinkTheme, C.purple]),
+              gradient: LinearGradient(colors: [AppState.instance.theme.primary, AppState.instance.theme.secondary]),
               border: Border.all(color: Colors.white, width: 3),
-              boxShadow: [BoxShadow(color: C.pinkTheme.withOpacity(0.35), blurRadius: 12, offset: const Offset(0, 4))]),
+              boxShadow: [BoxShadow(color: AppState.instance.theme.primary.withOpacity(0.35), blurRadius: 12, offset: const Offset(0, 4))]),
               child: Center(child: Text(user?['avatar'] ?? 'N', style: GoogleFonts.poppins(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.white)))),
             Positioned(bottom: 2, right: 2, child: Container(width: 18, height: 18,
               decoration: BoxDecoration(color: const Color(0xFF22C55E), shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 2)))),
@@ -2354,7 +2257,7 @@ class _ProfileViewState extends State<ProfileView> with SingleTickerProviderStat
         decoration: BoxDecoration(color: C.pink1, borderRadius: BorderRadius.circular(16)),
         child: TabBar(controller: _tc, labelColor: Colors.white, unselectedLabelColor: C.textSub,
           labelStyle: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w700),
-          indicator: BoxDecoration(gradient: const LinearGradient(colors: [C.pinkTheme, C.purple]), borderRadius: BorderRadius.circular(14)),
+          indicator: BoxDecoration(gradient: LinearGradient(colors: [AppState.instance.theme.primary, AppState.instance.theme.secondary]), borderRadius: BorderRadius.circular(14)),
           indicatorSize: TabBarIndicatorSize.tab,
           tabs: [Tab(text: '🎵 Sounds'), Tab(text: '📓 Journal'), Tab(text: '🎨 Themes'), Tab(text: '⚙️ Settings')])),
       Expanded(child: TabBarView(controller: _tc, children: [
@@ -2389,8 +2292,8 @@ class _JournalQuickView extends StatelessWidget {
       Padding(padding: const EdgeInsets.fromLTRB(20, 16, 20, 8), child: GestureDetector(
         onTap: () => Navigator.push(context, _pageRoute(const JournalScreen())),
         child: Container(width: double.infinity, height: 50,
-          decoration: BoxDecoration(gradient: const LinearGradient(colors: [C.pinkTheme, C.purple]), borderRadius: BorderRadius.circular(100),
-            boxShadow: [BoxShadow(color: C.pinkTheme.withOpacity(0.3), blurRadius: 12)]),
+          decoration: BoxDecoration(gradient: LinearGradient(colors: [AppState.instance.theme.primary, AppState.instance.theme.secondary]), borderRadius: BorderRadius.circular(100),
+            boxShadow: [BoxShadow(color: AppState.instance.theme.primary.withOpacity(0.3), blurRadius: 12)]),
           child: Center(child: Text(L.isHindi ? '+ नई जर्नल एंट्री' : '+ New Journal Entry', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white)))))),
       Expanded(child: entries.isEmpty
         ? Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -2429,7 +2332,7 @@ class _JournalQuickView extends StatelessWidget {
 class _ThemesTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ListView(padding: const EdgeInsets.fromLTRB(20, 20, 20, 120), children: [
-    const NishAffsLogo(size: 44), const SizedBox(height: 12),
+    const NishAffsLogo(size: 44, showText: true), const SizedBox(height: 12),
     Text(L.isHindi ? 'थीम चुनें' : 'Choose Your Theme', style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold, color: C.textDark)),
     const SizedBox(height: 6),
     Text(L.isHindi ? 'टैप करें — पूरा ऐप बदल जाएगा! ✨' : 'Tap to apply instantly — changes everything! ✨', style: GoogleFonts.poppins(fontSize: 13, color: C.textSub)),
@@ -2485,7 +2388,7 @@ class _SettingsTabState extends State<_SettingsTab> {
               child: AnimatedContainer(duration: const Duration(milliseconds: 200),
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
-                  gradient: lang == 'en' ? const LinearGradient(colors: [C.pinkTheme, C.purple]) : null,
+                  gradient: lang == 'en' ? LinearGradient(colors: [AppState.instance.theme.primary, AppState.instance.theme.secondary]) : null,
                   color: lang == 'en' ? null : Colors.white, borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: lang == 'en' ? Colors.transparent : C.pink2)),
                 child: Column(children: [
@@ -2498,7 +2401,7 @@ class _SettingsTabState extends State<_SettingsTab> {
               child: AnimatedContainer(duration: const Duration(milliseconds: 200),
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
-                  gradient: lang == 'hi' ? const LinearGradient(colors: [C.pinkTheme, C.purple]) : null,
+                  gradient: lang == 'hi' ? LinearGradient(colors: [AppState.instance.theme.primary, AppState.instance.theme.secondary]) : null,
                   color: lang == 'hi' ? null : Colors.white, borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: lang == 'hi' ? Colors.transparent : C.pink2)),
                 child: Column(children: [
@@ -2529,7 +2432,7 @@ class _SettingsTabState extends State<_SettingsTab> {
     Container(margin: const EdgeInsets.only(bottom: 8), padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: C.pink2.withOpacity(0.5))),
       child: Row(children: [Expanded(child: Text(label, style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w500, color: C.textDark))),
-        Switch(value: val, onChanged: cb, activeColor: C.pinkTheme)]));
+        Switch(value: val, onChanged: cb, activeColor: AppState.instance.theme.primary)]));
   Widget _tile(String label, String val) =>
     Container(margin: const EdgeInsets.only(bottom: 8), padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: C.pink2.withOpacity(0.5))),
@@ -2567,9 +2470,9 @@ class _SoundCard extends StatelessWidget {
               ])),
               ValueListenableBuilder<bool>(valueListenable: svc.isPlaying, builder: (_, isp, __) =>
                 Container(width: 42, height: 42, decoration: BoxDecoration(shape: BoxShape.circle,
-                  gradient: playing ? const LinearGradient(colors: [C.pinkTheme, C.purple]) : null,
+                  gradient: playing ? LinearGradient(colors: [AppState.instance.theme.primary, AppState.instance.theme.secondary]) : null,
                   color: playing ? null : C.pink1,
-                  boxShadow: playing ? [BoxShadow(color: C.pinkTheme.withOpacity(0.4), blurRadius: 8)] : []),
+                  boxShadow: playing ? [BoxShadow(color: AppState.instance.theme.primary.withOpacity(0.4), blurRadius: 8)] : []),
                   child: Icon(playing && isp ? Icons.pause_rounded : Icons.play_arrow_rounded, color: playing ? Colors.white : C.textDark, size: 24))),
             ]),
             if (playing) ...[
@@ -2659,14 +2562,14 @@ class _JournalScreenState extends State<JournalScreen> with SingleTickerProvider
   Widget build(BuildContext context) => Scaffold(backgroundColor: C.bg,
     appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0, centerTitle: true,
       leading: const BackButton(color: C.pinkDark),
-      title: Row(mainAxisSize: MainAxisSize.min, children: [const NishAffsLogo(size: 24), const SizedBox(width: 8),
+      title: Row(mainAxisSize: MainAxisSize.min, children: [const NishAffsLogo(size: 28, showText: true), const SizedBox(width: 8),
         Text(L.t('journal'), style: GoogleFonts.poppins(fontSize: 17, fontWeight: FontWeight.bold, color: C.textDark))])),
     body: Column(children: [
       Container(margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
         decoration: BoxDecoration(color: C.pink1, borderRadius: BorderRadius.circular(14)),
         child: TabBar(controller: _tc, labelColor: Colors.white, unselectedLabelColor: C.textSub,
           labelStyle: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w700),
-          indicator: BoxDecoration(gradient: const LinearGradient(colors: [C.pinkTheme, C.purple]), borderRadius: BorderRadius.circular(12)),
+          indicator: BoxDecoration(gradient: LinearGradient(colors: [AppState.instance.theme.primary, AppState.instance.theme.secondary]), borderRadius: BorderRadius.circular(12)),
           indicatorSize: TabBarIndicatorSize.tab,
           tabs: [Tab(text: L.isHindi ? '✍️ लिखें' : '✍️ Write'), Tab(text: L.isHindi ? '📖 इतिहास' : '📖 History')])),
       Expanded(child: TabBarView(controller: _tc, children: [
@@ -2686,8 +2589,8 @@ class _JournalScreenState extends State<JournalScreen> with SingleTickerProvider
           Row(children: _moodEmojis.map((e) => GestureDetector(onTap: () => setState(() => _mood = e),
             child: AnimatedContainer(duration: const Duration(milliseconds: 200),
               margin: const EdgeInsets.only(right: 10), padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(color: _mood == e ? C.pinkTheme.withOpacity(0.15) : Colors.white, shape: BoxShape.circle,
-                border: Border.all(color: _mood == e ? C.pinkTheme : C.pink2, width: _mood == e ? 2 : 1.2)),
+              decoration: BoxDecoration(color: _mood == e ? AppState.instance.theme.primary.withOpacity(0.15) : Colors.white, shape: BoxShape.circle,
+                border: Border.all(color: _mood == e ? AppState.instance.theme.primary : C.pink2, width: _mood == e ? 2 : 1.2)),
               child: Text(e, style: const TextStyle(fontSize: 22))))).toList()),
           const SizedBox(height: 20),
           // Manifesting
@@ -2715,8 +2618,8 @@ class _JournalScreenState extends State<JournalScreen> with SingleTickerProvider
                 fillColor: Colors.transparent, filled: true, contentPadding: const EdgeInsets.all(16)))),
           const SizedBox(height: 28),
           GestureDetector(onTap: _saving ? null : _save, child: Container(width: double.infinity, height: 54,
-            decoration: BoxDecoration(gradient: const LinearGradient(colors: [C.pinkTheme, C.purple]), borderRadius: BorderRadius.circular(100),
-              boxShadow: [BoxShadow(color: C.pinkTheme.withOpacity(0.4), blurRadius: 14, offset: const Offset(0, 6))]),
+            decoration: BoxDecoration(gradient: LinearGradient(colors: [AppState.instance.theme.primary, AppState.instance.theme.secondary]), borderRadius: BorderRadius.circular(100),
+              boxShadow: [BoxShadow(color: AppState.instance.theme.primary.withOpacity(0.4), blurRadius: 14, offset: const Offset(0, 6))]),
             child: Center(child: _saving
               ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
               : Text(L.t('save_entry'), style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white))))),
@@ -2731,7 +2634,7 @@ class _JournalScreenState extends State<JournalScreen> with SingleTickerProvider
             Text(L.isHindi ? 'पहली एंट्री लिखें ✨' : 'Write your first entry ✨', style: GoogleFonts.poppins(fontSize: 13, color: C.textSub))]))
           : Column(children: [
             GestureDetector(onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => SlideshowViewer(entries: entries))),
-              child: Container(margin: const EdgeInsets.fromLTRB(16, 16, 16, 0), padding: const EdgeInsets.symmetric(vertical: 14), decoration: BoxDecoration(gradient: const LinearGradient(colors: [C.pinkTheme, C.purple]), borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: C.pinkTheme.withOpacity(0.4), blurRadius: 10, offset: const Offset(0, 4))]),
+              child: Container(margin: const EdgeInsets.fromLTRB(16, 16, 16, 0), padding: const EdgeInsets.symmetric(vertical: 14), decoration: BoxDecoration(gradient: LinearGradient(colors: [AppState.instance.theme.primary, AppState.instance.theme.secondary]), borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: AppState.instance.theme.primary.withOpacity(0.4), blurRadius: 10, offset: const Offset(0, 4))]),
                 child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                   const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 28), const SizedBox(width: 8), Text('Play Slideshow', style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white)),
                 ]))),
@@ -2787,7 +2690,7 @@ class _Challenge55x5ScreenState extends State<Challenge55x5Screen> {
   Widget build(BuildContext context) => Scaffold(backgroundColor: C.bg,
     appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0, centerTitle: true,
       leading: const BackButton(color: C.pinkDark),
-      title: Row(mainAxisSize: MainAxisSize.min, children: [const NishAffsLogo(size: 24), const SizedBox(width: 8),
+      title: Row(mainAxisSize: MainAxisSize.min, children: [const NishAffsLogo(size: 28, showText: true), const SizedBox(width: 8),
         Text('55×5 Challenge', style: GoogleFonts.poppins(fontSize: 17, fontWeight: FontWeight.bold, color: C.textDark))])),
     body: ValueListenableBuilder(valueListenable: AppState.instance.challenge, builder: (_, ch, __) =>
       (ch == null || (ch['text'] as String? ?? '').isEmpty) ? _ChallengeSetup(tc: _tc) : _ChallengeActive(ch: ch)));
@@ -2809,7 +2712,7 @@ class _ChallengeSetup extends StatelessWidget {
           fillColor: Colors.transparent, filled: true, contentPadding: const EdgeInsets.all(18)))),
     const SizedBox(height: 20),
     GestureDetector(onTap: () { if (tc.text.trim().isEmpty) return; AppState.instance.startChallenge(tc.text.trim()); },
-      child: Container(width: double.infinity, height: 54, decoration: BoxDecoration(gradient: const LinearGradient(colors: [C.pinkTheme, C.purple]), borderRadius: BorderRadius.circular(100), boxShadow: [BoxShadow(color: C.pinkTheme.withOpacity(0.4), blurRadius: 14, offset: const Offset(0, 6))]),
+      child: Container(width: double.infinity, height: 54, decoration: BoxDecoration(gradient: LinearGradient(colors: [AppState.instance.theme.primary, AppState.instance.theme.secondary]), borderRadius: BorderRadius.circular(100), boxShadow: [BoxShadow(color: AppState.instance.theme.primary.withOpacity(0.4), blurRadius: 14, offset: const Offset(0, 6))]),
         child: Center(child: Text('Start My 55×5 Journey 🌟', style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white))))),
   ]));
 }
@@ -2832,8 +2735,8 @@ class _ChallengeActive extends StatelessWidget {
         final dayKey = _keyForOffset(startDay, i); final cnt = days[dayKey] as int? ?? 0; final done = cnt >= 55; final isToday = dayKey == today;
         return Column(children: [
           Container(width: 46, height: 46, decoration: BoxDecoration(shape: BoxShape.circle,
-            gradient: done ? const LinearGradient(colors: [C.pinkTheme, C.purple]) : null,
-            color: done ? null : isToday ? C.pink2 : Colors.white, border: Border.all(color: done ? Colors.transparent : isToday ? C.pinkTheme : C.pink2, width: 2)),
+            gradient: done ? LinearGradient(colors: [AppState.instance.theme.primary, AppState.instance.theme.secondary]) : null,
+            color: done ? null : isToday ? C.pink2 : Colors.white, border: Border.all(color: done ? Colors.transparent : isToday ? AppState.instance.theme.primary : C.pink2, width: 2)),
             child: Center(child: Text(done ? '✓' : '${i+1}', style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold, color: done ? Colors.white : isToday ? C.pinkDark : C.textSub)))),
           const SizedBox(height: 6),
           Text('Day ${i+1}', style: GoogleFonts.poppins(fontSize: 10, color: C.textSub)),
@@ -2849,12 +2752,12 @@ class _ChallengeActive extends StatelessWidget {
           const SizedBox(height: 20),
           GestureDetector(onTap: todayCnt >= 55 ? null : () => AppState.instance.incrementChallenge(),
             child: Container(width: double.infinity, height: 54, decoration: BoxDecoration(
-              gradient: todayCnt >= 55 ? null : const LinearGradient(colors: [C.pinkTheme, C.purple]), color: todayCnt >= 55 ? C.pink2 : null, borderRadius: BorderRadius.circular(100),
-              boxShadow: todayCnt < 55 ? [BoxShadow(color: C.pinkTheme.withOpacity(0.4), blurRadius: 12, offset: const Offset(0, 4))] : []),
+              gradient: todayCnt >= 55 ? null : LinearGradient(colors: [AppState.instance.theme.primary, AppState.instance.theme.secondary]), color: todayCnt >= 55 ? C.pink2 : null, borderRadius: BorderRadius.circular(100),
+              boxShadow: todayCnt < 55 ? [BoxShadow(color: AppState.instance.theme.primary.withOpacity(0.4), blurRadius: 12, offset: const Offset(0, 4))] : []),
               child: Center(child: Text(todayCnt >= 55 ? '✓ Done for today! 🌟' : '+ Write it once  (${55 - todayCnt} more to go)', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w700, color: todayCnt >= 55 ? C.textSub : Colors.white))))),
         ])),
       if (daysDone >= 5) ...[const SizedBox(height: 20),
-        Container(padding: const EdgeInsets.all(20), decoration: BoxDecoration(gradient: const LinearGradient(colors: [C.pinkTheme, C.purple]), borderRadius: BorderRadius.circular(22)),
+        Container(padding: const EdgeInsets.all(20), decoration: BoxDecoration(gradient: LinearGradient(colors: [AppState.instance.theme.primary, AppState.instance.theme.secondary]), borderRadius: BorderRadius.circular(22)),
           child: Column(children: [const Text('🎉', style: TextStyle(fontSize: 48)),
             Text('Challenge Complete!', style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)), const SizedBox(height: 6),
             Text('You manifested for 5 days straight. The universe has received your intention! ✨', textAlign: TextAlign.center, style: GoogleFonts.poppins(fontSize: 13, color: Colors.white.withOpacity(0.9), height: 1.5))]))],
@@ -2874,7 +2777,7 @@ class VisionBoardScreen extends StatelessWidget {
     return Scaffold(backgroundColor: C.bg,
       appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0, centerTitle: true,
         leading: const BackButton(color: C.pinkDark),
-        title: Row(mainAxisSize: MainAxisSize.min, children: [const NishAffsLogo(size: 24), const SizedBox(width: 8), Text(L.t('vision_board'), style: GoogleFonts.poppins(fontSize: 17, fontWeight: FontWeight.bold, color: C.textDark))]),
+        title: Row(mainAxisSize: MainAxisSize.min, children: [const NishAffsLogo(size: 28, showText: true), const SizedBox(width: 8), Text(L.t('vision_board'), style: GoogleFonts.poppins(fontSize: 17, fontWeight: FontWeight.bold, color: C.textDark))]),
         actions: [IconButton(icon: const Icon(Icons.add_rounded, color: C.pinkDark, size: 28), onPressed: () => showModalBottomSheet(context: context, isScrollControlled: true, backgroundColor: Colors.transparent,
           builder: (ctx) => Container(decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
             padding: EdgeInsets.fromLTRB(22, 18, 22, MediaQuery.of(ctx).viewInsets.bottom + 28),
@@ -2893,7 +2796,7 @@ class VisionBoardScreen extends StatelessWidget {
                   filled: true, fillColor: C.pink1, border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none), contentPadding: const EdgeInsets.all(16))),
               const SizedBox(height: 16),
               GestureDetector(onTap: () { if (tc.text.trim().isEmpty) return; AppState.instance.addVisionCard(tc.text.trim()); Navigator.pop(ctx); },
-                child: Container(width: double.infinity, height: 50, decoration: BoxDecoration(gradient: const LinearGradient(colors: [C.pinkTheme, C.purple]), borderRadius: BorderRadius.circular(100)),
+                child: Container(width: double.infinity, height: 50, decoration: BoxDecoration(gradient: LinearGradient(colors: [AppState.instance.theme.primary, AppState.instance.theme.secondary]), borderRadius: BorderRadius.circular(100)),
                   child: Center(child: Text(L.isHindi ? 'बोर्ड में जोड़ें ✨' : 'Add to Board ✨', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white))))),
             ]))))]),
       body: ValueListenableBuilder<List<String>>(valueListenable: AppState.instance.visionBoard, builder: (_, cards, __) =>
@@ -2925,7 +2828,7 @@ class CuratedListScreen extends StatelessWidget {
   Widget build(BuildContext context) => Scaffold(backgroundColor: C.bg,
     appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0, centerTitle: true,
       leading: const BackButton(color: C.pinkDark),
-      title: Row(mainAxisSize: MainAxisSize.min, children: [const NishAffsLogo(size: 24), const SizedBox(width: 8),
+      title: Row(mainAxisSize: MainAxisSize.min, children: [const NishAffsLogo(size: 28, showText: true), const SizedBox(width: 8),
         Text(L.isHindi ? 'सभी संग्रह' : 'All Collections', style: GoogleFonts.poppins(fontSize: 17, fontWeight: FontWeight.bold, color: C.textDark))])),
     body: GridView.builder(padding: const EdgeInsets.all(18), itemCount: kAffCategories.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, crossAxisSpacing: 14, mainAxisSpacing: 14, childAspectRatio: 0.85),
@@ -2956,7 +2859,7 @@ class SlideshowViewer extends StatelessWidget {
     body: PageView.builder(itemCount: entries.length, physics: const BouncingScrollPhysics(), itemBuilder: (ctx, i) {
       final e = entries[i];
       return Padding(padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
-        child: Container(decoration: BoxDecoration(gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFFFFF0F8), Color(0xFFF0DCFF)]), borderRadius: BorderRadius.circular(32), border: Border.all(color: Colors.white, width: 3), boxShadow: [BoxShadow(color: C.pinkTheme.withOpacity(0.3), blurRadius: 20, offset: const Offset(0, 10))]),
+        child: Container(decoration: BoxDecoration(gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFFFFF0F8), Color(0xFFF0DCFF)]), borderRadius: BorderRadius.circular(32), border: Border.all(color: Colors.white, width: 3), boxShadow: [BoxShadow(color: AppState.instance.theme.primary.withOpacity(0.3), blurRadius: 20, offset: const Offset(0, 10))]),
           padding: const EdgeInsets.all(32),
           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
             if (e.mood.isNotEmpty) Text(e.mood, style: const TextStyle(fontSize: 64)).animate().scale(delay: 200.ms, curve: Curves.elasticOut),
