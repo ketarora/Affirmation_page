@@ -684,11 +684,12 @@ const _books = [
 // ════════════════════════════════════════════════════════════════════
 /// Brand logo widget — uses the actual NishAffs image asset.
 /// Falls back to a styled gradient pill if the asset is missing.
+// AFTER
 class NishAffsLogo extends StatelessWidget {
   final double size;
   final bool showText;
-  const NishAffsLogo({super.key, this.size = 36, this.showText = false});
-
+  final Color? textColor;                                          // ADD THIS
+  const NishAffsLogo({super.key, this.size = 36, this.showText = false, this.textColor}); // ADD textColor
   @override
   Widget build(BuildContext context) {
     if (showText) {
@@ -723,7 +724,8 @@ class NishAffsLogo extends StatelessWidget {
       ).createShader(r),
       child: Text(
         'NishAffs',
-        style: GoogleFonts.pacifico(fontSize: size * 0.7, color: Colors.white),
+        // AFTER  
+style: GoogleFonts.pacifico(fontSize: size * 0.7, color: textColor ?? Colors.white),
       ),
     ),
   ]);
