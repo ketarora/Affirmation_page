@@ -35,7 +35,10 @@ import 'package:just_audio/just_audio.dart';
 import 'package:image_picker/image_picker.dart';
  
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'data/affirmations_data.dart';
+import 'services/notification_service.dart';
+import 'services/share_service.dart';
  
 // ════════════════════════════════════════════════════════════════════
 //  ENTRY POINT
@@ -50,6 +53,7 @@ void main() async {
   try {
     await Firebase.initializeApp();
     await FirebaseMessaging.instance.requestPermission();
+    await NotificationService.init();
   } catch (e) {
     print('Firebase not yet configured (run flutterfire configure): $e');
   }
@@ -1801,11 +1805,11 @@ class _StudioViewState extends State<StudioView> {
         if (target == 'external' || target == 'story') {
           final bytes = await sc.capture(delay: const Duration(milliseconds: 10));
           if (bytes != null) {
-            final directory = await path_provider.getApplicationDocumentsDirectory();
-            final tempPath = '${directory.path}/affirmation_share.png';
-            final file = java_io.File(tempPath);
-            await file.writeAsBytes(bytes);
-            await Share.shareXFiles([XFile(tempPath)], text: target == 'story' ? '' : 'Check out this affirmation from NishAffs! 🌸');
+            await ShareService.shareBytes(
+              bytes: bytes,
+              filename: 'affirmation_share.png',
+              text: target == 'story' ? '' : 'Check out this affirmation from NishAffs! 🌸',
+            );
           }
           return;
         }
@@ -1908,7 +1912,7 @@ class _StudioViewState extends State<StudioView> {
       const SizedBox(height: 10),
       ClipRRect(borderRadius: BorderRadius.circular(22), child: SizedBox(height: 185, child: Stack(children: [
         Positioned.fill(child: _imageFile != null 
-          ? Image.network(_imageFile!.path, fit: BoxFit.cover, errorBuilder: (_,__,___) => Container(color: C.pink2)) 
+          ? (kIsWeb ? Image.network(_imageFile!.path, fit: BoxFit.cover, errorBuilder: (_,__,___) => Container(color: C.pink2)) : Image.file(java_io.File(_imageFile!.path), fit: BoxFit.cover, errorBuilder: (_,__,___) => Container(color: C.pink2)))
           : _img(_bgIdx + 2, w: double.infinity, h: double.infinity)),
         Positioned.fill(child: Container(color: Colors.black.withOpacity(0.38))),
         Positioned(top: 10, right: 10, child: const NishAffsLogo(size: 36, showText: true)),
@@ -1946,7 +1950,7 @@ class _PostPreviewSheet extends StatelessWidget {
       const SizedBox(height: 16),
       Screenshot(controller: _sc, child: ClipRRect(borderRadius: BorderRadius.circular(18), child: SizedBox(height: 130, child: Stack(children: [
         Positioned.fill(child: imageFile != null 
-          ? Image.network(imageFile!.path, fit: BoxFit.cover, errorBuilder: (_,__,___) => Container(color: C.pink2)) 
+          ? (kIsWeb ? Image.network(imageFile!.path, fit: BoxFit.cover, errorBuilder: (_,__,___) => Container(color: C.pink2)) : Image.file(java_io.File(imageFile!.path), fit: BoxFit.cover, errorBuilder: (_,__,___) => Container(color: C.pink2)))
           : _img(bgIdx + 2, w: double.infinity, h: double.infinity)),
         Positioned.fill(child: Container(color: Colors.black.withOpacity(0.38))),
         Center(child: Padding(padding: const EdgeInsets.all(18), child: Text('"$text"', textAlign: TextAlign.center,
