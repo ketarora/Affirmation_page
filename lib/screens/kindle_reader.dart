@@ -8,58 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-// ── Book model (update your existing one to match) ───────────────
-class Book {
-  final String name;
-  final String author;
-  final String emoji;
-  final String url;       // ← CDN / Firebase Storage URL to PDF
-  final String? coverUrl; // ← Optional cover image URL
-
-  const Book({
-    required this.name,
-    required this.author,
-    required this.emoji,
-    required this.url,
-    this.coverUrl,
-  });
-}
-
-// ── Books data — replace URLs with your actual hosted PDF URLs ────
-final oshoBooks = [
-  const Book(
-    name    : 'Dance Your Way to God',
-    author  : 'Osho',
-    emoji   : '💃',
-    url     : 'https://YOUR_CDN_OR_FIREBASE_URL/dance-your-way-to-god.pdf',
-    coverUrl: null,
-  ),
-  const Book(
-    name    : 'From Bondage to Freedom',
-    author  : 'Osho',
-    emoji   : '🕊️',
-    url     : 'https://YOUR_CDN_OR_FIREBASE_URL/from-bondage-to-freedom.pdf',
-  ),
-  const Book(
-    name    : 'From Misery to Enlightenment',
-    author  : 'Osho',
-    emoji   : '🌅',
-    url     : 'https://YOUR_CDN_OR_FIREBASE_URL/from-misery-to-enlightenment.pdf',
-  ),
-  const Book(
-    name    : 'Let Go!',
-    author  : 'Osho',
-    emoji   : '🌸',
-    url     : 'https://YOUR_CDN_OR_FIREBASE_URL/let-go.pdf',
-  ),
-  const Book(
-    name    : 'Nothing to Lose But Your Head',
-    author  : 'Osho',
-    emoji   : '🧘',
-    url     : 'https://YOUR_CDN_OR_FIREBASE_URL/nothing-to-lose.pdf',
-  ),
-];
-
+import '../main.dart'; // To use Book model
 // ── Reader screen ─────────────────────────────────────────────────
 class KindleReader extends StatefulWidget {
   final Book book;
@@ -159,8 +108,8 @@ class _KindleReaderState extends State<KindleReader> {
 
         // ── PDF Viewer ─────────────────────────────────────────────
         if (!_hasError)
-          SfPdfViewer.network(
-            widget.book.url,
+          SfPdfViewer.asset(
+            'assets/books/${widget.book.file}',
             controller        : _controller,
             canShowScrollHead : false,
             canShowScrollStatus: false,

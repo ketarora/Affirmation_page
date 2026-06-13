@@ -39,6 +39,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'data/affirmations_data.dart';
 import 'services/notification_service.dart';
 import 'services/share_service.dart';
+import 'screens/kindle_reader.dart';
  
 // ════════════════════════════════════════════════════════════════════
 //  ENTRY POINT
