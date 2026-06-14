@@ -127,11 +127,11 @@ class AppTheme {
 }
  
 const _appThemes = [
-  AppTheme('Pink Blossom',   '🌸', Color(0xFFFF82A9), Color(0xFFAC7BED), Color(0xFFFCF4F8), Color(0xFFFFF0F5)),
-  AppTheme('Lavender Dream', '💜', Color(0xFFB39DDB), Color(0xFF7C4DFF), Color(0xFFF8F0FF), Color(0xFFEDE7F6)),
-  AppTheme('Mint Fresh',     '🌿', Color(0xFF66BB6A), Color(0xFF26A69A), Color(0xFFF0FFF4), Color(0xFFE8F5E9)),
-  AppTheme('Golden Hour',    '✨', Color(0xFFFFB74D), Color(0xFFFF8A65), Color(0xFFFFF8E1), Color(0xFFFFF3E0)),
-  AppTheme('Rose Night',     '🌹', Color(0xFFE91E63), Color(0xFF880E4F), Color(0xFFFFF0F5), Color(0xFFFCE4EC)),
+  AppTheme('Pink Blossom',   '🌸', Color(0xFFFF82A9), Color(0xFFE91E63), Color(0xFFFCF4F8), Color(0xFFFFF0F5)),
+  AppTheme('Lavender Bloom', '💜', Color(0xFF7C4DFF), Color(0xFFB39DDB), Color(0xFFE3D6FE), Color(0xFFF0E8FC)),
+  AppTheme('Neon Mint',      '🌿', Color(0xFF00BFA5), Color(0xFF00E676), Color(0xFFC7F8E9), Color(0xFFDFFDF4)),
+  AppTheme('Sunburst Gold',  '✨', Color(0xFFFF8F00), Color(0xFFFFD54F), Color(0xFFFFE199), Color(0xFFFFF2CD)),
+  AppTheme('Ocean Deep',     '🌊', Color(0xFF0277BD), Color(0xFF4FC3F7), Color(0xFFB5E4FF), Color(0xFFD8EFFF)),
 ];
  
 // ════════════════════════════════════════════════════════════════════
