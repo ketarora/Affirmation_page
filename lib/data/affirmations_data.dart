@@ -424,7 +424,7 @@ class AudioTrack {
   final String name;
   final String nameHi;
   final String frequency;
-  final String path; // assets/audio/xxx.mp3
+  final String path; // assets/audio/xxx.wav
   final Duration duration;
   final String? description;
   final String? descriptionHi;
@@ -445,7 +445,7 @@ final kHealingFrequencies = [
     name: "432Hz Deep Healing",
     nameHi: "432Hz गहरी उपचार",
     frequency: "432Hz",
-    path: "assets/audio/432hz_healing.mp3",
+    path: "assets/audio/432hz_healing.wav",
     duration: Duration(minutes: 45),
     description: "Heart chakra resonance - deep healing vibrations",
     descriptionHi: "हृदय चक्र अनुनाद - गहरी उपचार कंपन",
@@ -454,7 +454,7 @@ final kHealingFrequencies = [
     name: "396Hz Fear Clearing",
     nameHi: "396Hz भय साफ",
     frequency: "396Hz",
-    path: "assets/audio/396hz_fear.mp3",
+    path: "assets/audio/396hz_fear.wav",
     duration: Duration(minutes: 30),
     description: "Root chakra liberation from fear",
     descriptionHi: "मूल चक्र भय से मुक्ति",
@@ -463,7 +463,7 @@ final kHealingFrequencies = [
     name: "528Hz Transformation",
     nameHi: "528Hz रूपांतर",
     frequency: "528Hz",
-    path: "assets/audio/528hz_miracle.mp3",
+    path: "assets/audio/528hz_miracle.wav",
     duration: Duration(hours: 1),
     description: "DNA activation and renewal",
     descriptionHi: "डीएनए सक्रियण और नवीकरण",
@@ -472,7 +472,7 @@ final kHealingFrequencies = [
     name: "639Hz Connection",
     nameHi: "639Hz जुड़ाव",
     frequency: "639Hz",
-    path: "assets/audio/639hz_connection.mp3",
+    path: "assets/audio/639hz_connection.wav",
     duration: Duration(hours: 1, minutes: 15),
     description: "Heart-centered relationships and love",
     descriptionHi: "हृदय-केंद्रित रिश्ते और प्रेम",
@@ -481,7 +481,7 @@ final kHealingFrequencies = [
     name: "741Hz Expression",
     nameHi: "741Hz अभिव्यक्ति",
     frequency: "741Hz",
-    path: "assets/audio/741hz_throat.mp3",
+    path: "assets/audio/741hz_throat.wav",
     duration: Duration(minutes: 45),
     description: "Throat chakra - authentic expression",
     descriptionHi: "गला चक्र - सत्य अभिव्यक्ति",
@@ -490,7 +490,7 @@ final kHealingFrequencies = [
     name: "852Hz Intuition",
     nameHi: "852Hz अंतर्ज्ञान",
     frequency: "852Hz",
-    path: "assets/audio/852hz_intuition.mp3",
+    path: "assets/audio/852hz_intuition.wav",
     duration: Duration(minutes: 30),
     description: "Third eye opening - heightened intuition",
     descriptionHi: "तीसरी आँख खुलना - बढ़ी अंतर्ज्ञान",
@@ -499,7 +499,7 @@ final kHealingFrequencies = [
     name: "963Hz Transcendence",
     nameHi: "963Hz श्रेष्ठता",
     frequency: "963Hz",
-    path: "assets/audio/963hz_crown.mp3",
+    path: "assets/audio/963hz_crown.wav",
     duration: Duration(minutes: 60),
     description: "Crown chakra - highest consciousness",
     descriptionHi: "मुकुट चक्र - सर्वोच्च चेतना",
@@ -508,7 +508,7 @@ final kHealingFrequencies = [
     name: "174Hz Deep Sleep",
     nameHi: "174Hz गहरी नींद",
     frequency: "174Hz",
-    path: "assets/audio/174hz_sleep.mp3",
+    path: "assets/audio/174hz_sleep.wav",
     duration: Duration(hours: 2),
     description: "Delta waves - profound sleep and rest",
     descriptionHi: "डेल्टा तरंगें - गहरी नींद",
