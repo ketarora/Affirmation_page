@@ -114,8 +114,8 @@ class _SplashScreenState extends State<SplashScreen>
           child: Column(children: [
             const Spacer(flex: 3),
 
-            // Brand logo — using the main app's premium logo component
-            const NishAffsLogo(size: 120, showText: true)
+            // Brand logo — using the actual image logo
+            Image.asset('assets/images/image.png', height: 140)
                 .animate()
                 .fadeIn(duration: 900.ms, delay: 200.ms)
                 .scale(
