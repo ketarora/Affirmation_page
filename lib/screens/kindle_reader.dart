@@ -33,15 +33,23 @@ class _KindleReaderState extends State<KindleReader> {
     final prefs = await SharedPreferences.getInstance();
     final saved = prefs.getInt(_prefKey) ?? 1;
     if (saved > 1) {
-      // Small delay to let PDF render first
-      await Future.delayed(const Duration(milliseconds: 500));
-      if (mounted) _controller.jumpToPage(saved);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _controller.pageCount > 0) {
+          _controller.jumpToPage(saved);
+        }
+      });
     }
   }
 
   Future<void> _savePage(int page) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_prefKey, page);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   // ─────────────────────────────────────────────────────────────────

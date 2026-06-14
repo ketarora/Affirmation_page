@@ -75,8 +75,9 @@ class _CommunityScreenState extends State<CommunityScreen> {
 
   // ── Format helpers ───────────────────────────────────────────────
   String _getInitials(String name) {
+    name = name.trim();
     if (name.isEmpty) return 'A';
-    final parts = name.split(' ');
+    final parts = name.split(' ').where((p) => p.isNotEmpty).toList();
     if (parts.length > 1) {
       return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
     }
@@ -251,8 +252,9 @@ class _PostCard extends StatelessWidget {
   static const _textSub = Color(0xFF9B8EAA);
 
   String _getInitials(String name) {
+    name = name.trim();
     if (name.isEmpty) return 'A';
-    final parts = name.split(' ');
+    final parts = name.split(' ').where((p) => p.isNotEmpty).toList();
     if (parts.length > 1) {
       return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
     }

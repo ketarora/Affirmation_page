@@ -52,8 +52,7 @@ void main() async {
   ));
   
   try {
-    await Firebase.initializeApp();
-    await FirebaseMessaging.instance.requestPermission();
+    await Firebase.initializeApp().timeout(const Duration(seconds: 10));
     await NotificationService.init();
   } catch (e) {
     print('Firebase not yet configured (run flutterfire configure): $e');
@@ -455,6 +454,17 @@ class AppState {
     } catch (e) {}
     final p = await SharedPreferences.getInstance();
     await p.remove('na_user');
+  }
+
+  Future<void> deleteAccount() async {
+    final uid = user.value?['uid'];
+    if (uid != null) {
+      try {
+        await FirebaseFirestore.instance.collection('users').doc(uid).delete();
+        await FirebaseAuth.instance.currentUser?.delete();
+      } catch (e) {}
+    }
+    await logout();
   }
  
   Future<void> setTheme(int i) async {
@@ -1745,27 +1755,7 @@ PageRoute _pageRoute(Widget page) => PageRouteBuilder(
     position: Tween(begin: const Offset(1, 0), end: Offset.zero).animate(CurvedAnimation(parent: anim, curve: Curves.easeOutCubic)),
     child: child));
  
-// ════════════════════════════════════════════════════════════════════
-//  KINDLE READER — 3D page flip
-// ════════════════════════════════════════════════════════════════════
-class KindleReader extends StatelessWidget {
-  final Book book;
-  const KindleReader({super.key, required this.book});
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: C.book,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent, 
-        elevation: 0,
-        leading: BackButton(color: AppState.instance.theme.primary),
-        title: Text(book.name, style: GoogleFonts.poppins(color: C.textDark, fontWeight: FontWeight.bold, fontSize: 16)),
-      ),
-      body: SfPdfViewer.asset('assets/books/${book.file}', canShowScrollHead: false, canShowScrollStatus: false),
-    );
-  }
-}
 // ════════════════════════════════════════════════════════════════════
 class StudioView extends StatefulWidget {
   const StudioView({super.key});
@@ -1806,7 +1796,7 @@ class _StudioViewState extends State<StudioView> {
     showModalBottomSheet(context: context, isScrollControlled: true, backgroundColor: Colors.transparent,
       builder: (ctx) => _isUploading ? Center(child: CircularProgressIndicator(color: AppState.instance.theme.primary)) : _PostPreviewSheet(text: text, vibe: _vibe, bgIdx: _bgIdx, imageFile: _imageFile, onPost: (target, sc) async {
         if (target == 'external' || target == 'story') {
-          final bytes = await sc.capture(delay: const Duration(milliseconds: 10));
+          final bytes = await sc.capture(delay: const Duration(milliseconds: 100));
           if (bytes != null) {
             await ShareService.shareBytes(
               bytes: bytes,
@@ -1871,7 +1861,7 @@ class _StudioViewState extends State<StudioView> {
         ]))),
       const SizedBox(height: 14),
       Container(decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: C.pink2.withOpacity(0.4), blurRadius: 12, offset: const Offset(0, 4))]),
-        child: TextField(controller: _tc, maxLines: 4, onChanged: (_) => setState(() {}),
+        child: TextField(controller: _tc, maxLines: 4, maxLength: 150, onChanged: (_) => setState(() {}),
           style: GoogleFonts.lora(fontSize: 16, color: C.textDark, height: 1.7),
           decoration: InputDecoration(hintText: '"I am a magnet for miracles..."',
             hintStyle: GoogleFonts.lora(fontSize: 14, color: C.textSub.withOpacity(0.55), fontStyle: FontStyle.italic),
@@ -2418,7 +2408,22 @@ class _SettingsTabState extends State<_SettingsTab> {
                 ])))),
           ])),
       ])),
-    _toggle('🔔 ${L.isHindi ? 'सुबह 8 बजे अफर्मेशन' : 'Daily Affirmation 8AM'}', _notifOn, (v) => setState(() => _notifOn = v)),
+    _toggle('🔔 ${L.isHindi ? 'सुबह 8 बजे अफर्मेशन' : 'Daily Affirmation 8AM'}', _notifOn, (v) async {
+       if (v) {
+         try {
+           final settings = await FirebaseMessaging.instance.requestPermission();
+           if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+             setState(() => _notifOn = true);
+           } else {
+             setState(() => _notifOn = false);
+           }
+         } catch(e) {
+           setState(() => _notifOn = false);
+         }
+       } else {
+         setState(() => _notifOn = false);
+       }
+    }),
     _toggle('📱 ${L.isHindi ? 'होम स्क्रीन विजेट' : 'Home Screen Widget'}', _widgetOn, (v) => setState(() => _widgetOn = v)),
     _toggle('🌙 ${L.isHindi ? 'डार्क मोड' : 'Dark Mode'}', _darkMode, (v) => setState(() => _darkMode = v)),
     _toggle('🔒 ${L.isHindi ? 'प्राइवेट प्रोफाइल' : 'Private Profile'}', _privateProfile, (v) => setState(() => _privateProfile = v)),
@@ -2427,6 +2432,28 @@ class _SettingsTabState extends State<_SettingsTab> {
     _tile('💌 ${L.isHindi ? 'फीडबैक' : 'Feedback'}', ''),
     _tile('📤 ${L.isHindi ? 'ऐप शेयर करें' : 'Share App'}', ''),
     _tile('📋 ${L.isHindi ? 'प्राइवेसी पॉलिसी' : 'Privacy Policy'}', ''),
+    const SizedBox(height: 14),
+    GestureDetector(
+      onTap: () {
+        showDialog(context: context, builder: (ctx) => AlertDialog(
+          backgroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Text(L.isHindi ? 'अकाउंट डिलीट करें?' : 'Delete Account?'),
+          content: Text(L.isHindi ? 'क्या आप वाकई अपना अकाउंट और सारा डेटा डिलीट करना चाहते हैं? यह वापस नहीं हो सकता।' : 'Are you sure you want to delete your account and all data? This cannot be undone.', style: GoogleFonts.poppins(fontSize: 13, color: C.textDark)),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx), child: Text(L.isHindi ? 'कैंसिल' : 'Cancel', style: TextStyle(color: C.textSub))),
+            TextButton(onPressed: () async {
+              Navigator.pop(ctx);
+              await AppState.instance.deleteAccount();
+            }, child: Text(L.isHindi ? 'डिलीट करें' : 'Delete', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold))),
+          ]
+        ));
+      },
+      child: Container(margin: const EdgeInsets.only(bottom: 8), padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(color: Colors.red.withOpacity(0.1), borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.red.withOpacity(0.3))),
+        child: Row(children: [
+          Expanded(child: Text(L.isHindi ? 'अकाउंट डिलीट करें' : 'Delete Account', style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.red))),
+          const Icon(Icons.delete_outline_rounded, size: 18, color: Colors.red)
+        ]))),
     const SizedBox(height: 24),
     Center(child: Column(children: [
       const NishAffsLogo(size: 52), const SizedBox(height: 10),

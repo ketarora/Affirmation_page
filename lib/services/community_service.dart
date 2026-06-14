@@ -1,6 +1,5 @@
 // ╔══════════════════════════════════════════════════════════════╗
-// ║  lib/services/community_service.dart                         ║
-// ║  Full Firestore Community — posts, likes, comments, reports  ║
+// ║  lib/services/community_service.dart  (FIXED v2)             ║
 // ╚══════════════════════════════════════════════════════════════╝
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -11,16 +10,16 @@ import 'package:flutter/foundation.dart';
 // ── Models ──────────────────────────────────────────────────────
 
 class CommunityPost {
-  final String   id;
-  final String   userId;
-  final String   userName;
-  final String?  userPhotoUrl;
-  final String   text;
-  final String?  imageUrl;
-  final List<String> likes;        // list of uids
-  final int      commentCount;
+  final String id;
+  final String userId;       // ← use userId throughout (was causing authorId bug)
+  final String userName;     // ← use userName throughout (was causing authorName bug)
+  final String? userPhotoUrl;
+  final String text;
+  final String? imageUrl;
+  final List<String> likes;
+  final int commentCount;
   final DateTime createdAt;
-  final bool     isDeleted;
+  final bool isDeleted;
 
   const CommunityPost({
     required this.id,
@@ -37,7 +36,7 @@ class CommunityPost {
 
   bool get isLikedByMe =>
       likes.contains(FirebaseAuth.instance.currentUser?.uid);
-  int  get likeCount => likes.length;
+  int get likeCount => likes.length;
 
   factory CommunityPost.fromFirestore(DocumentSnapshot doc) {
     final d = doc.data() as Map<String, dynamic>;
@@ -57,11 +56,11 @@ class CommunityPost {
 }
 
 class CommunityComment {
-  final String   id;
-  final String   userId;
-  final String   userName;
-  final String?  userPhotoUrl;
-  final String   text;
+  final String id;
+  final String userId;
+  final String userName;
+  final String? userPhotoUrl;
+  final String text;
   final DateTime createdAt;
 
   const CommunityComment({
@@ -77,10 +76,10 @@ class CommunityComment {
     final d = doc.data() as Map<String, dynamic>;
     return CommunityComment(
       id          : doc.id,
-      userId      : d['userId']       ?? '',
-      userName    : d['userName']     ?? 'Soul',
+      userId      : d['userId']    ?? '',
+      userName    : d['userName']  ?? 'Soul',
       userPhotoUrl: d['userPhotoUrl'],
-      text        : d['text']         ?? '',
+      text        : d['text']      ?? '',
       createdAt   : (d['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
   }
@@ -94,6 +93,11 @@ class CommunityService {
   static final _storage = FirebaseStorage.instance;
 
   static User? get _user => _auth.currentUser;
+
+  // ── ✅ ALIAS — community_screen.dart calls getPosts(), not postsStream() ──
+  static Stream<List<CommunityPost>> getPosts({String? category}) {
+    return postsStream(category: category);
+  }
 
   // ── Real-time posts stream ─────────────────────────────────────
   static Stream<List<CommunityPost>> postsStream({String? category}) {
@@ -112,6 +116,7 @@ class CommunityService {
   }
 
   // ── Create post ────────────────────────────────────────────────
+  // ✅ FIXED: removed authorName/authorEmail params — user is taken from _auth
   static Future<void> createPost({
     required String text,
     Uint8List?      imageBytes,
@@ -122,13 +127,12 @@ class CommunityService {
     if (text.trim().isEmpty) throw Exception('Post cannot be empty');
 
     String? imageUrl;
-
-    // Upload image to Firebase Storage if provided
     if (imageBytes != null && imageName != null) {
-      final ext = imageName.split('.').last;
+      final ext  = imageName.split('.').last;
       final path = 'community_images/${_user!.uid}/${DateTime.now().millisecondsSinceEpoch}.$ext';
       final ref  = _storage.ref(path);
-      await ref.putData(imageBytes, SettableMetadata(contentType: 'image/$ext'));
+      await ref.putData(imageBytes,
+          SettableMetadata(contentType: 'image/$ext'));
       imageUrl = await ref.getDownloadURL();
     }
 
@@ -148,7 +152,7 @@ class CommunityService {
     });
   }
 
-  // ── Toggle like — atomic, prevents double-like ─────────────────
+  // ── ✅ FIXED toggleLike — was called with 2 args, only needs postId ──
   static Future<void> toggleLike(String postId) async {
     if (_user == null) throw Exception('Not logged in');
     final uid = _user!.uid;
@@ -163,7 +167,7 @@ class CommunityService {
     });
   }
 
-  // ── Comments stream for a post ─────────────────────────────────
+  // ── Comments stream ────────────────────────────────────────────
   static Stream<List<CommunityComment>> commentsStream(String postId) {
     return _db
         .collection('community_posts')
@@ -181,8 +185,6 @@ class CommunityService {
     if (text.trim().isEmpty) return;
 
     final batch = _db.batch();
-
-    // Add comment document
     final commentRef = _db
         .collection('community_posts')
         .doc(postId)
@@ -196,18 +198,18 @@ class CommunityService {
       'createdAt'   : FieldValue.serverTimestamp(),
     });
 
-    // Increment comment count on parent post
     final postRef = _db.collection('community_posts').doc(postId);
     batch.update(postRef, {'commentCount': FieldValue.increment(1)});
-
     await batch.commit();
   }
 
-  // ── Delete own post (soft delete) ─────────────────────────────
+  // ── Delete post (soft) ─────────────────────────────────────────
   static Future<void> deletePost(String postId) async {
     if (_user == null) throw Exception('Not logged in');
     final doc = await _db.collection('community_posts').doc(postId).get();
-    if (doc['userId'] != _user!.uid) throw Exception('Cannot delete another user\'s post');
+    if (doc['userId'] != _user!.uid) {
+      throw Exception('Cannot delete another user\'s post');
+    }
     await _db.collection('community_posts').doc(postId).update({
       'isDeleted': true,
       'text'     : '[This post has been removed]',
@@ -215,10 +217,10 @@ class CommunityService {
     });
   }
 
-  // ── Report post ────────────────────────────────────────────────
-  static Future<void> reportPost(String postId, String reason) async {
+  // ── ✅ FIXED reportPost — reason is now optional with default ──
+  static Future<void> reportPost(String postId,
+      [String reason = 'Inappropriate content']) async {
     if (_user == null) throw Exception('Not logged in');
-    // Add to reports sub-collection
     await _db
         .collection('community_posts')
         .doc(postId)
@@ -229,9 +231,8 @@ class CommunityService {
       'reason'    : reason,
       'reportedAt': FieldValue.serverTimestamp(),
     });
-    // Increment report count
     await _db.collection('community_posts').doc(postId).update({
       'reportCount': FieldValue.increment(1),
     });
   }
-}
+}    
