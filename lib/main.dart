@@ -2313,7 +2313,7 @@ class _PostCardState extends State<_PostCard> {
         child: GestureDetector(onTap: () => _showComments(context, id, cmts),
           child: Text('View all ${cmts.length} comments', style: GoogleFonts.poppins(fontSize: 13, color: C.textSub)))),
       Padding(padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8), child: Divider(color: C.pink2.withOpacity(0.4), height: 1)),
-    ])]);
+    ]);
   }
   void _showComments(BuildContext context, String id, List cmts) {
     final tc = TextEditingController();
