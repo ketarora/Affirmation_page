@@ -1280,6 +1280,22 @@ class _LeftDrawer extends StatelessWidget {
 // ════════════════════════════════════════════════════════════════════
 //  HOME VIEW — Full mood intelligence + Aff of Day + dynamic counts
 // ════════════════════════════════════════════════════════════════════
+class _SpatialBreathingPanda extends StatefulWidget { const _SpatialBreathingPanda(); @override State<_SpatialBreathingPanda> createState() => _SpatialBreathingPandaState(); }
+class _SpatialBreathingPandaState extends State<_SpatialBreathingPanda> with SingleTickerProviderStateMixin {
+  late AnimationController _c; Timer? _tmr;
+  @override void initState() {
+    super.initState();
+    _c = AnimationController(vsync: this, duration: const Duration(milliseconds: 4000))..repeat(reverse: true);
+    _tmr = Timer.periodic(400.ms, (_) {
+      if (_c.status == AnimationStatus.forward) HapticFeedback.lightImpact();
+      else if (_c.status == AnimationStatus.reverse) HapticFeedback.selectionClick();
+    });
+  }
+  @override void dispose() { _c.dispose(); _tmr?.cancel(); super.dispose(); }
+  @override Widget build(BuildContext context) => AnimatedBuilder(animation: _c, builder: (_, __) =>
+    Transform.translate(offset: Offset(0, (_c.value * -30)), child: Transform.scale(scale: 0.7 + (_c.value * 0.5), child: Container(decoration: BoxDecoration(shape: BoxShape.circle, boxShadow: [BoxShadow(color: C.pinkDark.withOpacity(_c.value * 0.3), blurRadius: 40)]), child: const Text('🐼', style: TextStyle(fontSize: 80))))));
+}
+
 class HomeView extends StatefulWidget {
   final VoidCallback onOpenDrawer; final void Function(int) onNavigate;
   const HomeView({super.key, required this.onOpenDrawer, required this.onNavigate});
@@ -1310,21 +1326,6 @@ class _HomeViewState extends State<HomeView> {
     });
   }
 
-class _SpatialBreathingPanda extends StatefulWidget { const _SpatialBreathingPanda(); @override State<_SpatialBreathingPanda> createState() => _SpatialBreathingPandaState(); }
-class _SpatialBreathingPandaState extends State<_SpatialBreathingPanda> with SingleTickerProviderStateMixin {
-  late AnimationController _c; Timer? _tmr;
-  @override void initState() {
-    super.initState();
-    _c = AnimationController(vsync: this, duration: const Duration(milliseconds: 4000))..repeat(reverse: true);
-    _tmr = Timer.periodic(400.ms, (_) {
-      if (_c.status == AnimationStatus.forward) HapticFeedback.lightImpact();
-      else if (_c.status == AnimationStatus.reverse) HapticFeedback.selectionClick();
-    });
-  }
-  @override void dispose() { _c.dispose(); _tmr?.cancel(); super.dispose(); }
-  @override Widget build(BuildContext context) => AnimatedBuilder(animation: _c, builder: (_, __) =>
-    Transform.translate(offset: Offset(0, (_c.value * -30)), child: Transform.scale(scale: 0.7 + (_c.value * 0.5), child: Container(decoration: BoxDecoration(shape: BoxShape.circle, boxShadow: [BoxShadow(color: C.pinkDark.withOpacity(_c.value * 0.3), blurRadius: 40)]), child: const Text('🐼', style: TextStyle(fontSize: 80))))));
-}
 
 // ════════════════════════════════════════════════════════════════════
 //  KAWAII MAGIC OVERLAYS
@@ -2050,7 +2051,7 @@ class _StudioViewState extends State<StudioView> {
             entry = OverlayEntry(builder: (c) => Material(color: Colors.transparent, child: Stack(children: [
               Positioned.fill(child: Container(color: Colors.black).animate().fadeIn(duration: 800.ms)),
               Center(child: Container(width: 250, height: 250, decoration: const BoxDecoration(shape: BoxShape.circle, boxShadow: [BoxShadow(color: C.purple, blurRadius: 100)]))
-                .animate(delay: 500.ms).scale(begin: const Offset(0.1, 0.1), end: const Offset(4, 4), duration: 2500.ms, curve: Curves.easeOutExp)
+                .animate(delay: 500.ms).scale(begin: const Offset(0.1, 0.1), end: const Offset(4, 4), duration: 2500.ms, curve: Curves.easeOutExpo)
                 .fadeOut(delay: 2000.ms, duration: 1500.ms)),
               Center(child: Text('Your limitation has been released.', style: GoogleFonts.lora(fontSize: 22, color: Colors.white, fontStyle: FontStyle.italic))
                 .animate(delay: 1500.ms).fadeIn(duration: 1000.ms).fadeOut(delay: 1500.ms, duration: 1000.ms)),
@@ -2304,6 +2305,7 @@ class _PostCardState extends State<_PostCard> {
         const Spacer(),
         GestureDetector(onTap: () async { await AppState.instance.toggleSave(id); setState(() => _saved = AppState.instance.saved.value.contains(id)); },
           child: Icon(_saved ? Icons.bookmark_rounded : Icons.bookmark_border_rounded, color: _saved ? C.pinkDark : C.textDark, size: 26)),
+      ]),
       ])),
       if (cmts.isNotEmpty) Padding(padding: const EdgeInsets.fromLTRB(20, 0, 20, 4),
         child: Text('💬 ${cmts.first}', style: GoogleFonts.poppins(fontSize: 13, color: C.textDark), maxLines: 1, overflow: TextOverflow.ellipsis)),
