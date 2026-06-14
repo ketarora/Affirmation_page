@@ -1287,6 +1287,44 @@ class _HomeViewState extends State<HomeView> {
       }
     });
   }
+
+// ════════════════════════════════════════════════════════════════════
+//  KAWAII MAGIC OVERLAYS
+// ════════════════════════════════════════════════════════════════════
+  void _triggerKawaiiMagic(BuildContext context, int idx) {
+    final titles = ['Sweet Surprise! 🍓', 'Zen Panda 🐼', 'Virtual Hug 🧸', 'Self-Care Roulette 🎀', 'Magic Mode! 🦄'];
+    final msgs = [
+      'You are literally the sweetest person ever! Keep radiating that beautiful energy today. 💕',
+      'Follow the panda. Breathe in... Breathe out... You are totally safe and grounded. 🌿',
+      'Sending you a massive, warm virtual hug! Everything is going to be incredibly wonderful. ❤️',
+      'Drink a glass of water, stretch your arms, and smile right now! You deserve it! ✨',
+      'Unicorn mode ACTIVATED! Your vibration is now 100X stronger for the next 24 hours! 🌈',
+    ];
+    
+    showGeneralDialog(context: context, pageBuilder: (ctx, a1, a2) {
+      return Material(color: Colors.transparent, child: Center(child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 30), padding: const EdgeInsets.all(28),
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(32), boxShadow: [BoxShadow(color: C.pinkTheme.withOpacity(0.3), blurRadius: 40)]),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          if (idx == 0) const Text('🍓', style: TextStyle(fontSize: 80)).animate(onPlay: (c) => c.repeat()).shake(hz: 3, curve: Curves.easeInOutCubic, duration: 2000.ms),
+          if (idx == 1) const Text('🐼', style: TextStyle(fontSize: 80)).animate(onPlay: (c) => c.repeat(reverse: true)).scale(begin: const Offset(0.7, 0.7), end: const Offset(1.2, 1.2), duration: 4000.ms, curve: Curves.easeInOut),
+          if (idx == 2) const Text('🧸', style: TextStyle(fontSize: 80)).animate().scale(begin: const Offset(0, 0), curve: Curves.elasticOut, duration: 1500.ms).then().shake(hz: 8, amount: 5),
+          if (idx == 3) const Text('🎀', style: TextStyle(fontSize: 80)).animate().spin(duration: 1000.ms, curve: Curves.easeOutBack),
+          if (idx == 4) const Text('🦄', style: TextStyle(fontSize: 80)).animate(onPlay: (c) => c.repeat()).shimmer(duration: 1500.ms, color: Colors.yellow).scale(begin: const Offset(0.9, 0.9), end: const Offset(1.1, 1.1), duration: 800.ms),
+          const SizedBox(height: 24),
+          Text(titles[idx], textAlign: TextAlign.center, style: GoogleFonts.playfairDisplay(fontSize: 22, fontWeight: FontWeight.bold, color: C.pinkDark)),
+          const SizedBox(height: 12),
+          Text(msgs[idx], textAlign: TextAlign.center, style: GoogleFonts.poppins(fontSize: 13, color: C.textDark, height: 1.5)),
+          const SizedBox(height: 24),
+          GestureDetector(onTap: () => Navigator.pop(ctx), child: Container(
+            width: double.infinity, padding: const EdgeInsets.symmetric(vertical: 14),
+            decoration: BoxDecoration(gradient: LinearGradient(colors: [AppState.instance.theme.primary, AppState.instance.theme.secondary]), borderRadius: BorderRadius.circular(100)),
+            child: Center(child: Text('Receive', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white))),
+          )),
+        ])
+      )));
+    }, transitionBuilder: (ctx, a1, a2, child) => Transform.scale(scale: a1.value, child: Opacity(opacity: a1.value, child: child)));
+  }
   @override
   Widget build(BuildContext context) => Stack(children: [
     Positioned.fill(child: _img(AppState.instance.theme.bgIdx, w: double.infinity, h: double.infinity)),
@@ -1381,8 +1419,17 @@ class _HomeViewState extends State<HomeView> {
               ])).animate(delay: (250 + kAffCategories.indexOf(cat) * 70).ms).fadeIn().slideY(begin: 0.08))),
         ])),
  
-        // Kawaii Strip removed as requested
-
+        // Kawaii Strip
+        const SizedBox(height: 20),
+        Container(padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(color: Colors.white.withOpacity(0.8), borderRadius: BorderRadius.circular(22), border: Border.all(color: C.pink2, width: 1.2)),
+          child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: ['🍓','🐼','🧸','🎀','🦄'].asMap().entries.map((e) => 
+               GestureDetector(onTap: () => _triggerKawaiiMagic(context, e.key),
+                 child: Container(decoration: const BoxDecoration(shape: BoxShape.circle), padding: const EdgeInsets.all(4),
+                   child: Text(e.value, style: const TextStyle(fontSize: 30)).animate(onPlay: (c)=>c.repeat(reverse: true)).slideY(begin: 0, end: -0.15, duration: (600 + e.key*100).ms))
+               )).toList()))
+          .animate(delay: 350.ms).fadeIn(),
         const SizedBox(height: 120),
       ]))),
     ])),
