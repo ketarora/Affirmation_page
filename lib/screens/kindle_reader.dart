@@ -19,7 +19,7 @@ class KindleReader extends StatefulWidget {
 }
 
 class _KindleReaderState extends State<KindleReader> {
-  final _controller   = SfPdfViewerController();
+  final _controller   = PdfViewerController();
   final _pageNotifier = ValueNotifier<int>(1);
   int   _totalPages   = 0;
   bool  _isLoading    = true;
