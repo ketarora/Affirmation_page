@@ -123,15 +123,16 @@ class L {
 class AppTheme {
   final String name, emoji;
   final Color primary, secondary, bg, card;
-  const AppTheme(this.name, this.emoji, this.primary, this.secondary, this.bg, this.card);
+  final int bgIdx;
+  const AppTheme(this.name, this.emoji, this.primary, this.secondary, this.bg, this.card, this.bgIdx);
 }
  
 const _appThemes = [
-  AppTheme('Pink Blossom',   '🌸', Color(0xFFFF82A9), Color(0xFFE91E63), Color(0xFFFCF4F8), Color(0xFFFFF0F5)),
-  AppTheme('Lavender Bloom', '💜', Color(0xFF7C4DFF), Color(0xFFB39DDB), Color(0xFFE3D6FE), Color(0xFFF0E8FC)),
-  AppTheme('Neon Mint',      '🌿', Color(0xFF00BFA5), Color(0xFF00E676), Color(0xFFC7F8E9), Color(0xFFDFFDF4)),
-  AppTheme('Sunburst Gold',  '✨', Color(0xFFFF8F00), Color(0xFFFFD54F), Color(0xFFFFE199), Color(0xFFFFF2CD)),
-  AppTheme('Ocean Deep',     '🌊', Color(0xFF0277BD), Color(0xFF4FC3F7), Color(0xFFB5E4FF), Color(0xFFD8EFFF)),
+  AppTheme('Pink Blossom',   '🌸', Color(0xFFFF82A9), Color(0xFFE91E63), Color(0xFFFCF4F8), Color(0xFFFFF0F5), 8),
+  AppTheme('Lavender Bloom', '💜', Color(0xFF7C4DFF), Color(0xFFB39DDB), Color(0xFFE3D6FE), Color(0xFFF0E8FC), 12),
+  AppTheme('Neon Mint',      '🌿', Color(0xFF00BFA5), Color(0xFF00E676), Color(0xFFC7F8E9), Color(0xFFDFFDF4), 5),
+  AppTheme('Sunburst Gold',  '✨', Color(0xFFFF8F00), Color(0xFFFFD54F), Color(0xFFFFE199), Color(0xFFFFF2CD), 2),
+  AppTheme('Ocean Deep',     '🌊', Color(0xFF0277BD), Color(0xFF4FC3F7), Color(0xFFB5E4FF), Color(0xFFD8EFFF), 1),
 ];
  
 // ════════════════════════════════════════════════════════════════════
@@ -243,8 +244,8 @@ class SoundPlayerService {
     isPlaying.value = true;
     
     try {
-      final url = 'https://actions.google.com/sounds/v1/water/rain_on_roof.ogg';
-      await _player.setUrl(url);
+      final f = AffirmationsData.all[i % AffirmationsData.all.length].path;
+      await _player.setAsset(f);
     } catch (e) {
       print('Audio Failed: $e');
       _mockPlay(i);
@@ -1288,8 +1289,8 @@ class _HomeViewState extends State<HomeView> {
   }
   @override
   Widget build(BuildContext context) => Stack(children: [
-    Positioned.fill(child: _img(10, w: double.infinity, h: double.infinity)),
-    Positioned.fill(child: Container(color: Colors.white.withOpacity(0.72))), // was 0.87 — let backgrounds breathe
+    Positioned.fill(child: _img(AppState.instance.theme.bgIdx, w: double.infinity, h: double.infinity)),
+    Positioned.fill(child: Container(color: AppState.instance.theme.bg.withOpacity(0.85))), // Let backgrounds breathe while adopting theme tint
     SafeArea(bottom: false, child: CustomScrollView(physics: const BouncingScrollPhysics(), slivers: [
       SliverToBoxAdapter(child: Padding(padding: const EdgeInsets.all(22), child: Column(children: [
         // Header
@@ -1380,13 +1381,8 @@ class _HomeViewState extends State<HomeView> {
               ])).animate(delay: (250 + kAffCategories.indexOf(cat) * 70).ms).fadeIn().slideY(begin: 0.08))),
         ])),
  
-        // Kawaii Strip
-        const SizedBox(height: 20),
-        Container(padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(color: C.pink1, borderRadius: BorderRadius.circular(22), border: Border.all(color: C.pink2, width: 1.2)),
-          child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: ['🍓','🐼','🧸','🎀','🦄'].map((e) => Text(e, style: const TextStyle(fontSize: 26))).toList()))
-          .animate(delay: 350.ms).fadeIn(),
+        // Kawaii Strip removed as requested
+
         const SizedBox(height: 120),
       ]))),
     ])),
@@ -1534,16 +1530,18 @@ class _MoodRecommendations extends StatelessWidget {
               const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: C.textSub),
             ]))),
         // Healing frequency
-        Container(margin: const EdgeInsets.fromLTRB(12, 0, 12, 8), padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: C.pink2.withOpacity(0.5))),
-          child: Row(children: [
-            const Text('🎵', style: TextStyle(fontSize: 22)),
-            const SizedBox(width: 10),
-            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(L.t('healing_freq'), style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w700, color: C.pinkDark)),
-              Text(freq, style: GoogleFonts.poppins(fontSize: 12, color: C.textDark)),
-            ])),
-          ])),
+        GestureDetector(onTap: () => SoundPlayerService.instance.play(DateTime.now().minute % AffirmationsData.all.length),
+          child: Container(margin: const EdgeInsets.fromLTRB(12, 0, 12, 8), padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: C.pink2.withOpacity(0.5))),
+            child: Row(children: [
+              const Text('🎵', style: TextStyle(fontSize: 22)),
+              const SizedBox(width: 10),
+              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(L.t('healing_freq'), style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w700, color: C.pinkDark)),
+                Text(AffirmationsData.all[DateTime.now().minute % AffirmationsData.all.length].frequency, style: GoogleFonts.poppins(fontSize: 12, color: C.textDark)),
+              ])),
+              const Icon(Icons.play_circle_fill_rounded, size: 24, color: C.pinkTheme),
+            ]))),
         // Journal prompt
         GestureDetector(onTap: () => Navigator.push(context, _pageRoute(JournalScreen(prefillPrompt: L.isHindi ? promptHi : promptEn))),
           child: Container(margin: const EdgeInsets.fromLTRB(12, 0, 12, 14), padding: const EdgeInsets.all(14),
