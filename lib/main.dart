@@ -244,7 +244,7 @@ class SoundPlayerService {
     isPlaying.value = true;
     
     try {
-      final f = AffirmationsData.all[i % AffirmationsData.all.length].path;
+      final f = kHealingFrequencies[i % kHealingFrequencies.length].path;
       await _player.setAsset(f);
     } catch (e) {
       print('Audio Failed: $e');
@@ -1118,6 +1118,7 @@ class ShellRoute extends StatefulWidget {
 class _ShellRouteState extends State<ShellRoute> with SingleTickerProviderStateMixin {
   int _tab = 0; bool _drawerOpen = false;
   late AnimationController _dc; late Animation<double> _da;
+  bool _booting = true; bool _syncVisible = false; String _syncMsg = ''; Timer? _syncTmr;
   void _openDrawer()  { setState(() => _drawerOpen = true); _dc.forward(); }
   void _closeDrawer() { _dc.reverse().then((_) { if (mounted) setState(() => _drawerOpen = false); }); }
   void _switchTab(int i) { setState(() => _tab = i); }
@@ -1125,8 +1126,15 @@ class _ShellRouteState extends State<ShellRoute> with SingleTickerProviderStateM
     super.initState();
     _dc = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
     _da = CurvedAnimation(parent: _dc, curve: Curves.easeOutCubic);
+    Future.delayed(3000.ms, () { if (mounted) setState(() => _booting = false); });
+    _syncTmr = Timer.periodic(const Duration(seconds: 40), (_) {
+      if (mounted) {
+        setState(() { _syncVisible = true; _syncMsg = 'Someone in Tokyo just manifested the exact same energy as you. You are not alone.'; });
+        Future.delayed(5500.ms, () { if (mounted) setState(() => _syncVisible = false); });
+      }
+    });
   }
-  @override void dispose() { _dc.dispose(); super.dispose(); }
+  @override void dispose() { _dc.dispose(); _syncTmr?.cancel(); super.dispose(); }
   @override
   Widget build(BuildContext context) => Stack(children: [
     SparkleOverlay(child: AnimatedBuilder(animation: _da, builder: (_, child) =>
@@ -1161,6 +1169,20 @@ class _ShellRouteState extends State<ShellRoute> with SingleTickerProviderStateM
     AnimatedBuilder(animation: _da, builder: (_, child) =>
       Transform.translate(offset: Offset((_da.value - 1) * 290, 0), child: child),
       child: _LeftDrawer(onClose: _closeDrawer, onNavigate: _switchTab)),
+
+    if (_syncVisible)
+      Positioned(top: 80, left: 0, right: 0, child: Container(padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12), margin: const EdgeInsets.symmetric(horizontal: 20), decoration: BoxDecoration(color: Colors.black87, borderRadius: BorderRadius.circular(16), border: Border.all(color: C.gold, width: 1.5), boxShadow: [BoxShadow(color: C.gold.withOpacity(0.4), blurRadius: 20)]), child: Row(children: [const Text('💫', style: TextStyle(fontSize: 24)), const SizedBox(width: 14), Expanded(child: Text(_syncMsg, style: GoogleFonts.poppins(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)))])))
+      .animate().fadeIn(duration: 500.ms).slideX(begin: 1, end: 0, curve: Curves.easeOutCubic)
+      .animate(delay: 5000.ms).fadeOut(duration: 500.ms).slideY(begin: 0, end: -2),
+
+    if (_booting)
+      Positioned.fill(child: Container(color: const Color(0xFF0C081A), child: Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
+        const Text('💫', style: TextStyle(fontSize: 48)).animate().scale(curve: Curves.easeOutBack, duration: 1000.ms),
+        const SizedBox(height: 24),
+        Text('It\'s ${DateTime.now().hour >= 18 ? 'evening' : DateTime.now().hour > 12 ? 'afternoon' : 'morning'}. Breathe.', style: GoogleFonts.lora(fontSize: 18, color: Colors.white, fontStyle: FontStyle.italic)).animate(delay: 500.ms).fadeIn(),
+        const SizedBox(height: 4),
+        Text('I\'ve got you.', style: GoogleFonts.lora(fontSize: 18, color: Colors.white, fontWeight: FontWeight.w600)).animate(delay: 1500.ms).fadeIn(),
+      ])))).animate(delay: 2000.ms).fadeOut(duration: 1000.ms),
   ]);
 }
  
@@ -1288,6 +1310,22 @@ class _HomeViewState extends State<HomeView> {
     });
   }
 
+class _SpatialBreathingPanda extends StatefulWidget { const _SpatialBreathingPanda(); @override State<_SpatialBreathingPanda> createState() => _SpatialBreathingPandaState(); }
+class _SpatialBreathingPandaState extends State<_SpatialBreathingPanda> with SingleTickerProviderStateMixin {
+  late AnimationController _c; Timer? _tmr;
+  @override void initState() {
+    super.initState();
+    _c = AnimationController(vsync: this, duration: const Duration(milliseconds: 4000))..repeat(reverse: true);
+    _tmr = Timer.periodic(400.ms, (_) {
+      if (_c.status == AnimationStatus.forward) HapticFeedback.lightImpact();
+      else if (_c.status == AnimationStatus.reverse) HapticFeedback.selectionClick();
+    });
+  }
+  @override void dispose() { _c.dispose(); _tmr?.cancel(); super.dispose(); }
+  @override Widget build(BuildContext context) => AnimatedBuilder(animation: _c, builder: (_, __) =>
+    Transform.translate(offset: Offset(0, (_c.value * -30)), child: Transform.scale(scale: 0.7 + (_c.value * 0.5), child: Container(decoration: BoxDecoration(shape: BoxShape.circle, boxShadow: [BoxShadow(color: C.pinkDark.withOpacity(_c.value * 0.3), blurRadius: 40)]), child: const Text('🐼', style: TextStyle(fontSize: 80))))));
+}
+
 // ════════════════════════════════════════════════════════════════════
 //  KAWAII MAGIC OVERLAYS
 // ════════════════════════════════════════════════════════════════════
@@ -1307,9 +1345,9 @@ class _HomeViewState extends State<HomeView> {
         decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(32), boxShadow: [BoxShadow(color: C.pinkTheme.withOpacity(0.3), blurRadius: 40)]),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           if (idx == 0) const Text('🍓', style: TextStyle(fontSize: 80)).animate(onPlay: (c) => c.repeat()).shake(hz: 3, curve: Curves.easeInOutCubic, duration: 2000.ms),
-          if (idx == 1) const Text('🐼', style: TextStyle(fontSize: 80)).animate(onPlay: (c) => c.repeat(reverse: true)).scale(begin: const Offset(0.7, 0.7), end: const Offset(1.2, 1.2), duration: 4000.ms, curve: Curves.easeInOut),
-          if (idx == 2) const Text('🧸', style: TextStyle(fontSize: 80)).animate().scale(begin: const Offset(0, 0), curve: Curves.elasticOut, duration: 1500.ms).then().shake(hz: 8, amount: 5),
-          if (idx == 3) const Text('🎀', style: TextStyle(fontSize: 80)).animate().spin(duration: 1000.ms, curve: Curves.easeOutBack),
+          if (idx == 1) const _SpatialBreathingPanda(),
+          if (idx == 2) const Text('🧸', style: TextStyle(fontSize: 80)).animate().scale(begin: const Offset(0, 0), curve: Curves.elasticOut, duration: 1500.ms).then().shake(hz: 8),
+          if (idx == 3) const Text('🎀', style: TextStyle(fontSize: 80)).animate().scale(begin: const Offset(0.5, 0.5), duration: 1000.ms, curve: Curves.easeOutBack),
           if (idx == 4) const Text('🦄', style: TextStyle(fontSize: 80)).animate(onPlay: (c) => c.repeat()).shimmer(duration: 1500.ms, color: Colors.yellow).scale(begin: const Offset(0.9, 0.9), end: const Offset(1.1, 1.1), duration: 800.ms),
           const SizedBox(height: 24),
           Text(titles[idx], textAlign: TextAlign.center, style: GoogleFonts.playfairDisplay(fontSize: 22, fontWeight: FontWeight.bold, color: C.pinkDark)),
@@ -1443,15 +1481,37 @@ class _HomeViewState extends State<HomeView> {
 // ════════════════════════════════════════════════════════════════════
 //  AFFIRMATION OF THE DAY CARD
 // ════════════════════════════════════════════════════════════════════
-class _AffirmationOfDayCard extends StatelessWidget {
+class _AffirmationOfDayCard extends StatefulWidget {
   final bool liked; final VoidCallback onLike;
   const _AffirmationOfDayCard({required this.liked, required this.onLike});
+  @override State<_AffirmationOfDayCard> createState() => _AffirmationOfDayCardState();
+}
+
+class _AffirmationOfDayCardState extends State<_AffirmationOfDayCard> {
+  bool _flipped = false;
   @override
   Widget build(BuildContext context) {
+    if (!_flipped) {
+      return GestureDetector(
+        onPanUpdate: (_) => setState(() => _flipped = true),
+        onTap: () => setState(() => _flipped = true),
+        child: Container(height: 200, width: double.infinity, padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFFFFB3CA), Color(0xFFAC7BED)]),
+            borderRadius: BorderRadius.circular(28), border: Border.all(color: C.gold, width: 3),
+            boxShadow: [BoxShadow(color: AppState.instance.theme.primary.withOpacity(0.4), blurRadius: 30, offset: const Offset(0, 6))]),
+          child: Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
+            const Text('✨', style: TextStyle(fontSize: 48)).animate(onPlay: (c)=>c.repeat(reverse:true)).scale(begin: const Offset(0.9,0.9), end: const Offset(1.2,1.2), duration: 2000.ms),
+            const SizedBox(height: 14),
+            Text('Swipe to flip Oracle Card', style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16))
+          ]))).animate(onPlay: (c)=>c.repeat(reverse:true)).slideY(begin: -0.02, end: 0.02, duration: 3000.ms).shimmer(duration: 2000.ms),
+      );
+    }
+
     final aff = todaysAffirmation;
     return Container(padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFFFFF0F8), Color(0xFFF0E8FF)]),
+        gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFFFFF0F8), Color(0xFFF0E8FF)]),
         borderRadius: BorderRadius.circular(28), border: Border.all(color: C.pink3.withOpacity(0.5), width: 1.5),
         boxShadow: [BoxShadow(color: AppState.instance.theme.primary.withOpacity(0.12), blurRadius: 20, offset: const Offset(0, 6))]),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -1470,17 +1530,17 @@ class _AffirmationOfDayCard extends StatelessWidget {
         Text('"${aff.text}"', style: GoogleFonts.lora(fontSize: 18, color: C.textDark, fontWeight: FontWeight.w600, height: 1.5, fontStyle: FontStyle.italic)),
         const SizedBox(height: 14),
         Row(children: [
-          GestureDetector(onTap: onLike, child: AnimatedContainer(duration: const Duration(milliseconds: 200),
+          GestureDetector(onTap: widget.onLike, child: AnimatedContainer(duration: const Duration(milliseconds: 200),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
             decoration: BoxDecoration(
-              gradient: liked ? LinearGradient(colors: [AppState.instance.theme.primary, AppState.instance.theme.secondary]) : null,
-              color: liked ? null : Colors.white, borderRadius: BorderRadius.circular(100),
-              border: Border.all(color: liked ? Colors.transparent : C.pink2, width: 1.2)),
+              gradient: widget.liked ? LinearGradient(colors: [AppState.instance.theme.primary, AppState.instance.theme.secondary]) : null,
+              color: widget.liked ? null : Colors.white, borderRadius: BorderRadius.circular(100),
+              border: Border.all(color: widget.liked ? Colors.transparent : C.pink2, width: 1.2)),
             child: Row(mainAxisSize: MainAxisSize.min, children: [
-              Icon(liked ? Icons.favorite_rounded : Icons.favorite_border_rounded, color: liked ? Colors.white : AppState.instance.theme.primary, size: 16),
+              Icon(widget.liked ? Icons.favorite_rounded : Icons.favorite_border_rounded, color: widget.liked ? Colors.white : AppState.instance.theme.primary, size: 16),
               const SizedBox(width: 6),
-              Text(liked ? (L.isHindi ? 'पसंद है ✨' : 'Loved ✨') : (L.isHindi ? 'महसूस करें' : 'Feel It'),
-                style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w700, color: liked ? Colors.white : AppState.instance.theme.primary)),
+              Text(widget.liked ? (L.isHindi ? 'पसंद है ✨' : 'Loved ✨') : (L.isHindi ? 'महसूस करें' : 'Feel It'),
+                style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w700, color: widget.liked ? Colors.white : AppState.instance.theme.primary)),
             ]))),
           const Spacer(),
           GestureDetector(onTap: () => Navigator.push(context, _pageRoute(const JournalScreen())),
@@ -1492,7 +1552,7 @@ class _AffirmationOfDayCard extends StatelessWidget {
                 Text(L.isHindi ? 'जर्नल' : 'Journal', style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w600, color: C.pinkDark)),
               ]))),
         ]),
-      ])).animate().fadeIn(duration: 500.ms);
+      ])).animate().flipH(duration: 800.ms, curve: Curves.easeOutCubic);
   }
 }
  
@@ -1546,6 +1606,28 @@ class _MoodBadge extends StatelessWidget {
   }
 }
  
+class _FrequencyDial extends StatefulWidget { const _FrequencyDial(); @override State<_FrequencyDial> createState() => _FrequencyDialState(); }
+class _FrequencyDialState extends State<_FrequencyDial> {
+  double _angle = 0;
+  final frequencies = ['396Hz (Root)', '417Hz (Sacral)', '432Hz (Healing)', '528Hz (DNA)', '639Hz (Heart)', '741Hz (Throat)', '852Hz (Third Eye)'];
+  @override
+  Widget build(BuildContext context) {
+    final idx = ((_angle.abs() * 2) % frequencies.length).floor();
+    final freq = frequencies[idx];
+    return GestureDetector(onPanUpdate: (d) {
+      setState(() => _angle += d.delta.dx * 0.05);
+      SoundPlayerService.instance.play(idx);
+    }, child: Container(margin: const EdgeInsets.fromLTRB(12, 0, 12, 8), padding: const EdgeInsets.all(14), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: C.pink2.withOpacity(0.5))), child: Row(children: [
+      Transform.rotate(angle: _angle, child: Container(width: 44, height: 44, decoration: const BoxDecoration(shape: BoxShape.circle, gradient: SweepGradient(colors: [C.pinkTheme, C.purple, C.gold, C.pinkTheme])), child: Center(child: Container(width: 38, height: 38, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle), child: Stack(children: [Positioned(top: 4, left: 16, child: Container(width: 6, height: 6, decoration: const BoxDecoration(color: C.pinkDark, shape: BoxShape.circle)))]))))),
+      const SizedBox(width: 14),
+      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(L.isHindi ? 'फ़्रीक्वेंसी ट्यूनर' : 'Frequency Tuner', style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w700, color: C.pinkDark)),
+        Text(freq, style: GoogleFonts.poppins(fontSize: 14, color: C.textDark, fontWeight: FontWeight.bold)),
+      ])),
+    ])));
+  }
+}
+
 class _MoodRecommendations extends StatelessWidget {
   final int mood; final void Function(int) onNavigate;
   const _MoodRecommendations({required this.mood, required this.onNavigate});
@@ -1576,19 +1658,7 @@ class _MoodRecommendations extends StatelessWidget {
               ])),
               const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: C.textSub),
             ]))),
-        // Healing frequency
-        GestureDetector(onTap: () => SoundPlayerService.instance.play(DateTime.now().minute % AffirmationsData.all.length),
-          child: Container(margin: const EdgeInsets.fromLTRB(12, 0, 12, 8), padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: C.pink2.withOpacity(0.5))),
-            child: Row(children: [
-              const Text('🎵', style: TextStyle(fontSize: 22)),
-              const SizedBox(width: 10),
-              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(L.t('healing_freq'), style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w700, color: C.pinkDark)),
-                Text(AffirmationsData.all[DateTime.now().minute % AffirmationsData.all.length].frequency, style: GoogleFonts.poppins(fontSize: 12, color: C.textDark)),
-              ])),
-              const Icon(Icons.play_circle_fill_rounded, size: 24, color: C.pinkTheme),
-            ]))),
+        const _FrequencyDial(),
         // Journal prompt
         GestureDetector(onTap: () => Navigator.push(context, _pageRoute(JournalScreen(prefillPrompt: L.isHindi ? promptHi : promptEn))),
           child: Container(margin: const EdgeInsets.fromLTRB(12, 0, 12, 14), padding: const EdgeInsets.all(14),
@@ -1811,6 +1881,7 @@ class _StudioViewState extends State<StudioView> {
   String _vibe = 'Self Love'; int _bgIdx = 0;
   XFile? _imageFile;
   bool _isUploading = false;
+  bool _isBurning = false;
   List<(String, Color, Color)> get _vibes => [
     ('Self Love',  C.pink2,               C.pinkDark),
     ('Abundance',  Color(0xFFD1FFE0),      Color(0xFF2A9D59)),
@@ -1908,10 +1979,11 @@ class _StudioViewState extends State<StudioView> {
       Container(decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: C.pink2.withOpacity(0.4), blurRadius: 12, offset: const Offset(0, 4))]),
         child: TextField(controller: _tc, maxLines: 4, maxLength: 150, onChanged: (_) => setState(() {}),
           style: GoogleFonts.lora(fontSize: 16, color: C.textDark, height: 1.7),
-          decoration: InputDecoration(hintText: '"I am a magnet for miracles..."',
+          decoration: InputDecoration(hintText: '"I am a magnet for miracles..." or write a block to burn',
             hintStyle: GoogleFonts.lora(fontSize: 14, color: C.textSub.withOpacity(0.55), fontStyle: FontStyle.italic),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none),
-            fillColor: Colors.transparent, filled: true, contentPadding: const EdgeInsets.all(18)))),
+            fillColor: Colors.transparent, filled: true, contentPadding: const EdgeInsets.all(18))))
+      .animate(target: _isBurning ? 1 : 0).shake(hz: 8, duration: 1500.ms, curve: Curves.easeInOut).shimmer(color: Colors.red, duration: 1500.ms).fadeOut(duration: 1500.ms).scale(end: const Offset(1.1, 1.1), duration: 1500.ms),
       const SizedBox(height: 20),
       Text(L.isHindi ? 'वाइब चुनें' : 'Choose Your Vibe', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w700, color: C.textDark)),
       const SizedBox(height: 12),
@@ -1964,10 +2036,37 @@ class _StudioViewState extends State<StudioView> {
         ]))),
       ]))),
       const SizedBox(height: 24),
-      GestureDetector(onTap: _showPreview, child: Container(width: double.infinity, height: 54,
-        decoration: BoxDecoration(gradient: LinearGradient(colors: [AppState.instance.theme.primary, AppState.instance.theme.secondary]), borderRadius: BorderRadius.circular(100),
-          boxShadow: [BoxShadow(color: AppState.instance.theme.primary.withOpacity(0.4), blurRadius: 16, offset: const Offset(0, 6))]),
-        child: Center(child: Text(L.isHindi ? 'बनाएं और शेयर करें ✨' : 'Create & Share ✨', style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white))))),
+      Row(children: [
+        Expanded(child: GestureDetector(onTap: _isBurning ? null : _showPreview, child: Container(height: 54,
+          decoration: BoxDecoration(gradient: LinearGradient(colors: [AppState.instance.theme.primary, AppState.instance.theme.secondary]), borderRadius: BorderRadius.circular(100),
+            boxShadow: [BoxShadow(color: AppState.instance.theme.primary.withOpacity(0.4), blurRadius: 16, offset: const Offset(0, 6))]),
+          child: Center(child: Text(L.isHindi ? 'बनाएं और शेयर करें ✨' : 'Create & Share ✨', style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)))))),
+        if (_tc.text.isNotEmpty) ...[
+          const SizedBox(width: 14),
+          GestureDetector(onTap: () async {
+            setState(() => _isBurning = true);
+            final txt = _tc.text;
+            late OverlayEntry entry;
+            entry = OverlayEntry(builder: (c) => Material(color: Colors.transparent, child: Stack(children: [
+              Positioned.fill(child: Container(color: Colors.black).animate().fadeIn(duration: 800.ms)),
+              Center(child: Container(width: 250, height: 250, decoration: const BoxDecoration(shape: BoxShape.circle, boxShadow: [BoxShadow(color: C.purple, blurRadius: 100)]))
+                .animate(delay: 500.ms).scale(begin: const Offset(0.1, 0.1), end: const Offset(4, 4), duration: 2500.ms, curve: Curves.easeOutExp)
+                .fadeOut(delay: 2000.ms, duration: 1500.ms)),
+              Center(child: Text('Your limitation has been released.', style: GoogleFonts.lora(fontSize: 22, color: Colors.white, fontStyle: FontStyle.italic))
+                .animate(delay: 1500.ms).fadeIn(duration: 1000.ms).fadeOut(delay: 1500.ms, duration: 1000.ms)),
+            ])).animate(delay: 3800.ms).fadeOut(duration: 800.ms));
+            Overlay.of(context).insert(entry);
+            await Future.delayed(1600.ms);
+            _tc.clear();
+            if (mounted) setState(() => _isBurning = false);
+            await Future.delayed(3000.ms);
+            entry.remove();
+          }, child: Container(height: 54, width: 54,
+            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(100), border: Border.all(color: Colors.orange, width: 2),
+              boxShadow: [BoxShadow(color: Colors.orange.withOpacity(0.4), blurRadius: 12, offset: const Offset(0, 4))]),
+            child: const Icon(Icons.local_fire_department_rounded, color: Colors.orange, size: 28)))
+        ]
+      ]),
     ])));
 }
  
@@ -2147,7 +2246,7 @@ class _PostCard extends StatefulWidget {
   @override State<_PostCard> createState() => _PostCardState();
 }
 class _PostCardState extends State<_PostCard> {
-  late bool _liked, _saved; late int _likes;
+  late bool _liked, _saved; late int _likes; bool _showRipple = false;
   @override void initState() {
     super.initState();
     final id = widget.post['id'] as String;
@@ -2178,14 +2277,22 @@ class _PostCardState extends State<_PostCard> {
         Center(child: Padding(padding: const EdgeInsets.all(28), child: Text('"${post['text']}"', textAlign: TextAlign.center,
           style: GoogleFonts.lora(fontSize: 21, color: Colors.white, fontWeight: FontWeight.w600, height: 1.4)))),
       ])),
-      Padding(padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12), child: Row(children: [
-        GestureDetector(onTap: () async { await AppState.instance.toggleLike(id); setState(() { _liked = AppState.instance.liked.value.contains(id); _likes += _liked ? 1 : -1; }); },
-          child: Row(children: [
-            Icon(_liked ? Icons.favorite_rounded : Icons.favorite_border_rounded, color: _liked ? C.pinkDark : C.textDark, size: 26)
-              .animate(target: _liked ? 1 : 0).scale(begin: const Offset(1, 1), end: const Offset(1.3, 1.3)).then().scale(end: const Offset(1, 1)),
-            const SizedBox(width: 4),
-            Text('$_likes', style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w600, color: C.textDark)),
-          ])),
+      Padding(padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12), child: Stack(clipBehavior: Clip.none, children: [
+        if (_showRipple) Positioned(left: -5, top: -40, child: const Text('✨', style: TextStyle(fontSize: 40)).animate().slideY(begin: 0, end: -1.5, duration: 800.ms, curve: Curves.easeOutCubic).fadeOut(duration: 800.ms).scale(begin: const Offset(0.5,0.5), end: const Offset(2,2))),
+        Row(children: [
+          GestureDetector(onTap: () async {
+            setState(() => _showRipple = true);
+            await AppState.instance.toggleLike(id); 
+            setState(() { _liked = AppState.instance.liked.value.contains(id); _likes += _liked ? 1 : -1; }); 
+            await Future.delayed(800.ms);
+            if (mounted) setState(() => _showRipple = false);
+          },
+            child: Row(children: [
+              Icon(_liked ? Icons.favorite_rounded : Icons.favorite_border_rounded, color: _liked ? C.pinkDark : C.textDark, size: 26)
+                .animate(target: _liked ? 1 : 0).scale(begin: const Offset(1, 1), end: const Offset(1.3, 1.3)).then().scale(end: const Offset(1, 1)),
+              const SizedBox(width: 4),
+              Text('$_likes', style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w600, color: C.textDark)),
+            ])),
         const SizedBox(width: 20),
         GestureDetector(onTap: () => _showComments(context, id, cmts), child: Row(children: [
           const Icon(Icons.mode_comment_outlined, color: C.textDark, size: 24), const SizedBox(width: 4),
@@ -2204,7 +2311,7 @@ class _PostCardState extends State<_PostCard> {
         child: GestureDetector(onTap: () => _showComments(context, id, cmts),
           child: Text('View all ${cmts.length} comments', style: GoogleFonts.poppins(fontSize: 13, color: C.textSub)))),
       Padding(padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8), child: Divider(color: C.pink2.withOpacity(0.4), height: 1)),
-    ]);
+    ])]);
   }
   void _showComments(BuildContext context, String id, List cmts) {
     final tc = TextEditingController();
@@ -2795,20 +2902,36 @@ class _ChallengeSetup extends StatelessWidget {
         child: Center(child: Text('Start My 55×5 Journey 🌟', style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white))))),
   ]));
 }
-class _ChallengeActive extends StatelessWidget {
+class _ChallengeActive extends StatefulWidget {
   final Map<String, dynamic> ch; const _ChallengeActive({required this.ch});
+  @override State<_ChallengeActive> createState() => _ChallengeActiveState();
+}
+class _ChallengeActiveState extends State<_ChallengeActive> {
   String _dayKey(DateTime d) => '${d.year}-${d.month}-${d.day}';
   String _keyForOffset(String startKey, int offset) {
     try { final parts = startKey.split('-'); final start = DateTime(int.parse(parts[0]), int.parse(parts[1]), int.parse(parts[2])); final d = start.add(Duration(days: offset)); return '${d.year}-${d.month}-${d.day}'; } catch (_) { return startKey; }
   }
+  Timer? _tmr; bool _holding = false;
+  void _startHolding() {
+    setState(() => _holding = true);
+    _tmr = Timer.periodic(250.ms, (t) {
+      final days = Map<String, dynamic>.from(widget.ch['days'] as Map? ?? {});
+      final todayCnt = days[_dayKey(DateTime.now())] as int? ?? 0;
+      if (todayCnt >= 55) { _stopHolding(); return; }
+      AppState.instance.incrementChallenge();
+    });
+  }
+  void _stopHolding() { _tmr?.cancel(); setState(() => _holding = false); }
+  @override void dispose() { _tmr?.cancel(); super.dispose(); }
+
   @override
   Widget build(BuildContext context) {
-    final today = _dayKey(DateTime.now()); final days = Map<String, dynamic>.from(ch['days'] as Map? ?? {});
-    final startDay = ch['startDay'] as String? ?? today; final todayCnt = days[today] as int? ?? 0;
+    final today = _dayKey(DateTime.now()); final days = Map<String, dynamic>.from(widget.ch['days'] as Map? ?? {});
+    final startDay = widget.ch['startDay'] as String? ?? today; final todayCnt = days[today] as int? ?? 0;
     final daysDone = days.values.where((v) => (v as int) >= 55).length;
     return SingleChildScrollView(padding: const EdgeInsets.all(22), child: Column(children: [
       Container(padding: const EdgeInsets.all(20), decoration: BoxDecoration(gradient: LinearGradient(colors: [Color(0xFFFFE4F0), Color(0xFFF0DCFF)]), borderRadius: BorderRadius.circular(24)),
-        child: Text('"${ch['text']}"', textAlign: TextAlign.center, style: GoogleFonts.lora(fontSize: 18, color: C.textDark, fontWeight: FontWeight.w600, height: 1.5))),
+        child: Text('"${widget.ch['text']}"', textAlign: TextAlign.center, style: GoogleFonts.lora(fontSize: 18, color: C.textDark, fontWeight: FontWeight.w600, height: 1.5))),
       const SizedBox(height: 22),
       Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: List.generate(5, (i) {
         final dayKey = _keyForOffset(startDay, i); final cnt = days[dayKey] as int? ?? 0; final done = cnt >= 55; final isToday = dayKey == today;
@@ -2829,11 +2952,14 @@ class _ChallengeActive extends StatelessWidget {
           Text('$todayCnt / 55', style: GoogleFonts.playfairDisplay(fontSize: 42, fontWeight: FontWeight.bold, color: C.pinkDark)), const SizedBox(height: 10),
           ClipRRect(borderRadius: BorderRadius.circular(8), child: LinearProgressIndicator(value: (todayCnt / 55).clamp(0.0, 1.0), minHeight: 12, backgroundColor: C.pink2, valueColor: const AlwaysStoppedAnimation(C.pinkDark))),
           const SizedBox(height: 20),
-          GestureDetector(onTap: todayCnt >= 55 ? null : () => AppState.instance.incrementChallenge(),
-            child: Container(width: double.infinity, height: 54, decoration: BoxDecoration(
+          GestureDetector(onTapDown: todayCnt >= 55 ? null : (_) => _startHolding(), onTapUp: (_) => _stopHolding(), onPanEnd: (_) => _stopHolding(),
+            child: Container(width: double.infinity, height: 72, decoration: BoxDecoration(
               gradient: todayCnt >= 55 ? null : LinearGradient(colors: [AppState.instance.theme.primary, AppState.instance.theme.secondary]), color: todayCnt >= 55 ? C.pink2 : null, borderRadius: BorderRadius.circular(100),
-              boxShadow: todayCnt < 55 ? [BoxShadow(color: AppState.instance.theme.primary.withOpacity(0.4), blurRadius: 12, offset: const Offset(0, 4))] : []),
-              child: Center(child: Text(todayCnt >= 55 ? '✓ Done for today! 🌟' : '+ Write it once  (${55 - todayCnt} more to go)', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w700, color: todayCnt >= 55 ? C.textSub : Colors.white))))),
+              boxShadow: todayCnt < 55 ? [BoxShadow(color: AppState.instance.theme.primary.withOpacity(_holding ? 0.8 : 0.4), blurRadius: _holding ? 24 : 12, offset: const Offset(0, 4))] : []),
+              child: Center(child: _holding
+                ? Row(mainAxisAlignment: MainAxisAlignment.center, children: [const Text('🖋️', style: TextStyle(fontSize: 28)).animate(onPlay: (c)=>c.repeat()).shake(), const SizedBox(width:12), Text('Vibration Ink Active...', style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white))])
+                : Text(todayCnt >= 55 ? '✓ Done for today! 🌟' : 'Hold to automatically manifest  (${55 - todayCnt} left)', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w700, color: todayCnt >= 55 ? C.textSub : Colors.white)))))
+            .animate(target: _holding ? 1 : 0).scale(end: const Offset(1.05, 1.05)),
         ])),
       if (daysDone >= 5) ...[const SizedBox(height: 20),
         Container(padding: const EdgeInsets.all(20), decoration: BoxDecoration(gradient: LinearGradient(colors: [AppState.instance.theme.primary, AppState.instance.theme.secondary]), borderRadius: BorderRadius.circular(22)),
@@ -2883,18 +3009,22 @@ class VisionBoardScreen extends StatelessWidget {
           const Text('🌟', style: TextStyle(fontSize: 56)), const SizedBox(height: 14),
           Text(L.isHindi ? 'आपका विजन बोर्ड खाली है!' : 'Your vision board is empty!', style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold, color: C.textSub)), const SizedBox(height: 6),
           Text(L.isHindi ? '+ टैप करें और अपना पहला सपना जोड़ें ✨' : 'Tap + to add your first dream ✨', style: GoogleFonts.poppins(fontSize: 13, color: C.textSub))]))
-        : GridView.builder(padding: const EdgeInsets.all(16), itemCount: cards.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, crossAxisSpacing: 12, mainAxisSpacing: 12, childAspectRatio: 0.9),
-            itemBuilder: (ctx, i) => GestureDetector(onLongPress: () => AppState.instance.removeVisionCard(i),
-              child: ClipRRect(borderRadius: BorderRadius.circular(22), child: Stack(children: [
-                Positioned.fill(child: _img((i * 3 + 5) % 22, w: double.infinity, h: double.infinity)),
-                Positioned.fill(child: Container(color: Colors.black.withOpacity(0.42))),
-                Positioned(top: 8, right: 8, child: const NishAffsLogo(size: 20)),
-                Center(child: Padding(padding: const EdgeInsets.all(14), child: Text(cards[i], textAlign: TextAlign.center, style: GoogleFonts.lora(fontSize: 14, color: Colors.white, fontWeight: FontWeight.w600, height: 1.55), maxLines: 5, overflow: TextOverflow.ellipsis))),
-                Positioned(bottom: 8, left: 8, child: Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(6)),
-                  child: Text('#vision', style: GoogleFonts.poppins(fontSize: 9, color: Colors.white.withOpacity(0.9), fontWeight: FontWeight.w600)))),
-              ])).animate(delay: (i * 50).ms).fadeIn().scale(begin: const Offset(0.95, 0.95))))));
+        : InteractiveViewer(minScale: 0.2, maxScale: 4.0, boundaryMargin: const EdgeInsets.all(1200), constrained: false,
+            child: Container(width: 2400, height: 2400, color: const Color(0xFF0F0B1E), child: Stack(children: [
+              ...cards.asMap().entries.map((e) {
+                final rndX = (e.key * 997 + 500) % 2000.0 + 200;
+                final rndY = (e.key * 1331 + 400) % 2000.0 + 200;
+                return Positioned(left: rndX, top: rndY, child: GestureDetector(onLongPress: () => AppState.instance.removeVisionCard(e.key),
+                  child: Container(width: 180, height: 180, decoration: BoxDecoration(shape: BoxShape.circle, boxShadow: [BoxShadow(color: AppState.instance.theme.primary.withOpacity(0.4), blurRadius: 40)]),
+                    child: ClipOval(child: Stack(fit: StackFit.expand, children: [
+                      _img((e.key * 4 + 7) % 22, w: 180, h: 180),
+                      Container(color: Colors.black.withOpacity(0.5)),
+                      Center(child: Padding(padding: const EdgeInsets.all(22), child: Text(e.value, textAlign: TextAlign.center, style: GoogleFonts.lora(fontSize: 14, color: Colors.white, fontWeight: FontWeight.w600, height: 1.45), maxLines: 5, overflow: TextOverflow.ellipsis)))
+                    ])))
+                  .animate(onPlay: (c)=>c.repeat(reverse:true)).scale(begin: const Offset(0.97,0.97), end: const Offset(1.03, 1.03), duration: (2000 + e.key*200).ms)
+                  .animate().fadeIn(delay: (e.key*150).ms).slideY(begin: 0.1)));
+              })
+            ])))));
   }
 }
  
